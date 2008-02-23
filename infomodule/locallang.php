@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for module ""
+ * Language labels for module "infomodule"
  *
  * This file is detected by the translation tool.
  */

@@ -2,3 +2,4 @@
 
 	* Added Changelog ;-)
 	* Removed version_compare() from insertPageIncache()
+	* Rename modfunc1 to infomodule

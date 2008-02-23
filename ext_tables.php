@@ -21,9 +21,9 @@ if (TYPO3_MODE=='BE')	{
 	// Add Web>Info module:
 	t3lib_extMgm::insertModuleFunction(
 		'web_info',
-		'tx_ncstaticfilecache_modfunc1',
-		t3lib_extMgm::extPath($_EXTKEY).'modfunc1/class.tx_ncstaticfilecache_modfunc1.php',
-		'LLL:EXT:nc_staticfilecache/locallang_db.php:moduleFunction.tx_ncstaticfilecache_modfunc1'
+		'tx_ncstaticfilecache_infomodule',
+		t3lib_extMgm::extPath($_EXTKEY).'infomodule/class.tx_ncstaticfilecache_infomodule.php',
+		'LLL:EXT:nc_staticfilecache/locallang_db.php:moduleFunction.tx_ncstaticfilecache_infomodule'
 	);
 }
 ?>

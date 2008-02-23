@@ -22,7 +22,7 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 /**
- * class 'tx_ncstaticfilecache_modfunc1' for the 'nc_staticfilecache' extension.
+ * class 'tx_ncstaticfilecache_infomodule' for the 'nc_staticfilecache' extension.
  *
  */
 /**
@@ -30,7 +30,7 @@
  *
  *
  *
- *   53: class tx_ncstaticfilecache_modfunc1 extends t3lib_extobjbase
+ *   53: class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase
  *   60:     function main()
  *  101:     function renderModule($tree)
  *
@@ -57,7 +57,7 @@ else {
  * @package TYPO3
  * @subpackage tx_ncstaticfilecache
  */
-class tx_ncstaticfilecache_modfunc1 extends t3lib_extobjbase {
+class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 	/**
 	 * MAIN function for static publishing information
@@ -179,7 +179,7 @@ class tx_ncstaticfilecache_modfunc1 extends t3lib_extobjbase {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/modfunc1/class.tx_ncstaticfilecache_modfunc1.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/modfunc1/class.tx_ncstaticfilecache_modfunc1.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/infomodule/class.tx_ncstaticfilecache_infomodule.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/infomodule/class.tx_ncstaticfilecache_infomodule.php']);
 }
 ?>
