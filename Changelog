@@ -1,0 +1,4 @@
+2008-02-22  Michiel Roos	<michiel@netcreators.com>
+
+	* Added Changelog ;-)
+	* Removed version_compare() from insertPageIncache()

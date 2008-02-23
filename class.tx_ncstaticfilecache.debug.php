@@ -37,11 +37,11 @@
  *  227:     function getRecordForPageID($pid)
  *  245:     function headerNoCache (&$params, $parent)
  *  262:     function insertPageIncache (&$pObj, &$timeOutTime)
- *  415:     function logNoCache (&$params)
- *  435:     function mkdir_deep($destination,$deepDir)
- *  455:     function removeExpiredPages (&$pObj)
- *  489:     function setFeUserCookie (&$params, &$pObj)
- *  537:     function rm ($dir)
+ *  409:     function logNoCache (&$params)
+ *  429:     function mkdir_deep($destination,$deepDir)
+ *  449:     function removeExpiredPages (&$pObj)
+ *  483:     function setFeUserCookie (&$params, &$pObj)
+ *  531:     function rm ($dir)
  *
  * TOTAL FUNCTIONS: 10
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -322,18 +322,12 @@ class tx_ncstaticfilecache {
 			&& !$workspacePreview
 			&& $loginsDeniedCfg) {
 
-				if (version_compare(phpversion(), "5.0.0", "ge") == 1) {
-					// The recursive=true (third param) was added in php 5.0.0
-					@mkdir(PATH_site.$cacheDir.t3lib_div::getIndpEnv('REQUEST_URI'), 0770, true);
+				if (t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
+					$this->mkdir_deep(PATH_site, $cacheDir.t3lib_div::getIndpEnv('REQUEST_URI'));
 				}
 				else {
-					if (t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
-						$this->mkdir_deep(PATH_site, $cacheDir.t3lib_div::getIndpEnv('REQUEST_URI'));
-					}
-					else {
-						// This function does not exist in TYPO3 3.8.1
-						t3lib_div::mkdir_deep(PATH_site, $cacheDir.t3lib_div::getIndpEnv('REQUEST_URI'));
-					}
+					// This function does not exist in TYPO3 3.8.1
+					t3lib_div::mkdir_deep(PATH_site, $cacheDir.t3lib_div::getIndpEnv('REQUEST_URI'));
 				}
 
 				$conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
