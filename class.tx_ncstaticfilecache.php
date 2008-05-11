@@ -37,11 +37,11 @@
  *  216:     function getRecordForPageID($pid)
  *  234:     function headerNoCache (&$params, $parent)
  *  250:     function insertPageIncache (&$pObj, &$timeOutTime)
- *  384:     function logNoCache (&$params)
- *  404:     function mkdir_deep($destination,$deepDir)
- *  424:     function removeExpiredPages (&$pObj)
- *  458:     function setFeUserCookie (&$params, &$pObj)
- *  506:     function rm ($dir)
+ *  385:     function logNoCache (&$params)
+ *  405:     function mkdir_deep($destination,$deepDir)
+ *  425:     function removeExpiredPages (&$pObj)
+ *  459:     function setFeUserCookie (&$params, &$pObj)
+ *  507:     function rm ($dir)
  *
  * TOTAL FUNCTIONS: 10
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -316,10 +316,11 @@ class tx_ncstaticfilecache {
 				if ($conf['showGenerationSignature'])
 					$pObj->content .= "\n<!-- ".strftime ($conf['strftime'], $GLOBALS['EXEC_TIME']).' -->';
 
+				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
+
 				if ($conf['sendCacheControlHeader']) {
 					$htaccess = t3lib_div::getIndpEnv('REQUEST_URI').'/.htaccess';
 					$htaccess = preg_replace('#//#', '/', $htaccess);
-					$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 					$htaccessContent = '<IfModule mod_expires.c>
 	ExpiresActive on
 	ExpiresByType text/html A'.$timeOutSeconds.'

@@ -37,11 +37,11 @@
  *  227:     function getRecordForPageID($pid)
  *  245:     function headerNoCache (&$params, $parent)
  *  262:     function insertPageIncache (&$pObj, &$timeOutTime)
- *  409:     function logNoCache (&$params)
- *  429:     function mkdir_deep($destination,$deepDir)
- *  449:     function removeExpiredPages (&$pObj)
- *  483:     function setFeUserCookie (&$params, &$pObj)
- *  531:     function rm ($dir)
+ *  410:     function logNoCache (&$params)
+ *  430:     function mkdir_deep($destination,$deepDir)
+ *  450:     function removeExpiredPages (&$pObj)
+ *  484:     function setFeUserCookie (&$params, &$pObj)
+ *  532:     function rm ($dir)
  *
  * TOTAL FUNCTIONS: 10
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -336,10 +336,11 @@ class tx_ncstaticfilecache {
 
 				if ($this->debug)	t3lib_div::devlog("writing cache for pid: ".$pObj->id, $this->extKey, 1);
 
+				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
+
 				if ($conf['sendCacheControlHeader']) {
 					$htaccess = t3lib_div::getIndpEnv('REQUEST_URI').'/.htaccess';
 					$htaccess = preg_replace('#//#', '/', $htaccess);
-					$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 					if ($this->debug)	t3lib_div::devlog("writing .htaccess with timeout: ".$timeOutSeconds, $this->extKey, 1);
 					$htaccessContent = '<IfModule mod_expires.c>
 	ExpiresActive on
