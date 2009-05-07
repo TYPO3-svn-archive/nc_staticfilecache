@@ -187,8 +187,6 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	public function clearStaticFile(&$_params) {
-
-		$conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 		if ($_params['host']) {
 			$cacheDir = $this->cacheDir . $_params['host'];
 		} else {
@@ -199,7 +197,7 @@ class tx_ncstaticfilecache {
 			$cacheCmd = $_params['cacheCmd'];
 			switch ($cacheCmd) {
 				case 'all':
-					if ($conf['clearCacheForAllDomains']) {
+					if ($this->configuration['clearCacheForAllDomains']) {
 						$cacheDir = $this->cacheDir;
 					}
 					$this->rm(PATH_site.$cacheDir);
@@ -343,16 +341,18 @@ class tx_ncstaticfilecache {
 
 				t3lib_div::mkdir_deep(PATH_site, $cacheDir . t3lib_div::getIndpEnv('REQUEST_URI'));
 
-				$conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-				if ($conf['showGenerationSignature']) {
-					$pObj->content .= "\n<!-- ".strftime ($conf['strftime'], $GLOBALS['EXEC_TIME']).' -->';
+				if ($this->configuration['showGenerationSignature']) {
+					$pObj->content .= "\n<!-- ".strftime (
+						$this->configuration['strftime'],
+						$GLOBALS['EXEC_TIME']
+					) . ' -->';
 				}
 
 				$this->debug('writing cache for pid: ' . $pObj->id);
 
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 
-				if ($conf['sendCacheControlHeader']) {
+				if ($this->configuration['sendCacheControlHeader']) {
 					$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds);
 					$htaccess = t3lib_div::getIndpEnv('REQUEST_URI') . '/.htaccess';
 					$htaccess = preg_replace('#//#', '/', $htaccess);
