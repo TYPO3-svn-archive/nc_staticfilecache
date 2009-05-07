@@ -1,6 +1,7 @@
 2009-05-07  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Changed formatting of class tx_ncstaticfilecache and SQL file (non-functional changes)
+	* Set version to 2.4.0-dev
 
 2008-02-22  Michiel Roos  <michiel@netcreators.com>
 
