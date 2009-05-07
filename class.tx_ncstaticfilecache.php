@@ -361,6 +361,20 @@ class tx_ncstaticfilecache {
 					t3lib_div::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
 				}
 
+					// Hook: Process content before writing to static cached file:
+					// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent']
+				$processContentHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent'];
+				if (is_array($processContentHooks)) {
+					foreach ($processContentHooks as $hookFunction) {
+						$hookParameters = array(
+							'TSFE' => $pObj,
+							'content' => $content,
+							'directory' => PATH_site . $cacheDir,
+							'file' => $file, 
+						);
+						$content = t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+					}
+				}
 				t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
 
 				// Check for existing entries with the same uid and file, if a
