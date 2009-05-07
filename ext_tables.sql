@@ -17,6 +17,7 @@ CREATE TABLE tx_ncstaticfilecache_file (
 	pid int(11) DEFAULT '0',
 	host mediumtext NOT NULL,
 	file mediumtext NOT NULL,
+	uri mediumtext NOT NULL,
 
 	PRIMARY KEY (uid),
 );

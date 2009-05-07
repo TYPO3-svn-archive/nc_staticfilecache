@@ -8,6 +8,7 @@
 	* Cleanup: Removed CLI cleaner for elderly TYPO3 releases (< 4.1)
 	* Fixed bug: Fixed some hanging record sets
 	* Fixed bug: Info module does not work anymore due to calls to protected methods/variables
+	* Added feature: Store original URI of request and possibility to recreate the URI by typoLink
 
 2008-02-22  Michiel Roos  <michiel@netcreators.com>
 

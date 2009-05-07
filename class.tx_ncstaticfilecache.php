@@ -295,6 +295,9 @@ class tx_ncstaticfilecache {
 
 			// Only process if there are not query arguements and no link to external page (doktype=3):
 		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3) {
+			if ($this->configuration['recreateURI']) {
+				$uri = $this->recreateURI();
+			}
 
 			$loginsDeniedCfg = !$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch;
 			$doCache = $pObj->isStaticCacheble();
@@ -397,6 +400,7 @@ class tx_ncstaticfilecache {
 						'file' => $file,
 						'pid' => $pObj->page['uid'],
 						'host' => $host,
+						'uri' => $uri,
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fields_values);
 				}
@@ -419,6 +423,7 @@ class tx_ncstaticfilecache {
 						'file' => $file,
 						'pid' => $pObj->page['uid'],
 						'host' => $host,
+						'uri' => $uri,
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fields_values);
 				}
@@ -563,6 +568,36 @@ class tx_ncstaticfilecache {
 				$additionalData
 			);
 		}
+	}
+
+	/**
+	 * Recreates the URI of the current request.
+	 *
+	 * Especially in simulateStaticDocument context, the different URIs lead to the same result
+	 * and static file caching would store the wrong URI that was used in the first request to
+	 * the website (e.g. "TheGoodURI.13.0.html" is as well accepted as "TheFakeURI.13.0.html")
+	 *
+	 * @return	string		The recreated URI of the current request
+	 */
+	protected function recreateURI() {
+		$typoLinkConfiguration = array(
+			'parameter' => $GLOBALS['TSFE']->id . ' ' . $GLOBALS['TSFE']->type,
+		);
+		$uri = t3lib_div::getIndpEnv('TYPO3_SITE_PATH') . $this->getContentObject()->typoLink_URL($typoLinkConfiguration);
+
+		return $uri;
+	}
+
+	/**
+	 * Gets the content object (cObj) of TSFE.
+	 *
+	 * @return	tslib_cObj		The content object (cObj) of TSFE
+	 */
+	protected function getContentObject() {
+		if (!isset($GLOBALS['TSFE']->cObj)) {
+			$GLOBALS['TSFE']->newCObj();
+		}
+		return $GLOBALS['TSFE']->cObj;
 	}
 }
 
