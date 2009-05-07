@@ -84,6 +84,15 @@ class tx_ncstaticfilecache {
 	}
 
 	/**
+	 * Gets the directory used for storing the cached files.
+	 *
+	 * @return	string		The directory used for storing the cached files
+	 */
+	public function getCacheDirectory() {
+		return $this->cacheDir;
+	}
+
+	/**
 	 * Clear cache post processor.
 	 * The same structure as t3lib_TCEmain::clear_cache
 	 *
@@ -240,7 +249,7 @@ class tx_ncstaticfilecache {
 	 * @param	integer		Page id
 	 * @return	array		Array of records
 	 */
-	protected function getRecordForPageID($pid) {
+	public function getRecordForPageID($pid) {
 		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'*',
 			'tx_ncstaticfilecache_file',

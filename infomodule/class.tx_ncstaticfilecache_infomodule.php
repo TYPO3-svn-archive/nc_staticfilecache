@@ -51,6 +51,10 @@ require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfil
  * @subpackage tx_ncstaticfilecache
  */
 class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
+	/**
+	 * @var	tx_ncstaticfilecache
+	 */
+	protected $pubObj;
 
 	/**
 	 * MAIN function for static publishing information
@@ -103,7 +107,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 		// Init static publishing object:
 		$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
-		$pubDir = $this->pubObj->cacheDir;
+		$pubDir = $this->pubObj->getCacheDirectory();
 
 		// Traverse tree:
 		$output = '';
