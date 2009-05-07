@@ -196,45 +196,29 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	public function clearStaticFile(&$_params) {
-		if ($_params['host']) {
-			$cacheDir = $this->cacheDir . $_params['host'];
-		} else {
-			$cacheDir = $this->cacheDir . t3lib_div::getIndpEnv('HTTP_HOST');
-		}
-
-		if ($_params['cacheCmd']) {
+		if (isset($_params['cacheCmd']) && $_params['cacheCmd']) {
 			$cacheCmd = $_params['cacheCmd'];
 			switch ($cacheCmd) {
 				case 'all':
-					if ($this->configuration['clearCacheForAllDomains']) {
-						$cacheDir = $this->cacheDir;
+					$directory = '';
+					if (!$this->configuration['clearCacheForAllDomains']) {
+						if (isset($_params['host']) && $_params['host']) {
+							$directory = $_params['host'];
+						} else {
+							$directory = t3lib_div::getIndpEnv('HTTP_HOST');
+						}
 					}
-					$this->rm(PATH_site.$cacheDir);
-					$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, '1=1');
+
 					$this->debug('clearing all static cache');
+					$this->deleteStaticCache(0, $directory);
 					break;
 				case 'temp_CACHED':
 					// Clear temp files, not frontend cache.
 					break;
 				default:
 					if (t3lib_div::testInt($cacheCmd)) {
-						$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('file,host', $this->fileTable, 'pid=' . $cacheCmd);
-						if ($res) {
-							$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-							// This is here because the host is not known if we come in through the cli script
-							$cacheDir = $this->cacheDir . $row['host'];
-							if (is_file(PATH_site.$cacheDir . $row['file'])) {
-								$this->debug('clearing cache for pid: ' . $cacheCmd);
-								// Try to remove static cache file
-								@unlink(PATH_site.$cacheDir . $row['file']);
-								// Try to remove .htaccess file
-								@unlink(PATH_site.$cacheDir . dirname($row['file']) . '/.htaccess');
-								// Try to remove the directory it was in
-								@rmdir(PATH_site . $cacheDir.dirname($row['file']));
-							}
-							$GLOBALS['TYPO3_DB']->sql_free_result($res);
-							$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'pid=' . $cacheCmd);
-						}
+						$this->debug('clearing cache for pid: ' . $cacheCmd);
+						$this->deleteStaticCache($cacheCmd);
 					} else {
 						$this->debug('Expected integer on clearing static cache', 1, $cacheCmd);
 					}
@@ -457,7 +441,7 @@ class tx_ncstaticfilecache {
 	 */
 	public function removeExpiredPages(&$pObj) {
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'file, host, pid, ('.$GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
+			'file, host, pid, (' . $GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
 			$this->fileTable,
 			'(cache_timeout + crdate) <= '.$GLOBALS['EXEC_TIME'] . ' AND crdate > 0'
 		);
@@ -598,6 +582,38 @@ class tx_ncstaticfilecache {
 			$GLOBALS['TSFE']->newCObj();
 		}
 		return $GLOBALS['TSFE']->cObj;
+	}
+
+	/**
+	 * Deletes the static cache in database and filesystem.
+	 * If the extension configuration 'markDirtyInsteadOfDeletion' is set,
+	 * the database elements only get tagged a "dirty".
+	 *
+	 * @param	integer		$pid: (optional) Id of the page perform this action
+	 * @param	string		$directory: (optional) The directory to use on deletion
+	 *						below the static file directory
+	 * @return	void
+	 */
+	protected function deleteStaticCache($pid = 0, $directory = '') {
+		$pid = intval($pid);
+		$pidCondition = ($pid ? 'pid=' . $pid : '');
+
+		if ($this->configuration['markDirtyInsteadOfDeletion']) {
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $pidCondition, array('isdirty' => 1));
+		} else {
+			if ($pid) {
+				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, $pidCondition);
+				foreach ($rows as $row) {
+					$cacheDirectory = PATH_site . $this->cacheDir . $row['host'] . dirname($row['file']);
+					if (is_dir($cacheDirectory)) {
+						t3lid_div::rmdir($cacheDirectory, true);
+					}
+				}
+			} else {
+				$this->rm(PATH_site . $this->cacheDir . $directory);
+			}
+			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
+		}
 	}
 }
 
