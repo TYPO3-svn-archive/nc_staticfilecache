@@ -1,4 +1,8 @@
-2008-02-22  Michiel Roos	<michiel@netcreators.com>
+2009-05-07  Oliver Hader  <oliver@typo3.org>
+
+	* Cleanup: Changed formatting of class tx_ncstaticfilecache and SQL file (non-functional changes)
+
+2008-02-22  Michiel Roos  <michiel@netcreators.com>
 
 	* Added Changelog ;-)
 	* Removed version_compare() from insertPageIncache()

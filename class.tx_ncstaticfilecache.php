@@ -75,24 +75,23 @@ class tx_ncstaticfilecache {
 		else {
 			$uid = intval($params['uid']);
 			$table = strval($params['table']);
-			if ($uid > 0)	{
 
+			if ($uid > 0) {
 				// Get Page TSconfig relavant:
-				list($tscPID) = t3lib_BEfunc::getTSCpid($table,$uid,'');
+				list($tscPID) = t3lib_BEfunc::getTSCpid($table, $uid, '');
 				$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 
-				if (!$TSConfig['clearCache_disable'])	{
-
+				if (!$TSConfig['clearCache_disable']) {
 					// If table is "pages":
-					if (t3lib_extMgm::isLoaded('cms'))	{
+					if (t3lib_extMgm::isLoaded('cms')) {
 						$list_cache = array();
-						if ($table == 'pages')	{
+						if ($table == 'pages') {
 
 							// Builds list of pages on the SAME level as this page (siblings)
 							$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 											'A.pid AS pid, B.uid AS uid',
 											'pages A, pages B',
-											'A.uid='.intval($uid).' AND B.pid=A.pid AND B.deleted=0'
+											'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0'
 										);
 
 							$pid_tmp = 0;
@@ -101,13 +100,13 @@ class tx_ncstaticfilecache {
 								$pid_tmp = $row_tmp['pid'];
 
 								// Add children as well:
-								if ($TSConfig['clearCache_pageSiblingChildren'])	{
+								if ($TSConfig['clearCache_pageSiblingChildren']) {
 									$res_tmp2 = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-													'uid',
-													'pages',
-													'pid='.intval($row_tmp['uid']).' AND deleted=0'
-												);
-									while ($row_tmp2 = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp2))	{
+										'uid',
+										'pages',
+										'pid='.intval($row_tmp['uid']).' AND deleted=0'
+									);
+									while ($row_tmp2 = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp2)) {
 										$list_cache[] = $row_tmp2['uid'];
 									}
 								}
@@ -117,39 +116,39 @@ class tx_ncstaticfilecache {
 							$list_cache[] = $pid_tmp;
 
 							// Add grand-parent as well:
-							if ($TSConfig['clearCache_pageGrandParent'])	{
+							if ($TSConfig['clearCache_pageGrandParent']) {
 								$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-												'pid',
-												'pages',
-												'uid='.intval($pid_tmp)
-											);
-								if ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp))	{
+									'pid',
+									'pages',
+									'uid=' . intval($pid_tmp)
+								);
+								if ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
 									$list_cache[] = $row_tmp['pid'];
 								}
 							}
 						} else {
 							// For other tables than "pages", delete cache for the records "parent page".
-							$list_cache[] = intval($pObj->getPID($table,$uid));
+							$list_cache[] = intval($pObj->getPID($table, $uid));
 						}
 
 						// Delete cache for selected pages:
-						if (is_array($list_cache))	{
+						if (is_array($list_cache)) {
 							$ids = $GLOBALS['TYPO3_DB']->cleanIntArray($list_cache);
 							foreach ($ids as $id) {
 								$cmd = array ('cacheCmd' => $id);
-								$this->clearStaticFile ($cmd);
+								$this->clearStaticFile($cmd);
 							}
 						}
 					}
 				}
 
 				// Clear cache for pages entered in TSconfig:
-				if ($TSConfig['clearCacheCmd'])	{
-					$Commands = t3lib_div::trimExplode(',',strtolower($TSConfig['clearCacheCmd']),1);
+				if ($TSConfig['clearCacheCmd']) {
+					$Commands = t3lib_div::trimExplode(',', strtolower($TSConfig['clearCacheCmd']), true);
 					$Commands = array_unique($Commands);
-					foreach($Commands as $cmdPart)	{
+					foreach($Commands as $cmdPart) {
 						$cmd = array ('cacheCmd' => $cmdPart);
-						$this->clearStaticFile ($cmd);
+						$this->clearStaticFile($cmd);
 					}
 				}
 			}
@@ -165,10 +164,11 @@ class tx_ncstaticfilecache {
 	function clearStaticFile (&$_params) {
 
 		$conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-		if ($_params['host'])
-			$cacheDir = $this->cacheDir.$_params['host'];
-		else
-			$cacheDir = $this->cacheDir.t3lib_div::getIndpEnv('HTTP_HOST');
+		if ($_params['host']) {
+			$cacheDir = $this->cacheDir . $_params['host'];
+		} else {
+			$cacheDir = $this->cacheDir . t3lib_div::getIndpEnv('HTTP_HOST');
+		}
 
 		if ($_params['cacheCmd']) {
 			$cacheCmd = $_params['cacheCmd'];
@@ -185,21 +185,21 @@ class tx_ncstaticfilecache {
 					break;
 				default:
 					if (t3lib_div::testInt($cacheCmd)) {
-						$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('file,host', $this->fileTable, 'pid='.$cacheCmd);
+						$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('file,host', $this->fileTable, 'pid=' . $cacheCmd);
 						if ($res) {
 							$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 							// This is here because the host is not known if we come in through the cli script
-							$cacheDir = $this->cacheDir.$row['host'];
-							if (is_file(PATH_site.$cacheDir.$row['file'])) {
+							$cacheDir = $this->cacheDir . $row['host'];
+							if (is_file(PATH_site.$cacheDir . $row['file'])) {
 								// Try to remove static cache file
-								@unlink(PATH_site.$cacheDir.$row['file']);
+								@unlink(PATH_site.$cacheDir . $row['file']);
 								// Try to remove .htaccess file
-								@unlink(PATH_site.$cacheDir.dirname($row['file']).'/.htaccess');
+								@unlink(PATH_site.$cacheDir . dirname($row['file']) . '/.htaccess');
 								// Try to remove the directory it was in
-								@rmdir(PATH_site.$cacheDir.dirname($row['file']));
+								@rmdir(PATH_site . $cacheDir.dirname($row['file']));
 							}
 							$GLOBALS['TYPO3_DB']->sql_free_result($res);
-							$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'pid='.$cacheCmd);
+							$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'pid=' . $cacheCmd);
 						}
 					}
 					break;
@@ -213,12 +213,12 @@ class tx_ncstaticfilecache {
 	 * @param	integer		Page id
 	 * @return	array		Array of records
 	 */
-	function getRecordForPageID($pid)	{
+	function getRecordForPageID($pid) {
 		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-					'*',
-					'tx_ncstaticfilecache_file',
-					'pid='.intval($pid)
-				);
+			'*',
+			'tx_ncstaticfilecache_file',
+			'pid=' . intval($pid)
+		);
 	}
 
 	/**
@@ -228,14 +228,14 @@ class tx_ncstaticfilecache {
 	 * shift-reload to be detected due to DoS-attack-security reasons.
 	 *
 	 * @param	object		$_params: array containing pObj among other things
-	 * @param	[type]		$parent: ...
+	 * @param	object		$parent: The calling parent object (tslib_fe)
 	 * @return	void
 	 */
-	function headerNoCache (&$params, $parent) {
-		if (strtolower($_SERVER['HTTP_CACHE_CONTROL'])==='no-cache' || strtolower($_SERVER['HTTP_PRAGMA'])==='no-cache')	{
-			if ($parent->beUserLogin)	{
-				$cmd = array ('cacheCmd' => $parent->id);
-				$this->clearStaticFile ($cmd);
+	function headerNoCache(&$params, $parent) {
+		if (strtolower($_SERVER['HTTP_CACHE_CONTROL']) === 'no-cache' || strtolower($_SERVER['HTTP_PRAGMA']) === 'no-cache') {
+			if ($parent->beUserLogin) {
+				$cmd = array('cacheCmd' => $parent->id);
+				$this->clearStaticFile($cmd);
 			}
 		}
 	}
@@ -245,36 +245,38 @@ class tx_ncstaticfilecache {
 	 *
 	 * @param	object		$pObj: The parent object
 	 * @param	string		$timeOutTime: The timestamp when the page times out
-	 * @return	[type]		...
+	 * @return	void
 	 */
-	function insertPageIncache (&$pObj, &$timeOutTime) {
+	function insertPageIncache(&$pObj, &$timeOutTime) {
 
 		// Find host-name / IP, always in lowercase:
 		$host = strtolower(t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'));
 
-		$cacheDir = $this->cacheDir.$host;
+		$cacheDir = $this->cacheDir . $host;
 
 		if (!strstr(t3lib_div::getIndpEnv('REQUEST_URI'), '?')
 		&& $pObj->page['doktype'] != 3) { // doktype 3: link to external page
 
 			$loginsDeniedCfg = !$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch;
 			$doCache = $pObj->isStaticCacheble();
-			if (t3lib_div::int_from_ver(TYPO3_version) < 4000000)
+			if (t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
 				$workspaces = false;
+			}
 
 			// This is an 'explode' of the function isStaticCacheble()
 			if (!$pObj->page['tx_ncstaticfilecache_cache']) {
-				$explanation = "static cache disabled on page";
+				$explanation = 'static cache disabled on page';
 			}
 			if ($pObj->no_cache) {
-				$explanation = "config.no_cache is true";
+				$explanation = 'config.no_cache is true';
 			}
 			if ($pObj->isINTincScript()) {
-				$explanation = "page has INTincScript";
+				$explanation = 'page has INTincScript';
 			}
 			if ($pObj->isEXTincScript()) {
-				$explanation = "page has EXTincScript";
+				$explanation = 'page has EXTincScript';
 			}
+
 			/*
 			if ($pObj->isUserOrGroupSet()) {
 				// This is actually ok, we do not need to create cache nor an entry in the files table
@@ -283,64 +285,66 @@ class tx_ncstaticfilecache {
 			*/
 			if ($workspaces) {
 				if ($pObj->doWorkspacePreview()) {
-					$explanation = "workspace preview";
+					$explanation = 'workspace preview';
 					$workspacePreview = true;
 				}
-			}
-			else {
+			} else {
 				$workspacePreview = false;
 			}
 			if (!$loginsDeniedCfg) {
-				$explanation = "loginsDeniedCfg is true";
+				$explanation = 'loginsDeniedCfg is true';
 			}
 
-			$file = t3lib_div::getIndpEnv('REQUEST_URI').'/index.html';
+			$file = t3lib_div::getIndpEnv('REQUEST_URI') . '/index.html';
 			$file = preg_replace('#//#', '/', $file);
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
 			if ($pObj->page['tx_ncstaticfilecache_cache']
-			&& $doCache
-			&& !$workspacePreview
-			&& $loginsDeniedCfg) {
+				&& $doCache
+				&& !$workspacePreview
+				&& $loginsDeniedCfg) {
 
 				if (t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
 					$this->mkdir_deep(PATH_site, $cacheDir.t3lib_div::getIndpEnv('REQUEST_URI'));
-				}
-				else {
+				} else {
 					// This function does not exist in TYPO3 3.8.1
-					t3lib_div::mkdir_deep(PATH_site, $cacheDir.t3lib_div::getIndpEnv('REQUEST_URI'));
+					t3lib_div::mkdir_deep(PATH_site, $cacheDir . t3lib_div::getIndpEnv('REQUEST_URI'));
 				}
 
 				$conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-				if ($conf['showGenerationSignature'])
+				if ($conf['showGenerationSignature']) {
 					$pObj->content .= "\n<!-- ".strftime ($conf['strftime'], $GLOBALS['EXEC_TIME']).' -->';
+				}
 
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 
 				if ($conf['sendCacheControlHeader']) {
-					$htaccess = t3lib_div::getIndpEnv('REQUEST_URI').'/.htaccess';
+					$htaccess = t3lib_div::getIndpEnv('REQUEST_URI') . '/.htaccess';
 					$htaccess = preg_replace('#//#', '/', $htaccess);
 					$htaccessContent = '<IfModule mod_expires.c>
 	ExpiresActive on
-	ExpiresByType text/html A'.$timeOutSeconds.'
+	ExpiresByType text/html A' . $timeOutSeconds . '
 </IfModule>';
-					t3lib_div::writeFile(PATH_site.$cacheDir.$htaccess, $htaccessContent);
+					t3lib_div::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
 				}
 
-				t3lib_div::writeFile(PATH_site.$cacheDir.$file, $pObj->content);
+				t3lib_div::writeFile(PATH_site . $cacheDir . $file, $pObj->content);
 
 				// Check for existing entries with the same uid and file, if a
 				// record exists, update timestamp, otherwise create a new record.
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 					'uid',
 					$this->fileTable,
-					'pid='.$pObj->page['uid'].' AND host = '.$GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable).' AND file='.$GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable));
+					'pid=' . $pObj->page['uid'] .
+						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
+						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable)
+				);
 
 				if ($rows[0]['uid']) {
 					$fields_values['tstamp'] = $GLOBALS['EXEC_TIME'];
 					$fields_values['cache_timeout'] = $timeOutSeconds;
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid='.$rows[0]['uid'], $fields_values);
+					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fields_values);
 				} else {
 					$fields_values = array(
 						'crdate' => $GLOBALS['EXEC_TIME'],
@@ -352,17 +356,19 @@ class tx_ncstaticfilecache {
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fields_values);
 				}
-			}
-			else {
+			} else {
 				// Check for existing entries with the same uid and file, if a
 				// record exists, update timestamp, otherwise create a new record.
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 					'uid',
 					$this->fileTable,
-					'pid='.$pObj->page['uid'].' AND host = '.$GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable).' AND file='.$GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable));
+					'pid=' . $pObj->page['uid'] . 
+						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
+						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable)
+				);
 				if ($rows[0]['uid']) {
 					$fields_values['explanation'] = $explanation;
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid='.$rows[0]['uid'], $fields_values);
+					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fields_values);
 				} else {
 					$fields_values = array(
 						'explanation' => $explanation,
@@ -379,10 +385,11 @@ class tx_ncstaticfilecache {
 	/**
 	 * Log cache miss if no_cache is true
 	 *
-	 * @param	object		$pObj: partent object
+	 * @param	array		$params: Parameters delivered by the calling object (tslib_fe)
+	 * @param	object		$parent: The calling parent object (tslib_fe)
 	 * @return	void
 	 */
-	function logNoCache (&$params) {
+	function logNoCache(&$params, $parent) {
 		if($params['pObj']) {
 			if($params['pObj']->no_cache) {
 				$timeOutTime = 0;
@@ -400,44 +407,45 @@ class tx_ncstaticfilecache {
 	 *
 	 * @param	string		$destination: base path
 	 * @param	string		$deepDir: the path
-	 * @return	[type]		...
+	 * @return	mixed		True (boolean) if everything was okay, otherwise an error message (string)
 	 */
-	function mkdir_deep($destination,$deepDir)	{
-		$allParts = t3lib_div::trimExplode('/',$deepDir,1);
+	function mkdir_deep($destination,$deepDir) {
+		$allParts = t3lib_div::trimExplode('/', $deepDir, true);
 		$root = '';
 		foreach($allParts as $part)	{
-			$root.= $part.'/';
-			if (!is_dir($destination.$root))	{
-				t3lib_div::mkdir($destination.$root);
-				if (!@is_dir($destination.$root))	{
-					return 'Error: The directory "'.$destination.$root.'" could not be created...';
+			$root .= $part . '/';
+			if (!is_dir($destination . $root)) {
+				t3lib_div::mkdir($destination . $root);
+				if (!@is_dir($destination . $root)) {
+					return 'Error: The directory "' . $destination . $root . '" could not be created...';
 				}
 			}
 		}
+		return true;
 	}
 
 	/**
 	 * Remove expired pages. Call from cli script.
 	 *
-	 * @param	[type]		$$pObj: ...
+	 * @param	object		$pObj: The calling parent object (tx_ncstaticfilecache_cli)
 	 * @return	void
 	 */
-	function removeExpiredPages (&$pObj) {
+	function removeExpiredPages(&$pObj) {
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'file, host, pid, ('.$GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
 			$this->fileTable,
-			'(cache_timeout + crdate) <= '.$GLOBALS['EXEC_TIME'].' AND crdate > 0');
+			'(cache_timeout + crdate) <= '.$GLOBALS['EXEC_TIME'] . ' AND crdate > 0'
+		);
 
 		if ($rows) {
 			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
-			$tce->start(array(),array());
+			$tce->start(array(), array());
 
 			foreach ($rows as $row) {
-				$pObj->cli_echo("Removed pid: ".$row['pid']."\t".$row['host'].$row['file'].", expired by ".$row['seconds']." seconds.\n");
+				$pObj->cli_echo("Removed pid: " . $row['pid'] . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
 				$tce->clear_cacheCmd($row['pid']);
 			}
-		}
-		else {
+		} else {
 			$pObj->cli_echo("No expired pages found.\n");
 		}
 	}
@@ -456,16 +464,16 @@ class tx_ncstaticfilecache {
 	 * @param	object		$pObj: partent object
 	 * @return	void
 	 */
-	function setFeUserCookie (&$params, &$pObj) {
+	function setFeUserCookie(&$params, &$pObj) {
 		global $TYPO3_CONF_VARS;
 
 			// Setting cookies
-		if ($TYPO3_CONF_VARS['SYS']['cookieDomain'])	{
+		if ($TYPO3_CONF_VARS['SYS']['cookieDomain']) {
 			if ($TYPO3_CONF_VARS['SYS']['cookieDomain']{0} == '/')	{
 				$matchCnt = @preg_match($TYPO3_CONF_VARS['SYS']['cookieDomain'], t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'), $match);
 				if ($matchCnt === FALSE)	{
 					t3lib_div::sysLog('The regular expression of $TYPO3_CONF_VARS[SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
-				} elseif ($matchCnt)	{
+				} elseif ($matchCnt) {
 					$cookieDomain = $match[0];
 				}
 			} else {
@@ -474,7 +482,7 @@ class tx_ncstaticfilecache {
 		}
 
 			// If new session and the cookie is a sessioncookie, we need to set it only once!
-		if (($pObj->fe_user->loginSessionStarted || $pObj->fe_user->forceSetCookie) && $pObj->fe_user->lifetime==0)	{ // isSetSessionCookie()
+		if (($pObj->fe_user->loginSessionStarted || $pObj->fe_user->forceSetCookie) && $pObj->fe_user->lifetime == 0) { // isSetSessionCookie()
 			if (!$pObj->fe_user->dontSetCookie)	{
 				if ($cookieDomain)	{
 					SetCookie($this->extKey, 'fe_typo_user_logged_in', 0, '/', $cookieDomain);
@@ -485,13 +493,13 @@ class tx_ncstaticfilecache {
 		}
 
 			// If it is NOT a session-cookie, we need to refresh it.
-		if ($pObj->fe_user->lifetime > 0 ) { // isRefreshTimeBasedCookie()
+		if ($pObj->fe_user->lifetime > 0) { // isRefreshTimeBasedCookie()
 			if ($pObj->fe_user->loginSessionStarted || isset($_COOKIE[$this->extKey])) {
 				if (!$pObj->fe_user->dontSetCookie)	{
 					if ($cookieDomain)	{
-						SetCookie($this->extKey, 'fe_typo_user_logged_in', time()+$pObj->fe_user->lifetime, '/', $cookieDomain);
+						SetCookie($this->extKey, 'fe_typo_user_logged_in', time() + $pObj->fe_user->lifetime, '/', $cookieDomain);
 					} else {
-						SetCookie($this->extKey, 'fe_typo_user_logged_in', time()+$pObj->fe_user->lifetime, '/');
+						SetCookie($this->extKey, 'fe_typo_user_logged_in', time() + $pObj->fe_user->lifetime, '/');
 					}
 				}
 			}
@@ -504,11 +512,17 @@ class tx_ncstaticfilecache {
 	 * @param	string		$dir: The full path
 	 * @return	void
 	 */
-	function rm ($dir) {
-		if (!$dh = @opendir($dir)) return;
+	function rm($dir) {
+		if (!$dh = @opendir($dir)) {
+			return;
+		}
 		while (($obj = readdir($dh))) {
-			if ($obj=='.' || $obj=='..') continue;
-			if (!@unlink($dir.'/'.$obj)) $this->rm($dir.'/'.$obj);
+			if ($obj=='.' || $obj=='..') {
+				continue;
+			}
+			if (!@unlink($dir.'/'.$obj)) {
+				$this->rm($dir.'/'.$obj);
+			}
 		}
 		@rmdir($dir);
 	}

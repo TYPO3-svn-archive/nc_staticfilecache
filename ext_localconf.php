@@ -44,7 +44,7 @@ else {
 	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['initFEuser'][] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache.php:&tx_ncstaticfilecache->setFeUserCookie';
 }
 
-if (TYPO3_MODE=='BE')	{
+if (TYPO3_MODE=='BE') {
 	// Setting up scripts that can be run from the cli_dispatch.phpsh script.
 	$TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['cliKeys']['nc_staticfilecache'] = array('EXT:nc_staticfilecache/cli/cleaner.php','_CLI_ncstaticfilecache');
 }

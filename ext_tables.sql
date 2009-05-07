@@ -1,9 +1,9 @@
-#  
-# Table structure for table 'pages'  
-#  
+#
+# Table structure for table 'pages'
+#
 CREATE TABLE pages (  
-	tx_ncstaticfilecache_cache tinyint(1) DEFAULT '1',  
-);  
+	tx_ncstaticfilecache_cache tinyint(1) DEFAULT '1',
+);
 
 #
 # Table structure for table 'tx_ncstaticfilecache_file'
@@ -17,6 +17,6 @@ CREATE TABLE tx_ncstaticfilecache_file (
 	pid int(11) DEFAULT '0',
 	host mediumtext NOT NULL,
 	file mediumtext NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 );
