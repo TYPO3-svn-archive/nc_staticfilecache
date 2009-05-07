@@ -336,10 +336,11 @@ class tx_ncstaticfilecache {
 				&& !$workspacePreview
 				&& $loginsDeniedCfg) {
 
+				$content = $pObj->content;
 				t3lib_div::mkdir_deep(PATH_site, $cacheDir . $uri);
 
 				if ($this->configuration['showGenerationSignature']) {
-					$pObj->content .= "\n<!-- ".strftime (
+					$content .= "\n<!-- ".strftime (
 						$this->configuration['strftime'],
 						$GLOBALS['EXEC_TIME']
 					) . ' -->';
@@ -360,7 +361,7 @@ class tx_ncstaticfilecache {
 					t3lib_div::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
 				}
 
-				t3lib_div::writeFile(PATH_site . $cacheDir . $file, $pObj->content);
+				t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
 
 				// Check for existing entries with the same uid and file, if a
 				// record exists, update timestamp, otherwise create a new record.

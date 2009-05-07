@@ -10,6 +10,7 @@
 	* Fixed bug: Info module does not work anymore due to calls to protected methods/variables
 	* Added feature: Store original URI of request and possibility to recreate the URI by typoLink
 	* Added feature #2598: Keep static cache files even if the cache gets flushed by TYPO3
+	* Fixed bug: Show generation signature only when the request is served by static cache
 
 2008-02-22  Michiel Roos  <michiel@netcreators.com>
 
