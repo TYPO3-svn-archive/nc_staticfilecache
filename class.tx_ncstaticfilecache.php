@@ -56,9 +56,9 @@
  * @subpackage tx_ncstaticfilecache
  */
 class tx_ncstaticfilecache {
-	var $extKey = 'nc_staticfilecache';
-	var $fileTable = 'tx_ncstaticfilecache_file';
-	var $cacheDir = 'typo3temp/tx_ncstaticfilecache/';
+	protected $extKey = 'nc_staticfilecache';
+	protected $fileTable = 'tx_ncstaticfilecache_file';
+	protected $cacheDir = 'typo3temp/tx_ncstaticfilecache/';
 
 	/**
 	 * Clear cache post processor.
@@ -68,7 +68,7 @@ class tx_ncstaticfilecache {
 	 * @param	object		$pObj: partent object
 	 * @return	void
 	 */
-	function clearCachePostProc (&$params, &$pObj) {
+	public function clearCachePostProc(&$params, &$pObj) {
 		if($params['cacheCmd']) {
 			$this->clearStaticFile($params);
 		}
@@ -161,7 +161,7 @@ class tx_ncstaticfilecache {
 	 * @param	object		$_params: array containing 'cacheCmd'
 	 * @return	void
 	 */
-	function clearStaticFile (&$_params) {
+	public function clearStaticFile(&$_params) {
 
 		$conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 		if ($_params['host']) {
@@ -213,7 +213,7 @@ class tx_ncstaticfilecache {
 	 * @param	integer		Page id
 	 * @return	array		Array of records
 	 */
-	function getRecordForPageID($pid) {
+	protected function getRecordForPageID($pid) {
 		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'*',
 			'tx_ncstaticfilecache_file',
@@ -231,7 +231,7 @@ class tx_ncstaticfilecache {
 	 * @param	object		$parent: The calling parent object (tslib_fe)
 	 * @return	void
 	 */
-	function headerNoCache(&$params, $parent) {
+	public function headerNoCache(&$params, $parent) {
 		if (strtolower($_SERVER['HTTP_CACHE_CONTROL']) === 'no-cache' || strtolower($_SERVER['HTTP_PRAGMA']) === 'no-cache') {
 			if ($parent->beUserLogin) {
 				$cmd = array('cacheCmd' => $parent->id);
@@ -247,7 +247,7 @@ class tx_ncstaticfilecache {
 	 * @param	string		$timeOutTime: The timestamp when the page times out
 	 * @return	void
 	 */
-	function insertPageIncache(&$pObj, &$timeOutTime) {
+	public function insertPageIncache(&$pObj, &$timeOutTime) {
 
 		// Find host-name / IP, always in lowercase:
 		$host = strtolower(t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'));
@@ -305,12 +305,7 @@ class tx_ncstaticfilecache {
 				&& !$workspacePreview
 				&& $loginsDeniedCfg) {
 
-				if (t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
-					$this->mkdir_deep(PATH_site, $cacheDir.t3lib_div::getIndpEnv('REQUEST_URI'));
-				} else {
-					// This function does not exist in TYPO3 3.8.1
-					t3lib_div::mkdir_deep(PATH_site, $cacheDir . t3lib_div::getIndpEnv('REQUEST_URI'));
-				}
+				t3lib_div::mkdir_deep(PATH_site, $cacheDir . t3lib_div::getIndpEnv('REQUEST_URI'));
 
 				$conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 				if ($conf['showGenerationSignature']) {
@@ -389,7 +384,7 @@ class tx_ncstaticfilecache {
 	 * @param	object		$parent: The calling parent object (tslib_fe)
 	 * @return	void
 	 */
-	function logNoCache(&$params, $parent) {
+	public function logNoCache(&$params, $parent) {
 		if($params['pObj']) {
 			if($params['pObj']->no_cache) {
 				$timeOutTime = 0;
@@ -399,38 +394,12 @@ class tx_ncstaticfilecache {
 	}
 
 	/**
-	 * Make directory
-	 *
-	 * The t3lib_div:mkdir_deep is not present in TYPO3 3.8.1
-	 *
-	 * 	 * @return	void
-	 *
-	 * @param	string		$destination: base path
-	 * @param	string		$deepDir: the path
-	 * @return	mixed		True (boolean) if everything was okay, otherwise an error message (string)
-	 */
-	function mkdir_deep($destination,$deepDir) {
-		$allParts = t3lib_div::trimExplode('/', $deepDir, true);
-		$root = '';
-		foreach($allParts as $part)	{
-			$root .= $part . '/';
-			if (!is_dir($destination . $root)) {
-				t3lib_div::mkdir($destination . $root);
-				if (!@is_dir($destination . $root)) {
-					return 'Error: The directory "' . $destination . $root . '" could not be created...';
-				}
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * Remove expired pages. Call from cli script.
 	 *
 	 * @param	object		$pObj: The calling parent object (tx_ncstaticfilecache_cli)
 	 * @return	void
 	 */
-	function removeExpiredPages(&$pObj) {
+	public function removeExpiredPages(&$pObj) {
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'file, host, pid, ('.$GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
 			$this->fileTable,
@@ -464,7 +433,7 @@ class tx_ncstaticfilecache {
 	 * @param	object		$pObj: partent object
 	 * @return	void
 	 */
-	function setFeUserCookie(&$params, &$pObj) {
+	public function setFeUserCookie(&$params, &$pObj) {
 		global $TYPO3_CONF_VARS;
 
 			// Setting cookies
@@ -512,7 +481,7 @@ class tx_ncstaticfilecache {
 	 * @param	string		$dir: The full path
 	 * @return	void
 	 */
-	function rm($dir) {
+	protected function rm($dir) {
 		if (!$dh = @opendir($dir)) {
 			return;
 		}

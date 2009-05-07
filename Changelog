@@ -3,6 +3,7 @@
 	* Cleanup: Changed formatting of class tx_ncstaticfilecache and SQL file (non-functional changes)
 	* Set version to 2.4.0-dev
 	* Set version to 3.0.0-dev
+	* Cleanup: Added protected/public definitions and set min. requirement to TYPO3 4.2.0
 
 2008-02-22  Michiel Roos  <michiel@netcreators.com>
 
