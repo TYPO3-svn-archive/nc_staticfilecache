@@ -280,11 +280,12 @@ class tx_ncstaticfilecache {
 
 		// Find host-name / IP, always in lowercase:
 		$host = strtolower(t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'));
+		$uri = t3lib_div::getIndpEnv('REQUEST_URI');
 
 		$cacheDir = $this->cacheDir . $host;
 
-		if (!strstr(t3lib_div::getIndpEnv('REQUEST_URI'), '?')
-		&& $pObj->page['doktype'] != 3) { // doktype 3: link to external page
+			// Only process if there are not query arguements and no link to external page (doktype=3):
+		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3) {
 
 			$loginsDeniedCfg = !$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch;
 			$doCache = $pObj->isStaticCacheble();
@@ -329,7 +330,7 @@ class tx_ncstaticfilecache {
 				$explanation = 'loginsDeniedCfg is true';
 			}
 
-			$file = t3lib_div::getIndpEnv('REQUEST_URI') . '/index.html';
+			$file = $uri . '/index.html';
 			$file = preg_replace('#//#', '/', $file);
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
@@ -339,7 +340,7 @@ class tx_ncstaticfilecache {
 				&& !$workspacePreview
 				&& $loginsDeniedCfg) {
 
-				t3lib_div::mkdir_deep(PATH_site, $cacheDir . t3lib_div::getIndpEnv('REQUEST_URI'));
+				t3lib_div::mkdir_deep(PATH_site, $cacheDir . $uri);
 
 				if ($this->configuration['showGenerationSignature']) {
 					$pObj->content .= "\n<!-- ".strftime (
@@ -354,7 +355,7 @@ class tx_ncstaticfilecache {
 
 				if ($this->configuration['sendCacheControlHeader']) {
 					$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds);
-					$htaccess = t3lib_div::getIndpEnv('REQUEST_URI') . '/.htaccess';
+					$htaccess = $uri . '/.htaccess';
 					$htaccess = preg_replace('#//#', '/', $htaccess);
 					$htaccessContent = '<IfModule mod_expires.c>
 	ExpiresActive on
