@@ -59,6 +59,29 @@ class tx_ncstaticfilecache {
 	protected $extKey = 'nc_staticfilecache';
 	protected $fileTable = 'tx_ncstaticfilecache_file';
 	protected $cacheDir = 'typo3temp/tx_ncstaticfilecache/';
+	protected $isDebugEnabled = false;
+	protected $configuration = array();
+
+	/**
+	 * Constructs this object.
+	 */
+	public function __construct() {
+		if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey])) {
+			$this->setConfiguration(
+				unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey])
+			);
+		}
+	}
+
+	/**
+	 * Sets the extension configuration (can be modified by admins in extension manager).
+	 *
+	 * @param	array		$configuration: The extension configuration
+	 * @return	void
+	 */
+	public function setConfiguration(array $configuration) {
+		$this->configuration = $configuration;
+	}
 
 	/**
 	 * Clear cache post processor.
@@ -179,6 +202,7 @@ class tx_ncstaticfilecache {
 					}
 					$this->rm(PATH_site.$cacheDir);
 					$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, '1=1');
+					$this->debug('clearing all static cache');
 					break;
 				case 'temp_CACHED':
 					// Clear temp files, not frontend cache.
@@ -191,6 +215,7 @@ class tx_ncstaticfilecache {
 							// This is here because the host is not known if we come in through the cli script
 							$cacheDir = $this->cacheDir . $row['host'];
 							if (is_file(PATH_site.$cacheDir . $row['file'])) {
+								$this->debug('clearing cache for pid: ' . $cacheCmd);
 								// Try to remove static cache file
 								@unlink(PATH_site.$cacheDir . $row['file']);
 								// Try to remove .htaccess file
@@ -201,6 +226,8 @@ class tx_ncstaticfilecache {
 							$GLOBALS['TYPO3_DB']->sql_free_result($res);
 							$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'pid=' . $cacheCmd);
 						}
+					} else {
+						$this->debug('Expected integer on clearing static cache', 1, $cacheCmd);
 					}
 					break;
 			}
@@ -234,6 +261,7 @@ class tx_ncstaticfilecache {
 	public function headerNoCache(&$params, $parent) {
 		if (strtolower($_SERVER['HTTP_CACHE_CONTROL']) === 'no-cache' || strtolower($_SERVER['HTTP_PRAGMA']) === 'no-cache') {
 			if ($parent->beUserLogin) {
+				$this->debug('no-cache header found');
 				$cmd = array('cacheCmd' => $parent->id);
 				$this->clearStaticFile($cmd);
 			}
@@ -248,6 +276,7 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	public function insertPageIncache(&$pObj, &$timeOutTime) {
+		$this->debug('insertPageIncache');
 
 		// Find host-name / IP, always in lowercase:
 		$host = strtolower(t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'));
@@ -265,26 +294,30 @@ class tx_ncstaticfilecache {
 
 			// This is an 'explode' of the function isStaticCacheble()
 			if (!$pObj->page['tx_ncstaticfilecache_cache']) {
+				$this->debug('insertPageIncache: static cache disabled by user');
 				$explanation = 'static cache disabled on page';
 			}
 			if ($pObj->no_cache) {
+				$this->debug('insertPageIncache: no_cache setting is true');
 				$explanation = 'config.no_cache is true';
 			}
 			if ($pObj->isINTincScript()) {
+				$this->debug('insertPageIncache: page has INTincScript');
 				$explanation = 'page has INTincScript';
 			}
 			if ($pObj->isEXTincScript()) {
+				$this_>debug('insertPageIncache: page has EXTincScript');
 				$explanation = 'page has EXTincScript';
 			}
-
-			/*
-			if ($pObj->isUserOrGroupSet()) {
+			if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
+				$this->debug('insertPageIncache: page has user or group set');
 				// This is actually ok, we do not need to create cache nor an entry in the files table
 				//$explanation = "page has user or group set";
 			}
-			*/
+
 			if ($workspaces) {
 				if ($pObj->doWorkspacePreview()) {
+					$this->debug('insertPageIncache: workspace preview');
 					$explanation = 'workspace preview';
 					$workspacePreview = true;
 				}
@@ -292,6 +325,7 @@ class tx_ncstaticfilecache {
 				$workspacePreview = false;
 			}
 			if (!$loginsDeniedCfg) {
+				$this->debug('insertPageIncache: loginsDeniedCfg is true');
 				$explanation = 'loginsDeniedCfg is true';
 			}
 
@@ -312,9 +346,12 @@ class tx_ncstaticfilecache {
 					$pObj->content .= "\n<!-- ".strftime ($conf['strftime'], $GLOBALS['EXEC_TIME']).' -->';
 				}
 
+				$this->debug('writing cache for pid: ' . $pObj->id);
+
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 
 				if ($conf['sendCacheControlHeader']) {
+					$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds);
 					$htaccess = t3lib_div::getIndpEnv('REQUEST_URI') . '/.htaccess';
 					$htaccess = preg_replace('#//#', '/', $htaccess);
 					$htaccessContent = '<IfModule mod_expires.c>
@@ -373,6 +410,8 @@ class tx_ncstaticfilecache {
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fields_values);
 				}
+
+				$this->debug('insertPageIncache: ... this page is not cached!');
 			}
 		}
 	}
@@ -494,6 +533,24 @@ class tx_ncstaticfilecache {
 			}
 		}
 		@rmdir($dir);
+	}
+
+	/**
+	 * Puts a message to the devlog.
+	 *
+	 * @param	string		$message: The message to log
+	 * @param	integer		$severity: The severity value from warning to fatal error (default: 1)
+	 * @return	void
+	 */
+	protected function debug($message, $severity = 1, $additionalData = false) {
+		if (isset($this->configuration['debug']) && $this->configuration['debug']) {
+			t3lib_div::devlog(
+				trim($message),
+				$this->extKey,
+				$severity,
+				$additionalData
+			);
+		}
 	}
 }
 
