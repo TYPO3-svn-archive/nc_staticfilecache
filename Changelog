@@ -6,6 +6,7 @@
 	* Cleanup: Added protected/public definitions and set min. requirement to TYPO3 4.2.0
 	* Cleanup: Removed superfluous class for debug output and integrated it to regular class
 	* Cleanup: Removed CLI cleaner for elderly TYPO3 releases (< 4.1)
+	* Fixed bug: Fixed some hanging record sets
 
 2008-02-22  Michiel Roos  <michiel@netcreators.com>
 

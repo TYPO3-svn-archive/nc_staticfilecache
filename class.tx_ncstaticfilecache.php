@@ -94,8 +94,7 @@ class tx_ncstaticfilecache {
 	public function clearCachePostProc(&$params, &$pObj) {
 		if($params['cacheCmd']) {
 			$this->clearStaticFile($params);
-		}
-		else {
+		} else {
 			$uid = intval($params['uid']);
 			$table = strval($params['table']);
 
@@ -132,8 +131,10 @@ class tx_ncstaticfilecache {
 									while ($row_tmp2 = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp2)) {
 										$list_cache[] = $row_tmp2['uid'];
 									}
+									$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp2);
 								}
 							}
+							$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp);
 
 							// Finally, add the parent page as well:
 							$list_cache[] = $pid_tmp;
@@ -148,6 +149,7 @@ class tx_ncstaticfilecache {
 								if ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
 									$list_cache[] = $row_tmp['pid'];
 								}
+								$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp);
 							}
 						} else {
 							// For other tables than "pages", delete cache for the records "parent page".
