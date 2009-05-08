@@ -390,6 +390,7 @@ class tx_ncstaticfilecache {
 				if ($rows[0]['uid']) {
 					$fields_values['tstamp'] = $GLOBALS['EXEC_TIME'];
 					$fields_values['cache_timeout'] = $timeOutSeconds;
+					$fields_values['isdirty'] = 0;
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fields_values);
 				} else {
 					$fields_values = array(
@@ -415,6 +416,7 @@ class tx_ncstaticfilecache {
 				);
 				if ($rows[0]['uid']) {
 					$fields_values['explanation'] = $explanation;
+					$fields_values['isdirty'] = 0;
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fields_values);
 				} else {
 					$fields_values = array(
