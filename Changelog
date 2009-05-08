@@ -2,6 +2,7 @@
 
 !!!	* Added feature: Changed database table to use InnoDB engine
 	* Follow-up to feature #2598: Added missing 'isdirty' field to SQL definitions
+	* Follow-up to feature #2598: Added new CLI task 'processDirtyPages' to process elements marked as dirty
 
 2009-05-07  Oliver Hader  <oliver@typo3.org>
 

@@ -475,6 +475,41 @@ class tx_ncstaticfilecache {
 	}
 
 	/**
+	 * Processes elements that have been marked as dirty.
+	 *
+	 * @param	t3lib_cli		$parent: The calling parent object
+	 * @return	void
+	 */
+	public function processDirtyPages(t3lib_cli $parent) {
+		$dirtyElements = $this->getDirtyElements();
+
+		foreach ($dirtyElements as $dirtyElement) {
+			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
+
+			$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
+			$result = $this->deleteStaticCacheDirectory($cacheDirectory);
+
+			$parent->cli_echo(
+				($result ? 'Removed' : 'Failed to delete') . ' directory ' . $cacheDirectory . PHP_EOL
+			);
+
+				// Hook: Process dirty pages:
+				// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages']
+			$processDirtyPagesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages'];
+			if (is_array($processDirtyPagesHooks)) {
+				foreach ($processDirtyPagesHooks as $hookFunction) {
+					$hookParameters = array(
+						'cliDispatcher' => $parent,
+						'dirtyElement' => $dirtyElement,
+						'deleteResult' => $result,
+					);
+					t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Set a cookie if a user logs in or refresh it
 	 *
 	 * This function is needed because TYPO3 always sets the fe_typo_user cookie,
@@ -619,16 +654,52 @@ class tx_ncstaticfilecache {
 			if ($pid) {
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, $pidCondition);
 				foreach ($rows as $row) {
-					$cacheDirectory = PATH_site . $this->cacheDir . $row['host'] . dirname($row['file']);
-					if (is_dir($cacheDirectory)) {
-						t3lid_div::rmdir($cacheDirectory, true);
-					}
+					$cacheDirectory = $row['host'] . dirname($row['file']);
+					$this->deleteStaticCacheDirectory($cacheDirectory);
 				}
 			} else {
 				$this->rm(PATH_site . $this->cacheDir . $directory);
 			}
 			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
 		}
+	}
+
+	/**
+	 * Deletes a static cache directory in filesystem.
+	 *
+	 * @param	string		$directory: The directory to use on deletion below the static cache directory
+	 * @return	boolean		Whether the action was successful
+	 */
+	protected function deleteStaticCacheDirectory($directory) {
+		$result = false;
+		$directory = trim($directory);
+		$cacheDirectory = PATH_site . $this->cacheDir . $directory;
+
+		if (!empty($directory) && is_dir($cacheDirectory)) {
+			$result = t3lib_div::rmdir($cacheDirectory, true);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Gets all dirty elements from database.
+	 *
+	 * @param	integer		$limit: (optional) Defines a limit for results to look up
+	 * @return	array		All dirty elements from database
+	 */
+	protected function getDirtyElements($limit = 0) {
+		$limit = intval($limit);
+		$elements = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+			'*',
+			$this->fileTable,
+			'isdirty=1',
+			'',
+			'',
+			($limit ? $limit : '')
+		);
+
+		return $elements;
 	}
 }
 

@@ -51,8 +51,10 @@ class tx_ncstaticfilecache_cli extends t3lib_cli {
 
 		// Setting help texts:
 		$this->cli_help['name'] = 'static file cache cleaner -- Removes expired pages from static file cache.';
-		$this->cli_help['synopsis'] = 'removeExpiredPages ###OPTIONS###';
-		$this->cli_help['description'] = "Remove expired pages from the static file cache.";
+		$this->cli_help['synopsis'] = 'removeExpiredPages|processDirtyPages ###OPTIONS###';
+		$this->cli_help['description'] =
+			'removeExpiredPages: Remove expired pages from the static file cache.' . PHP_EOL .
+			'processDirtyPages:  Recaches pages that are marked as dirty.';
 		$this->cli_help['examples'] = "/.../cli_dispatch.phpsh nc_staticfilecache removeExpiredPages\nThis will remove expired pages from the static file cache.";
 		$this->cli_help['author'] = "Michiel Roos, (c) 2007";
 	}
@@ -76,6 +78,10 @@ class tx_ncstaticfilecache_cli extends t3lib_cli {
 			$this->cli_echo("Looking for expired pages.\n");
 			$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
 			$cleaner->removeExpiredPages($this);
+		} elseif ($task == 'processDirtyPages') {
+			$this->cli_echo('Looking for dirty pages.' . PHP_EOL);
+			$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
+			$cleaner->processDirtyPages($this);
 		}
 	}
 }
