@@ -1,6 +1,7 @@
 2009-05-08  Oliver Hader  <oliver@typo3.org>
 
 !!!	* Added feature: Changed database table to use InnoDB engine
+	* Follow-up to feature #2598: Added missing 'isdirty' field to SQL definitions
 
 2009-05-07  Oliver Hader  <oliver@typo3.org>
 
