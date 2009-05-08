@@ -1,3 +1,7 @@
+2009-05-08  Oliver Hader  <oliver@typo3.org>
+
+!!!	* Added feature: Changed database table to use InnoDB engine
+
 2009-05-07  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Changed formatting of class tx_ncstaticfilecache and SQL file (non-functional changes)

@@ -20,4 +20,4 @@ CREATE TABLE tx_ncstaticfilecache_file (
 	uri mediumtext NOT NULL,
 
 	PRIMARY KEY (uid),
-);
+) ENGINE=InnoDB;
