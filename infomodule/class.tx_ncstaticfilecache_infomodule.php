@@ -74,7 +74,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 		// Initialize tree object:
 		$tree = t3lib_div::makeInstance('t3lib_browsetree');
-		$tree->init('AND pages.doktype < 199 AND '.$GLOBALS['BE_USER']->getPagePermsClause(1).' AND pages.deleted = 0'); //.' AND pages.hidden = "0"');
+		$tree->init();
 		$tree->ext_IconMode = true;
 		$tree->ext_showPageId = $BE_USER->getTSConfigVal('options.pageTree.showPageIdWithTitle');
 		$tree->showDefaultTitleAttribute = true;

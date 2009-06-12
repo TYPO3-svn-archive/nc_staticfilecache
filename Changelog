@@ -1,3 +1,7 @@
+2009-06-12  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Info module does not show pages with a dokType above 199
+
 2009-05-08  Oliver Hader  <oliver@typo3.org>
 
 !!!	* Added feature: Changed database table to use InnoDB engine
