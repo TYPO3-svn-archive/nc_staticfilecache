@@ -453,10 +453,10 @@ class tx_ncstaticfilecache {
 	/**
 	 * Remove expired pages. Call from cli script.
 	 *
-	 * @param	tx_ncstaticfilecache_cli	$parent: The calling parent object
+	 * @param	t3lib_cli		$parent: The calling parent object
 	 * @return	void
 	 */
-	public function removeExpiredPages(tx_ncstaticfilecache_cli $parent = NULL) {
+	public function removeExpiredPages(t3lib_cli $parent = NULL) {
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'file, host, pid, (' . $GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
 			$this->fileTable,
@@ -484,7 +484,7 @@ class tx_ncstaticfilecache {
 	 * @param	t3lib_cli		$parent: The calling parent object
 	 * @return	void
 	 */
-	public function processDirtyPages(t3lib_cli $parent) {
+	public function processDirtyPages(t3lib_cli $parent = NULL) {
 		$dirtyElements = $this->getDirtyElements();
 
 		foreach ($dirtyElements as $dirtyElement) {
@@ -493,9 +493,11 @@ class tx_ncstaticfilecache {
 			$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
 			$result = $this->deleteStaticCacheDirectory($cacheDirectory);
 
-			$parent->cli_echo(
-				($result ? 'Removed' : 'Failed to delete') . ' directory ' . $cacheDirectory . PHP_EOL
-			);
+			if (isset($parent)) {
+				$parent->cli_echo(
+					($result ? 'Removed' : 'Failed to delete') . ' directory ' . $cacheDirectory . PHP_EOL
+				);
+			}
 
 				// Hook: Process dirty pages:
 				// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages']
@@ -503,10 +505,12 @@ class tx_ncstaticfilecache {
 			if (is_array($processDirtyPagesHooks)) {
 				foreach ($processDirtyPagesHooks as $hookFunction) {
 					$hookParameters = array(
-						'cliDispatcher' => $parent,
 						'dirtyElement' => $dirtyElement,
 						'deleteResult' => $result,
 					);
+					if (isset($parent)) {
+						$hookParameters['cliDispatcher'] = $parent;
+					}
 					t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 				}
 			}
