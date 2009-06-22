@@ -488,10 +488,7 @@ class tx_ncstaticfilecache {
 		$dirtyElements = $this->getDirtyElements();
 
 		foreach ($dirtyElements as $dirtyElement) {
-			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
-
-			$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
-			$result = $this->deleteStaticCacheDirectory($cacheDirectory);
+			$result = $this->processDirtyPagesElement($dirtyElement);
 
 			if (isset($parent)) {
 				$parent->cli_echo(
@@ -499,22 +496,39 @@ class tx_ncstaticfilecache {
 				);
 			}
 
+		}
+	}
+
+	/**
+	 * Processes one single dirty element - removes data from file system and database.
+	 *
+	 * @param	array		$dirtyElement: The dirty element record
+	 * @param	t3lib_cli	$parent: (optional) The calling parent object
+	 * @return	boolean		Whether the deletion was successful
+	 */
+	public function processDirtyPagesElement(array $dirtyElement, t3lib_cli $parent = NULL) {
+		$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
+
+		$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
+		$result = $this->deleteStaticCacheDirectory($cacheDirectory);
+
 				// Hook: Process dirty pages:
-				// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages']
-			$processDirtyPagesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages'];
-			if (is_array($processDirtyPagesHooks)) {
-				foreach ($processDirtyPagesHooks as $hookFunction) {
-					$hookParameters = array(
-						'dirtyElement' => $dirtyElement,
-						'deleteResult' => $result,
-					);
-					if (isset($parent)) {
-						$hookParameters['cliDispatcher'] = $parent;
-					}
-					t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages']
+		$processDirtyPagesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages'];
+		if (is_array($processDirtyPagesHooks)) {
+			foreach ($processDirtyPagesHooks as $hookFunction) {
+				$hookParameters = array(
+					'dirtyElement' => $dirtyElement,
+					'deleteResult' => &$result,
+				);
+				if (isset($parent)) {
+					$hookParameters['cliDispatcher'] = $parent;
 				}
+				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 			}
 		}
+
+		return $result;
 	}
 
 	/**
