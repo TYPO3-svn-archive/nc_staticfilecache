@@ -215,6 +215,8 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 		if (isset($action['removeExpiredPages'])) {
 			$this->pubObj->removeExpiredPages();
+		} elseif (isset($action['processDirtyPages'])) {
+			$this->pubObj->processDirtyPages();
 		}
 	}
 
@@ -240,6 +242,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	protected function getHeaderActionButtons() {
 		return array(
 			'removeExpiredPages' => $this->renderActionButton('removeExpiredPages', 'Remove all expired pages', 'Are you sure?'),
+			'processDirtyPages' => $this->renderActionButton('processDirtyPages', 'Process all dirty pages', 'Are you sure?'),
 		);
 	}
 
