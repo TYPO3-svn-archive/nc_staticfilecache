@@ -41,7 +41,6 @@
 
 require_once(PATH_t3lib.'class.t3lib_browsetree.php');
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
-require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfilecache.php');
 
 /**
  * Static file cache extension
@@ -63,9 +62,6 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 */
 	function main()	{
 		global $BACK_PATH,$LANG,$BE_USER;
-
-		// Init static publishing object:
-		$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
 
 		// Handle actions:
 		$this->handleActions();
@@ -111,14 +107,14 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	function renderModule($tree)	{
 		global $LANG;
 
-		$pubDir = $this->pubObj->getCacheDirectory();
+		$pubDir = $this->getStaticFileCacheInstance()->getCacheDirectory();
 
 		// Traverse tree:
 		$output = '';
 		foreach($tree->tree as $row)	{
 
 			// Fetch files:
-			$filerecords = $this->pubObj->getRecordForPageID($row['row']['uid']);
+			$filerecords = $this->getStaticFileCacheInstance()->getRecordForPageID($row['row']['uid']);
 			$cellAttrib = ($row['row']['_CSSCLASS'] ? ' class="'.$row['row']['_CSSCLASS'].'"' : '');
 
 			if (count($filerecords))	{
@@ -214,9 +210,9 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$action = t3lib_div::_GP('ACTION');
 
 		if (isset($action['removeExpiredPages'])) {
-			$this->pubObj->removeExpiredPages();
+			$this->getStaticFileCacheInstance()->removeExpiredPages();
 		} elseif (isset($action['processDirtyPages'])) {
-			$this->pubObj->processDirtyPages();
+			$this->getStaticFileCacheInstance()->processDirtyPages();
 		}
 	}
 
@@ -257,6 +253,19 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	protected function renderActionButton($elementName, $elementLabel, $confirmationText = '') {
 		return '<input type="submit" name="ACTION[' . htmlspecialchars($elementName) . ']" value="' . $elementLabel . '"' .
 			($confirmationText ? ' onclick="return confirm(\'' . addslashes($confirmationText) . '\');"' : '') . ' />';
+	}
+
+	/**
+	 * Gets the instance of the static file cache object to modify the cached information.
+	 * 
+	 * @return	tx_ncstaticfilecache
+	 */
+	protected function getStaticFileCacheInstance() {
+		if (!isset($this->pubObj)) {
+			t3lib_div::requireOnce(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfilecache.php');
+			$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
+		}
+		return $this->pubObj;
 	}
 }
 
