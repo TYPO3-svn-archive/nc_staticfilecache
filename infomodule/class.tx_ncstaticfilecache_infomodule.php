@@ -214,7 +214,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$action = t3lib_div::_GP('ACTION');
 
 		if (isset($action['removeAllExpired'])) {
-			$this->pubObj->removeExpiredPagesFromStorage(false);
+			$this->pubObj->removeExpiredPages();
 		}
 	}
 
