@@ -151,8 +151,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 				// Compile Row:
 				$output .= $this->renderTableRow(
 					$tCells,
-					'class="bgColor4" title="id='.$row['row']['uid'].'"',
-					$frec
+					'class="bgColor4" title="id='.$row['row']['uid'].'"'
 				);
 			}
 		}
@@ -165,7 +164,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tCells[]='<td>is Dirty:</td>';
 		$tCells[]='<td>Explanation:</td>';
 
-		$output = $this->renderHeader() . $this->renderTableRow($tCells, 'class="bgColor5 tableheader"') . $output;
+		$output = $this->renderHeader() . $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . $output;
 
 		// Compile final table and return:
 		$output = '
@@ -192,6 +191,17 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 * @return	string		The HTML representation of the table row
 	 */
 	protected function renderTableRow(array $elements, $attributes = '', array $cacheElement = NULL) {
+		return '<tr' . ($attributes ? ' ' : '') . $attributes . '>' . implode('', $elements) . '</tr>';
+	}
+
+	/**
+	 * Renders a table header row.
+	 *
+	 * @param	array		$elements: The row elements to be rendered
+	 * @param	string		$attributes: (optional) The attributes to be used on the table row
+	 * @return	string		The HTML representation of the table row
+	 */
+	protected function renderTableHeaderRow(array $elements, $attributes = '') {
 		return '<tr' . ($attributes ? ' ' : '') . $attributes . '>' . implode('', $elements) . '</tr>';
 	}
 
