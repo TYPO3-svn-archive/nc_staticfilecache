@@ -4,6 +4,7 @@
 	* Added feature: Integrate possibility to remove all expired pages in the info module
 	* Added feature: Moved rendering of rows in info module to own method to be overridable by XCLASSes
 	* Cleanup: Refactored clean dirty pages parts
+	* Cleanup: Added method to determine the table name used to store cache information
 
 2009-06-12  Oliver Hader  <oliver@typo3.org>
 

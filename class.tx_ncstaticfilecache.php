@@ -723,6 +723,15 @@ class tx_ncstaticfilecache {
 
 		return $elements;
 	}
+
+	/**
+	 * Gets the name of the database table holding all cached files.
+	 *
+	 * @return	string		Name of the database holding all cached files
+	 */
+	public function getFileTable() {
+		return $this->fileTable;
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/class.tx_ncstaticfilecache.php']) {
