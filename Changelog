@@ -1,3 +1,7 @@
+2009-06-22  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Information whether page is marked dirty is missing in info module
+
 2009-06-12  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Info module does not show pages with a dokType above 199

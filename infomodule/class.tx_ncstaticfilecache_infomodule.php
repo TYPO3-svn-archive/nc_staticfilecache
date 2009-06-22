@@ -128,6 +128,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">'.($frec['crdate']?t3lib_BEfunc::datetime($frec['crdate']):'').'</span></td>';
 					$timeout = ($frec['crdate'] > 0) ? t3lib_BEfunc::calcAge(($frec['cache_timeout']),$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')) : '';
 					$tCells[] = '<td nowrap="nowrap">'.$timeout.'</td>';
+					$tCells[] = '<td>' . ($frec['isdirty'] ? 'yes' : 'no');
 					$tCells[] = '<td nowrap="nowrap">'.($frec['explanation']?$frec['explanation']:'').'</td>';
 
 					// Compile Row:
@@ -141,7 +142,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 				// Compile Row:
 				$output.= '
 					<tr class="bgColor4" title="id='.$row['row']['uid'].'">
-						<td nowrap="nowrap" colspan="3"'.$cellAttrib.'>'.$row['HTML'].t3lib_BEfunc::getRecordTitle('pages',$row['row'],TRUE).'</td>
+						<td nowrap="nowrap" colspan="4"'.$cellAttrib.'>'.$row['HTML'].t3lib_BEfunc::getRecordTitle('pages',$row['row'],TRUE).'</td>
 						<td><span class="typo3-dimmed">'.($row['row']['uid'] == 0 ? '' : 'not hit').'</span></td>
 					</tr>';
 			}
@@ -152,7 +153,9 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tCells[]='<td>Page:</td>';
 		$tCells[]='<td>Created:</td>';
 		$tCells[]='<td>Cache Timeout:</td>';
+		$tCells[]='<td>is Dirty:</td>';
 		$tCells[]='<td>Explanation:</td>';
+
 		$output = '
 			<tr class="bgColor5 tableheader">
 				'.implode('
