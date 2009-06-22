@@ -213,7 +213,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	protected function handleActions() {
 		$action = t3lib_div::_GP('ACTION');
 
-		if (isset($action['removeAllExpired'])) {
+		if (isset($action['removeExpiredPages'])) {
 			$this->pubObj->removeExpiredPages();
 		}
 	}
@@ -239,7 +239,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 */
 	protected function getHeaderActionButtons() {
 		return array(
-			'removeAllExpired' => $this->renderActionButton('removeAllExpired', 'Remove all expired pages', 'Are you sure?'),
+			'removeExpiredPages' => $this->renderActionButton('removeExpiredPages', 'Remove all expired pages', 'Are you sure?'),
 		);
 	}
 
