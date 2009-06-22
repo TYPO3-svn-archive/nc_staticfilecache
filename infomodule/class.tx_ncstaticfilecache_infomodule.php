@@ -138,7 +138,8 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 				// Compile Row:
 					$output .= $this->renderTableRow(
 						$tCells,
-						'title="id='.$frec['pid'].' host='.$frec['host'].' file='.$frec['file'].'"'
+						'title="id='.$frec['pid'].' host='.$frec['host'].' file='.$frec['file'].'"',
+						$frec
 					);
 				}
 			} else {
@@ -150,7 +151,8 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 				// Compile Row:
 				$output .= $this->renderTableRow(
 					$tCells,
-					'class="bgColor4" title="id='.$row['row']['uid'].'"'
+					'class="bgColor4" title="id='.$row['row']['uid'].'"',
+					$frec
 				);
 			}
 		}
@@ -163,11 +165,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tCells[]='<td>is Dirty:</td>';
 		$tCells[]='<td>Explanation:</td>';
 
-		$output = $this->renderHeader() . '
-			<tr class="bgColor5 tableheader">
-				'.implode('
-				',$tCells).'
-			</tr>'.$output;
+		$output = $this->renderHeader() . $this->renderTableRow($tCells, 'class="bgColor5 tableheader"') . $output;
 
 		// Compile final table and return:
 		$output = '
@@ -189,10 +187,11 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 * Renders a table row.
 	 *
 	 * @param	array		$elements: The row elements to be rendered
-	 * @param	string		$attributes: The attributes to be used on the table row
+	 * @param	string		$attributes: (optional) The attributes to be used on the table row
+	 * @param	array		$cacheElement: (optional) The cache element row
 	 * @return	string		The HTML representation of the table row
 	 */
-	protected function renderTableRow(array $elements, $attributes = '') {
+	protected function renderTableRow(array $elements, $attributes = '', array $cacheElement = NULL) {
 		return '<tr' . ($attributes ? ' ' : '') . $attributes . '>' . implode('', $elements) . '</tr>';
 	}
 
