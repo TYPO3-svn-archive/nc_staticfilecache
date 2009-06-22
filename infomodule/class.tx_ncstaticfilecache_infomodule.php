@@ -64,6 +64,12 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	function main()	{
 		global $BACK_PATH,$LANG,$BE_USER;
 
+		// Init static publishing object:
+		$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
+
+		// Handle actions:
+		$this->handleActions();
+
 		$output = '';
 
 		$this->backPath = $BACK_PATH;
@@ -105,8 +111,6 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	function renderModule($tree)	{
 		global $LANG;
 
-		// Init static publishing object:
-		$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
 		$pubDir = $this->pubObj->getCacheDirectory();
 
 		// Traverse tree:
@@ -156,7 +160,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tCells[]='<td>is Dirty:</td>';
 		$tCells[]='<td>Explanation:</td>';
 
-		$output = '
+		$output = $this->renderHeader() . '
 			<tr class="bgColor5 tableheader">
 				'.implode('
 				',$tCells).'
@@ -176,6 +180,57 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 			</p>';
 
 		return $output;
+	}
+
+	/**
+	 * Handles incoming actions (e.g. removing all expired pages).
+	 *
+	 * @return	void
+	 */
+	protected function handleActions() {
+		$action = t3lib_div::_GP('ACTION');
+
+		if (isset($action['removeAllExpired'])) {
+			$this->pubObj->removeExpiredPagesFromStorage(false);
+		}
+	}
+
+	/**
+	 * Renders the header of the modile ("Static File Cache") and the accordant actions.
+	 *
+	 * @return	string		The HTML code of the header section
+	 */
+	protected function renderHeader() {
+		return $this->pObj->doc->section(
+			'Static File Cache',
+			implode('', $this->getHeaderActionButtons()),
+			false,
+			true
+		);
+	}
+
+	/**
+	 * Gets the header actions buttons to be rendered in the header section.
+	 *
+	 * @return	array		Action buttons to be rendered in the header section
+	 */
+	protected function getHeaderActionButtons() {
+		return array(
+			'removeAllExpired' => $this->renderActionButton('removeAllExpired', 'Remove all expired pages', 'Are you sure?'),
+		);
+	}
+
+	/**
+	 * Renders a single action button,
+	 *
+	 * @param	string		$elementName: Name attribute of the element
+	 * @param	string		$elementLabel: Label of the action button
+	 * @param	string		$confirmationText: (optional) Confirmation text - will not be used if empty
+	 * @return	string		The HTML representation of an action button
+	 */
+	protected function renderActionButton($elementName, $elementLabel, $confirmationText = '') {
+		return '<input type="submit" name="ACTION[' . htmlspecialchars($elementName) . ']" value="' . $elementLabel . '"' .
+			($confirmationText ? ' onclick="return confirm(\'' . addslashes($confirmationText) . '\');"' : '') . ' />';
 	}
 }
 

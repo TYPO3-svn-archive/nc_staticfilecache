@@ -453,10 +453,30 @@ class tx_ncstaticfilecache {
 	/**
 	 * Remove expired pages. Call from cli script.
 	 *
-	 * @param	object		$pObj: The calling parent object (tx_ncstaticfilecache_cli)
+	 * @param	tx_ncstaticfilecache_cli	$pObj: The calling parent object (tx_ncstaticfilecache_cli)
 	 * @return	void
 	 */
-	public function removeExpiredPages(&$pObj) {
+	public function removeExpiredPages(tx_ncstaticfilecache_cli $pObj) {
+		$logArray = $this->removeExpiredPagesFromStorage();
+
+		if ($logArray) {
+			foreach ($logArray as $line) {
+				$pObj->cli_echo("Removed pid: " . $row['pid'] . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
+			}
+		} else {
+			$pObj->cli_echo("No expired pages found.\n");
+		}
+	}
+
+	/**
+	 * Remove expired pages from storage.
+	 *
+	 * @param	boolean		$logModifications: Whether to log modifications (default: false)
+	 * @return	array		The logged modifcations (only if $logModifications is true)
+	 */
+	public function removeExpiredPagesFromStorage($logModifications = false) {
+		$logArray = array();
+
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'file, host, pid, (' . $GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
 			$this->fileTable,
@@ -468,12 +488,15 @@ class tx_ncstaticfilecache {
 			$tce->start(array(), array());
 
 			foreach ($rows as $row) {
-				$pObj->cli_echo("Removed pid: " . $row['pid'] . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
 				$tce->clear_cacheCmd($row['pid']);
 			}
-		} else {
-			$pObj->cli_echo("No expired pages found.\n");
+
+			if ($logModifications) {
+				$logArray = $rows;
+			}
 		}
+
+		return $logArray;
 	}
 
 	/**
