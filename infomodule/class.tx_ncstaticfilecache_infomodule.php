@@ -132,23 +132,26 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">'.($frec['crdate']?t3lib_BEfunc::datetime($frec['crdate']):'').'</span></td>';
 					$timeout = ($frec['crdate'] > 0) ? t3lib_BEfunc::calcAge(($frec['cache_timeout']),$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')) : '';
 					$tCells[] = '<td nowrap="nowrap">'.$timeout.'</td>';
-					$tCells[] = '<td>' . ($frec['isdirty'] ? 'yes' : 'no');
+					$tCells[] = '<td>' . ($frec['isdirty'] ? 'yes' : 'no') . '</td>';
 					$tCells[] = '<td nowrap="nowrap">'.($frec['explanation']?$frec['explanation']:'').'</td>';
 
-					// Compile Row:
-					$output.= '
-						<tr class="bgColor4" title="id='.$frec['pid'].' host='.$frec['host'].' file='.$frec['file'].'">
-							'.implode('
-							',$tCells).'
-						</tr>';
+				// Compile Row:
+					$output .= $this->renderTableRow(
+						$tCells,
+						'title="id='.$frec['pid'].' host='.$frec['host'].' file='.$frec['file'].'"'
+					);
 				}
 			} else {
+				$tCells = array(
+					'<td nowrap="nowrap" colspan="4"' . $cellAttrib . '>' . $row['HTML'] . t3lib_BEfunc::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
+					'<td><span class="typo3-dimmed">' . ($row['row']['uid'] == 0 ? '' : 'not hit') . '</span></td>',
+				);
+
 				// Compile Row:
-				$output.= '
-					<tr class="bgColor4" title="id='.$row['row']['uid'].'">
-						<td nowrap="nowrap" colspan="4"'.$cellAttrib.'>'.$row['HTML'].t3lib_BEfunc::getRecordTitle('pages',$row['row'],TRUE).'</td>
-						<td><span class="typo3-dimmed">'.($row['row']['uid'] == 0 ? '' : 'not hit').'</span></td>
-					</tr>';
+				$output .= $this->renderTableRow(
+					$tCells,
+					'class="bgColor4" title="id='.$row['row']['uid'].'"'
+				);
 			}
 		}
 
@@ -180,6 +183,17 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 			</p>';
 
 		return $output;
+	}
+
+	/**
+	 * Renders a table row.
+	 *
+	 * @param	array		$elements: The row elements to be rendered
+	 * @param	string		$attributes: The attributes to be used on the table row
+	 * @return	string		The HTML representation of the table row
+	 */
+	protected function renderTableRow(array $elements, $attributes = '') {
+		return '<tr' . ($attributes ? ' ' : '') . $attributes . '>' . implode('', $elements) . '</tr>';
 	}
 
 	/**
