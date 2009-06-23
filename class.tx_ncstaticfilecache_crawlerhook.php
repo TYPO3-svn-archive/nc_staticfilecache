@@ -44,22 +44,22 @@ class tx_ncstaticfilecache_crawlerhook {
 	 * Invoked by crawler this method should mark the cache as dirty
 	 * (Hook-function called from TSFE, see ext_localconf.php for configuration)
 	 *
-	 * @param	tslib_fe	Reference to parent object (TSFE)
-	 * @param	integer		$timeOutTime: (not used here)
+	 * @param	array		Parameters from frontend
+	 * @param	object		TSFE object (reference under PHP5)	 * 
 	 * @return	void
 	 */
-	public function insertPageIncache(tslib_fe $pObj, $timeOutTime) {
+	public function clearStaticFile(array $param, tslib_fe $pObj) {
 			// Look for "crawler" extension activity:
 			// Requirements are that the crawler is loaded, a crawler session is running and tx_ncstaticfilecache_markdirty requested as processing instruction:
 		if (t3lib_extMgm::isLoaded('crawler')
 			&& $pObj->applicationData['tx_crawler']['running']
-			&& in_array('tx_ncstaticfilecache_markdirty', $pObj->applicationData['tx_crawler']['parameters']['procInstructions'])) {
+			&& in_array('tx_ncstaticfilecache_clearstaticfile', $pObj->applicationData['tx_crawler']['parameters']['procInstructions'])) {
 
 			$pageId = $GLOBALS['TSFE']->id;
 
-			if (is_numeric($pageId)) {
-				$this->pubObj->clearStaticFile($pageId);
-				$pObj->applicationData['tx_crawler']['log'][] = 'EXT:nc_staticfilecache marked dirty';
+			if (is_numeric($pageId)) {				
+				$this->pubObj->clearStaticFile($param=array('cacheCmd'=>$pageId));
+				$pObj->applicationData['tx_crawler']['log'][] = 'EXT:nc_staticfilecache cleared static file';
 			} else {
 				$pObj->applicationData['tx_crawler']['log'][] = 'EXT:nc_staticfilecache skipped';
 			}

@@ -1,6 +1,14 @@
 <?php
 if(!defined('TYPO3_MODE'))   die('Access denied.');
 
+// Register with "crawler" extension:
+$TYPO3_CONF_VARS['EXTCONF']['crawler']['procInstructions']['tx_ncstaticfilecache_clearstaticfile'] = 'clear static cache file';
+//hook to force regeneration if crawler is active:
+if (TYPO3_MODE=='FE')	{
+	$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache']['ncstaticfilecache'] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache_crawlerhook.php:&tx_ncstaticfilecache_crawlerhook->clearStaticFile';
+
+}
+
 // Create cache
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPageIncache'][] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache.php:&tx_ncstaticfilecache';
 // Catch Ctrl + Shift + reload (only works when backend user is logged in)
@@ -27,10 +35,5 @@ if (TYPO3_MODE=='BE') {
 }
 
 
-// Register with "crawler" extension:
-$TYPO3_CONF_VARS['EXTCONF']['crawler']['procInstructions']['tx_ncstaticfilecache_markdirty'] = 'Mark static cache dirty';
-//hook to force regeneration if crawler is active:
-if (TYPO3_MODE=='FE')	{
-	$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPageIncache']['ncstaticfilecache'] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache_crawlerhook.php:tx_ncstaticfilecache_crawlerhook';
-}
+
 ?>
