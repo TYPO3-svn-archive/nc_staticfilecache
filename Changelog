@@ -1,6 +1,11 @@
+2009-06-23  Daniel Poetzinger  <dev@aoemedia.de>
+
+	* Added feature: Integrate processing instruction for crawler extension
+
 2009-06-23  Oliver Hader  <oliver@typo3.org>
 
-	* Cleanup: Added method to be used on delegating actions to the static cache data manipulation object 
+	* Cleanup: Added method to be used on delegating actions to the static cache data manipulation object
+	* Cleanup: Fixed ChangeLog and formatting of processing instruction for crawler extension
 
 2009-06-22  Oliver Hader  <oliver@typo3.org>
 

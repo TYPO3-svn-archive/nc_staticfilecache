@@ -26,49 +26,48 @@ t3lib_div::requireOnce(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_n
 /**
  * Static file cache extension crawlerhook
  *
- * @author	Daniel Pötzinger (dev@aoemedia.de)
- * @package TYPO3
- * @subpackage tx_ncstaticfilecache
+ * @author		Daniel Poetzinger (dev@aoemedia.de)
+ * @package		TYPO3
+ * @subpackage	tx_ncstaticfilecache
  */
 class tx_ncstaticfilecache_crawlerhook {
-
+	/**
+	 * @var	tx_ncstaticfilecache
+	 */
 	public $pubObj;
-	
+
 	public function __construct() {	
-			$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
+		$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
 	}
-	
+
 	/**
 	 * Invoked by crawler this method should mark the cache as dirty
 	 * (Hook-function called from TSFE, see ext_localconf.php for configuration)
 	 *
-	 * @param	object		Reference to parent object (TSFE)
-	 * @param	integer		[Not used here]
+	 * @param	tslib_fe	Reference to parent object (TSFE)
+	 * @param	integer		$timeOutTime: (not used here)
 	 * @return	void
 	 */
-	function insertPageIncache(&$pObj,$timeOutTime)	{
-		
+	public function insertPageIncache(tslib_fe $pObj, $timeOutTime) {
 			// Look for "crawler" extension activity:
 			// Requirements are that the crawler is loaded, a crawler session is running and tx_ncstaticfilecache_markdirty requested as processing instruction:
 		if (t3lib_extMgm::isLoaded('crawler')
-				&& $pObj->applicationData['tx_crawler']['running']
-				&& in_array('tx_ncstaticfilecache_markdirty', $pObj->applicationData['tx_crawler']['parameters']['procInstructions']))	{
+			&& $pObj->applicationData['tx_crawler']['running']
+			&& in_array('tx_ncstaticfilecache_markdirty', $pObj->applicationData['tx_crawler']['parameters']['procInstructions'])) {
 
-				
-				$pageId=$GLOBALS['TSFE']->id;
-				if (is_numeric($pageId)) {
-					$this->pubObj->clearStaticFile($pageId);
-					$pObj->applicationData['tx_crawler']['log'][]='EXT:nc_staticfilecache marked dirty';
-				}
-				else {
-					$pObj->applicationData['tx_crawler']['log'][]='EXT:nc_staticfilecache skipped';
-				}
-				
-			
+			$pageId = $GLOBALS['TSFE']->id;
+
+			if (is_numeric($pageId)) {
+				$this->pubObj->clearStaticFile($pageId);
+				$pObj->applicationData['tx_crawler']['log'][] = 'EXT:nc_staticfilecache marked dirty';
+			} else {
+				$pObj->applicationData['tx_crawler']['log'][] = 'EXT:nc_staticfilecache skipped';
+			}
 		} 
 	}
-
 }
 
-
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/class.tx_ncstaticfilecache_crawlerhook.php']) {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/class.tx_ncstaticfilecache_crawlerhook.php']);
+}
 ?>
