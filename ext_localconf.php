@@ -25,4 +25,12 @@ if (TYPO3_MODE=='BE') {
 		'_CLI_ncstaticfilecache'
 	);
 }
+
+
+// Register with "crawler" extension:
+$TYPO3_CONF_VARS['EXTCONF']['crawler']['procInstructions']['tx_ncstaticfilecache_markdirty'] = 'Mark static cache dirty';
+//hook to force regeneration if crawler is active:
+if (TYPO3_MODE=='FE')	{
+	$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPageIncache']['ncstaticfilecache'] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache_crawlerhook.php:tx_ncstaticfilecache_crawlerhook';
+}
 ?>
