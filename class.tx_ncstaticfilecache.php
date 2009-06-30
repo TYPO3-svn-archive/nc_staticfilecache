@@ -488,14 +488,7 @@ class tx_ncstaticfilecache {
 		$dirtyElements = $this->getDirtyElements();
 
 		foreach ($dirtyElements as $dirtyElement) {
-			$result = $this->processDirtyPagesElement($dirtyElement);
-
-			if (isset($parent)) {
-				$parent->cli_echo(
-					($result ? 'Removed' : 'Failed to delete') . ' directory ' . $cacheDirectory . PHP_EOL
-				);
-			}
-
+			$this->processDirtyPagesElement($dirtyElement);
 		}
 	}
 
@@ -512,7 +505,7 @@ class tx_ncstaticfilecache {
 		$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
 		$result = $this->deleteStaticCacheDirectory($cacheDirectory);
 
-				// Hook: Process dirty pages:
+			// Hook: Process dirty pages:
 			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages']
 		$processDirtyPagesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages'];
 		if (is_array($processDirtyPagesHooks)) {
@@ -526,6 +519,12 @@ class tx_ncstaticfilecache {
 				}
 				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 			}
+		}
+
+		if (isset($parent)) {
+			$parent->cli_echo(
+				($result ? 'Removed' : 'Failed to delete') . ' directory ' . $cacheDirectory . PHP_EOL
+			);
 		}
 
 		return $result;
