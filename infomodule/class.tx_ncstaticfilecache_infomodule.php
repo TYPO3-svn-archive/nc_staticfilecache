@@ -236,10 +236,15 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 * @return	array		Action buttons to be rendered in the header section
 	 */
 	protected function getHeaderActionButtons() {
-		return array(
+		$headerActionButtons = array(
 			'removeExpiredPages' => $this->renderActionButton('removeExpiredPages', 'Remove all expired pages', 'Are you sure?'),
-			'processDirtyPages' => $this->renderActionButton('processDirtyPages', 'Process all dirty pages', 'Are you sure?'),
 		);
+
+		if ($this->isMarkDirtyInsteadOfDeletionDefined()) {
+			$headerActionButtons['processDirtyPages'] = $this->renderActionButton('processDirtyPages', 'Process all dirty pages', 'Are you sure?');
+		}
+
+		return $headerActionButtons;
 	}
 
 	/**
@@ -266,6 +271,15 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 			$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
 		}
 		return $this->pubObj;
+	}
+
+	/**
+	 * Determines whether the extension configuration property 'markDirtyInsteadOfDeletion' is enabled.
+	 *
+	 * @return	boolean		Whether the extension configuration property 'markDirtyInsteadOfDeletion' is enabled
+	 */
+	protected function isMarkDirtyInsteadOfDeletionDefined() {
+		return (bool)$this->getStaticFileCacheInstance()->getConfigurationProperty('markDirtyInsteadOfDeletion');
 	}
 }
 
