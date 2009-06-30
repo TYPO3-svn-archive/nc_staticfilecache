@@ -200,6 +200,7 @@ class tx_ncstaticfilecache {
 			$cacheCmd = $_params['cacheCmd'];
 			switch ($cacheCmd) {
 				case 'all':
+				case 'pages':
 					$directory = '';
 					if (!$this->configuration['clearCacheForAllDomains']) {
 						if (isset($_params['host']) && $_params['host']) {
