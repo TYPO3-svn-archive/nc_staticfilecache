@@ -2,6 +2,7 @@
 
 	* Fixed bug: CLI debug output in processDirtyPages() does not contain directory name
 	* Fixed bug: Clearing cached pages (clear_cacheCmd=pages) does not trigger clearing static cache
+	* Cleanup: Added methods to determine extension configuration and select specific properties
 
 2009-06-23  Daniel Poetzinger  <dev@aoemedia.de>
 

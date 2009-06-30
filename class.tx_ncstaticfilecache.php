@@ -84,6 +84,31 @@ class tx_ncstaticfilecache {
 	}
 
 	/**
+	 * Gets the whole extension configuration (modified in extension manager).
+	 *
+	 * @return	array		The extension configuration
+	 */
+	public function getConfiguration() {
+		return $this->configuration;
+	}
+
+	/**
+	 * Gets a specific property of the extension configuration.
+	 *
+	 * @param	string		$property: Property to get configuration from
+	 * @return	mixed		The configuration of a property
+	 */
+	public function getConfigurationProperty($property) {
+		$result = NULL;
+
+		if (isset($this->configuration[$property])) {
+			$result = $this->configuration[$property];
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Gets the directory used for storing the cached files.
 	 *
 	 * @return	string		The directory used for storing the cached files
