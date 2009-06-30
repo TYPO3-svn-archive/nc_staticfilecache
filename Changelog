@@ -4,6 +4,7 @@
 	* Fixed bug: Clearing cached pages (clear_cacheCmd=pages) does not trigger clearing static cache
 	* Cleanup: Added methods to determine extension configuration and select specific properties
 	* Fixed bug: Processing of dirty pages is shown in info module even if using the dirty flag is not enabled
+	* Fixed bug: If necessary, the root of cache directory should be deleted at first
 
 2009-06-23  Daniel Poetzinger  <dev@aoemedia.de>
 

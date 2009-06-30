@@ -532,9 +532,14 @@ class tx_ncstaticfilecache {
 		$result = $this->deleteStaticCacheDirectory($cacheDirectory);
 
 		if (isset($parent)) {
-			$parent->cli_echo(
-				($result ? 'Removed' : 'Failed to delete') . ' directory ' . $cacheDirectory . PHP_EOL
-			);
+			if (!isset($result)) {
+				$resultMessage = 'NOT FOUND';
+			} elseif ($result) {
+				$resultMessage = 'OK';
+			} else {
+				$resultMessage = 'FAILED';
+			}
+			$parent->cli_echo('Removing directory ' . $cacheDirectory . '... ' . $resultMessage . PHP_EOL);
 		}
 
 			// Hook: Process dirty pages:
@@ -715,15 +720,16 @@ class tx_ncstaticfilecache {
 	 * Deletes a static cache directory in filesystem.
 	 *
 	 * @param	string		$directory: The directory to use on deletion below the static cache directory
-	 * @return	boolean		Whether the action was successful
+	 * @return	mixed		Whether the action was successful (if directory was not found, NULL is returned)
 	 */
 	protected function deleteStaticCacheDirectory($directory) {
-		$result = false;
+		$result = NULL;
+
 		$directory = trim($directory);
 		$cacheDirectory = PATH_site . $this->cacheDir . $directory;
 
 		if (!empty($directory) && is_dir($cacheDirectory)) {
-			$result = t3lib_div::rmdir($cacheDirectory, true);
+			$result = (bool)t3lib_div::rmdir($cacheDirectory, true);
 		}
 
 		return $result;
@@ -742,7 +748,7 @@ class tx_ncstaticfilecache {
 			$this->fileTable,
 			'isdirty=1',
 			'',
-			'',
+			'uri ASC',
 			($limit ? $limit : '')
 		);
 
