@@ -303,6 +303,21 @@ class tx_ncstaticfilecache {
 
 		$cacheDir = $this->cacheDir . $host;
 
+			// Hook: Initialize variables before starting the processing.
+			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables']
+		$initializeVariablesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables'];
+		if (is_array($initializeVariablesHooks)) {
+			foreach ($initializeVariablesHooks as $hookFunction) {
+				$hookParameters = array(
+					'TSFE' => $pObj,
+					'host' => &$host,
+					'uri' => &$uri,
+					'cacheDir' => &$cacheDir,
+				);
+				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+			}
+		}
+
 			// Only process if there are not query arguements and no link to external page (doktype=3):
 		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3) {
 			if ($this->configuration['recreateURI']) {
