@@ -61,6 +61,7 @@ class tx_ncstaticfilecache {
 	protected $cacheDir = 'typo3temp/tx_ncstaticfilecache/';
 	protected $isDebugEnabled = false;
 	protected $configuration = array();
+	protected $setup = array();
 
 	/**
 	 * Constructs this object.
@@ -69,6 +70,11 @@ class tx_ncstaticfilecache {
 		if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey])) {
 			$this->setConfiguration(
 				unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey])
+			);
+		}
+		if (isset($GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.'])) {
+			$this->setSetup(
+				$GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.']
 			);
 		}
 	}
@@ -90,6 +96,25 @@ class tx_ncstaticfilecache {
 	 */
 	public function getConfiguration() {
 		return $this->configuration;
+	}
+
+	/**
+	 * Sets the TypoScript setup.
+	 *
+	 * @param	array		$setup: The TypoScript setup
+	 * @return	void
+	 */
+	public function setSetup(array $setup) {
+		$this->setup = $setup;
+	}
+
+	/**
+	 * Gets the TypoScript setup.
+	 *
+	 * @return	array		The TypoScript setup
+	 */
+	public function getSetup() {
+		return $this->setup;
 	}
 
 	/**
@@ -335,6 +360,10 @@ class tx_ncstaticfilecache {
 				$this->debug('insertPageIncache: static cache disabled by user');
 				$explanation = 'static cache disabled on page';
 			}
+			if (isset($this->setup['disableCache']) && $this->setup['disableCache']) {
+				$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"');
+				$explanation = 'static cache disabled by TypoScript';
+			}
 			if ($pObj->no_cache) {
 				$this->debug('insertPageIncache: no_cache setting is true');
 				$explanation = 'config.no_cache is true';
@@ -373,6 +402,7 @@ class tx_ncstaticfilecache {
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
 			if ($pObj->page['tx_ncstaticfilecache_cache']
+				&& !(isset($this->setup['disableCache']) && $this->setup['disableCache'])
 				&& $doCache
 				&& !$workspacePreview
 				&& $loginsDeniedCfg) {
