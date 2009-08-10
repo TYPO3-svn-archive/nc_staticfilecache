@@ -76,6 +76,8 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 		// Initialize tree object:
 		$tree = t3lib_div::makeInstance('t3lib_browsetree');
+		// Also store tree prefix markup:
+		$tree->makeHTML = 2;
 		$tree->init();
 		$tree->ext_IconMode = true;
 		$tree->ext_showPageId = $BE_USER->getTSConfigVal('options.pageTree.showPageIdWithTitle');
@@ -122,7 +124,9 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 					$tCells = array();
 
 					if (!$k)	{
-						$tCells[] = '<td nowrap="nowrap" valign="top" rowspan="'.count($filerecords).'"'.$cellAttrib.'>'.$row['HTML'].t3lib_BEfunc::getRecordTitle('pages',$row['row'],TRUE).'</td>';
+						$tCells[] = '<td nowrap="nowrap" valign="top"' . $cellAttrib . '>' . $row['HTML'] . t3lib_BEfunc::getRecordTitle('pages', $row['row'], TRUE) . '</td>';
+					} else {
+						$tCells[] = '<td nowrap="nowrap" valign="top"' . $cellAttrib . '>' . $row['HTML_depthData'] . '</td>';
 					}
 
 					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">'.($frec['crdate']?t3lib_BEfunc::datetime($frec['crdate']):'').'</span></td>';

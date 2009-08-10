@@ -1,3 +1,7 @@
+2009-08-10  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Visualization of tree in backend info module
+
 2009-08-07  Oliver Hader  <oliver@typo3.org>
 
 	* Added feature: Integrate possibility to disable static caching for a page branch (tx_ncstaticfilecache.disableCache)
