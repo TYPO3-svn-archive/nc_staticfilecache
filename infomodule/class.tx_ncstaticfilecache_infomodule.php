@@ -70,28 +70,24 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 		$this->backPath = $BACK_PATH;
 
-		//$treeStartingPoint = intval($this->pObj->id);
-		$treeStartingPoint = t3lib_div::_GP('id');
-		$treeStartingRecord = t3lib_BEfunc::getRecord('pages', $treeStartingPoint);
+		$treeStartingPoint = intval($this->pObj->id);
 
 		// Initialize tree object:
 		$tree = t3lib_div::makeInstance('t3lib_browsetree');
 		// Also store tree prefix markup:
 		$tree->makeHTML = 2;
 		$tree->init();
+		// Set starting page Id of tree (overrides webmounts):
+		if ($treeStartingPoint > 0) {
+			$tree->MOUNTS = array(0 => $treeStartingPoint);
+		}
 		$tree->ext_IconMode = true;
 		$tree->ext_showPageId = $BE_USER->getTSConfigVal('options.pageTree.showPageIdWithTitle');
 		$tree->showDefaultTitleAttribute = true;
 		$tree->thisScript = 'index.php';
 		$tree->setTreeName('staticfilecache');
-		//$tree->MOUNTS = array('lip' => $treeStartingRecord);
 
 		// Creating top icon; the current page
-		$HTML = t3lib_iconWorks::getIconImage('pages', $treeStartingRecord, $GLOBALS['BACK_PATH'],'align="top"');
-		$tree->tree[] = array(
-		'row' => $treeStartingRecord,
-		'HTML' => $HTML
-		);
 		$tree->getBrowsableTree();
 
 		// Render information table:
