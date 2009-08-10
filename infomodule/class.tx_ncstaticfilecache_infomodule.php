@@ -120,9 +120,9 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 					$tCells = array();
 
 					if (!$k)	{
-						$tCells[] = '<td nowrap="nowrap" valign="top"' . $cellAttrib . '>' . $row['HTML'] . t3lib_BEfunc::getRecordTitle('pages', $row['row'], TRUE) . '</td>';
+						$tCells[] = '<td nowrap="nowrap"' . $cellAttrib . '>' . $row['HTML'] . t3lib_BEfunc::getRecordTitle('pages', $row['row'], TRUE) . '</td>';
 					} else {
-						$tCells[] = '<td nowrap="nowrap" valign="top"' . $cellAttrib . '>' . $row['HTML_depthData'] . '</td>';
+						$tCells[] = '<td nowrap="nowrap"' . $cellAttrib . '>' . $row['HTML_depthData'] . '</td>';
 					}
 
 					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">'.($frec['crdate']?t3lib_BEfunc::datetime($frec['crdate']):'').'</span></td>';
@@ -134,7 +134,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 				// Compile Row:
 					$output .= $this->renderTableRow(
 						$tCells,
-						'title="id='.$frec['pid'].' host='.$frec['host'].' file='.$frec['file'].'"',
+						'valign="top" title="id='.$frec['pid'].' host='.$frec['host'].' file='.$frec['file'].'"',
 						$frec
 					);
 				}
@@ -147,7 +147,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 				// Compile Row:
 				$output .= $this->renderTableRow(
 					$tCells,
-					'class="bgColor4" title="id='.$row['row']['uid'].'"'
+					'valign="top" class="bgColor4" title="id='.$row['row']['uid'].'"'
 				);
 			}
 		}
@@ -160,10 +160,11 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tCells[]='<td>is Dirty:</td>';
 		$tCells[]='<td>Explanation:</td>';
 
-		$output = $this->renderHeader() . $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . $output;
+		$output = $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . $output;
 
 		// Compile final table and return:
-		$output = '
+		$output = 
+			$this->renderHeader() . '
 			<table border="0" cellspacing="1" cellpadding="0" class="lrPadding">'.$output.'
 			</table>';
 
