@@ -3,6 +3,7 @@
 	* Fixed bug: Visualization of tree in backend info module
 	* Fixed bug: Visaulization does not depend on selected page of real page branch in backend info module
 	* Fixed bug: Markup is incorrect on rendering the table in the backend info module
+	* Fixed bug: Expanding/collapsing did not stay at the selected page in the backend info module
 
 2009-08-07  Oliver Hader  <oliver@typo3.org>
 

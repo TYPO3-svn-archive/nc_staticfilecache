@@ -91,7 +91,10 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tree->getBrowsableTree();
 
 		// Render information table:
-		$output.= $this->renderModule($tree);
+		$output .= $this->processExpandCollapseLinks(
+			$this->renderModule($tree),
+			$treeStartingPoint
+		);
 
 		return $output;
 	}
@@ -281,6 +284,28 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 */
 	protected function isMarkDirtyInsteadOfDeletionDefined() {
 		return (bool)$this->getStaticFileCacheInstance()->getConfigurationProperty('markDirtyInsteadOfDeletion');
+	}
+
+	/**
+	 * Processes the expand/collapse links and adds the Id of the current page in branch.
+	 *
+	 * Example:
+	 * index.php?PM=0_0_23_staticfilecache#0_23 --> index.php?PM=0_0_23_staticfilecache&id=13#0_23
+	 *
+	 * @param	string		$content: Content to be processed
+	 * @param	integer		$pageId: The current page Id the tree is started from
+	 * @return	string		The processed and modified content
+	 */
+	protected function processExpandCollapseLinks($content, $pageId) {
+		if (strpos($content, '?PM=') !== false && $pageId > 0) {
+			$content = preg_replace(
+				'/(href=")([^"]+\?PM=[^"#]+)(#[^"]+)?(")/',
+				'${1}${2}&id=' . $pageId . '${3}${4}',
+				$content
+			);
+		}
+
+		return $content;
 	}
 }
 
