@@ -56,6 +56,11 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	protected $pubObj;
 
 	/**
+	 * @var	integer
+	 */
+	protected $pageId = 0;
+
+	/**
 	 * MAIN function for static publishing information
 	 *
 	 * @return	string		Output HTML for the module.
@@ -70,7 +75,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 		$this->backPath = $BACK_PATH;
 
-		$treeStartingPoint = intval($this->pObj->id);
+		$this->pageId = intval($this->pObj->id);
 
 		// Initialize tree object:
 		$tree = t3lib_div::makeInstance('t3lib_browsetree');
@@ -78,8 +83,8 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tree->makeHTML = 2;
 		$tree->init();
 		// Set starting page Id of tree (overrides webmounts):
-		if ($treeStartingPoint > 0) {
-			$tree->MOUNTS = array(0 => $treeStartingPoint);
+		if ($this->pageId > 0) {
+			$tree->MOUNTS = array(0 => $this->pageId);
 		}
 		$tree->ext_IconMode = true;
 		$tree->ext_showPageId = $BE_USER->getTSConfigVal('options.pageTree.showPageIdWithTitle');
@@ -91,10 +96,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tree->getBrowsableTree();
 
 		// Render information table:
-		$output .= $this->processExpandCollapseLinks(
-			$this->renderModule($tree),
-			$treeStartingPoint
-		);
+		$output .= $this->processExpandCollapseLinks($this->renderModule($tree));
 
 		return $output;
 	}
@@ -178,6 +180,11 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/refresh_n.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'" alt="" />'.
 		$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'</a>
 			</p>';
+
+		// Set the current page Id:
+		if ($this->pageId > 0) {
+			$output .= '<input type="hidden" name="id" value="' . $this->pageId . '" />';
+		}
 
 		return $output;
 	}
@@ -293,14 +300,13 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 * index.php?PM=0_0_23_staticfilecache#0_23 --> index.php?PM=0_0_23_staticfilecache&id=13#0_23
 	 *
 	 * @param	string		$content: Content to be processed
-	 * @param	integer		$pageId: The current page Id the tree is started from
 	 * @return	string		The processed and modified content
 	 */
-	protected function processExpandCollapseLinks($content, $pageId) {
-		if (strpos($content, '?PM=') !== false && $pageId > 0) {
+	protected function processExpandCollapseLinks($content) {
+		if (strpos($content, '?PM=') !== false && $this->pageId > 0) {
 			$content = preg_replace(
 				'/(href=")([^"]+\?PM=[^"#]+)(#[^"]+)?(")/',
-				'${1}${2}&id=' . $pageId . '${3}${4}',
+				'${1}${2}&id=' . $this->pageId . '${3}${4}',
 				$content
 			);
 		}

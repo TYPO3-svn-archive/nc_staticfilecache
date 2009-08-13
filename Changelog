@@ -1,3 +1,7 @@
+2009-08-13  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Current page Id is not outputted in form of backend info module
+
 2009-08-10  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Visualization of tree in backend info module
