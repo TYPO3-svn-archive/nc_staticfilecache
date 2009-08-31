@@ -767,7 +767,7 @@ class tx_ncstaticfilecache {
 	 * @param	string		$directory: The directory to use on deletion below the static cache directory
 	 * @return	mixed		Whether the action was successful (if directory was not found, NULL is returned)
 	 */
-	protected function deleteStaticCacheDirectory($directory) {
+	public function deleteStaticCacheDirectory($directory) {
 		$result = NULL;
 
 		$directory = trim($directory);
