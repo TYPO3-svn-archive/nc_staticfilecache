@@ -1,7 +1,10 @@
+2010-01-14  Michiel Roos  <michiel@netcreators.com>
+
+	* Fixed bug #4715: List what element are of INT type. (Thanks to Mads Jensen)
+
 2010-01-14  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: tx_ncstaticfilecache::processDirtyPages() removes entries from diry queue even if the processing did not succeed
-	* Fixed bug #4715: List what element are of INT type. (Thanks to Mads Jensen)
 
 2009-08-31  Oliver Hader  <oliver@typo3.org>
 
