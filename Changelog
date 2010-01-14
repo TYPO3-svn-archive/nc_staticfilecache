@@ -1,6 +1,7 @@
 2010-01-14  Michiel Roos  <michiel@netcreators.com>
 
 	* Fixed bug #4715: List what element are of INT type. (Thanks to Mads Jensen)
+	* Added feature #6026: Provide scheduler tasks (Thanks to Michael Klapper)
 
 2010-01-14  Oliver Hader  <oliver@typo3.org>
 
