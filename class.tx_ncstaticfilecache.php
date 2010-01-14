@@ -571,8 +571,6 @@ class tx_ncstaticfilecache {
 	 * @return	boolean		Whether the deletion was successful
 	 */
 	public function processDirtyPagesElement(array $dirtyElement, t3lib_cli $parent = NULL) {
-		$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
-
 		$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
 		$result = $this->deleteStaticCacheDirectory($cacheDirectory);
 
@@ -601,6 +599,11 @@ class tx_ncstaticfilecache {
 				}
 				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 			}
+		}
+
+		if ($result) {
+			// Remove the dirty entry if all process succeeded:
+			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
 		}
 
 		return $result;
