@@ -370,7 +370,17 @@ class tx_ncstaticfilecache {
 			}
 			if ($pObj->isINTincScript()) {
 				$this->debug('insertPageIncache: page has INTincScript');
-				$explanation = 'page has INTincScript';
+				$userFunc = array();
+				$includeLibs = array();
+				foreach($pObj->config['INTincScript'] as $k => $v) {
+					$userFunc[] = $v['conf']['userFunc'];
+					$includeLibs[] = $v['conf']['includeLibs'];
+				}
+				$userFunc = array_unique($userFunc);
+				$includeLibs = array_unique($includeLibs);
+				$explanation = 'page has INTincScript: <ul><li>'.implode('</li><li>', $userFunc).''.implode('</li><li>', $includeLibs).'</li></ul>';
+				unset($includeLibs);
+				unset($userFunc);
 			}
 			if ($pObj->isEXTincScript()) {
 				$this_>debug('insertPageIncache: page has EXTincScript');
