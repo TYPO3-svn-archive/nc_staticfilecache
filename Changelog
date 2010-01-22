@@ -1,3 +1,7 @@
+2010-01-22  Michiel Roos  <michiel@netcreators.com>
+
+	* Fixed bug #6158: Scheduler tasks: missing ext_autoload (Thanks to Peter Schuster)
+
 2010-01-14  Michiel Roos  <michiel@netcreators.com>
 
 	* Fixed bug #4715: List what element are of INT type. (Thanks to Mads Jensen)
