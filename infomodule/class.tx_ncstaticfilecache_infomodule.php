@@ -139,7 +139,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 				// Compile Row:
 					$output .= $this->renderTableRow(
 						$tCells,
-						'valign="top" title="id='.$frec['pid'].' host='.$frec['host'].' file='.$frec['file'].'"',
+						'valign="top" title="id='.$frec['pid'].' host='.$frec['host'].' uri='.$frec['uri'].'"',
 						$frec
 					);
 				}
