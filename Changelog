@@ -1,3 +1,7 @@
+2010-01-30  Michiel Roos  <michiel@netcreators.com>
+
+	* Change: Show original URI on hover in infomodule
+
 2010-01-22  Michiel Roos  <michiel@netcreators.com>
 
 	* Fixed bug #6158: Scheduler tasks: missing ext_autoload (Thanks to Peter Schuster)
