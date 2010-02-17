@@ -323,7 +323,7 @@ class tx_ncstaticfilecache {
 		$this->debug('insertPageIncache');
 
 		// Find host-name / IP, always in lowercase:
-		$host = strtolower(t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'));
+		$host = strtolower(t3lib_div::getIndpEnv('HTTP_HOST'));
 		$uri = t3lib_div::getIndpEnv('REQUEST_URI');
 
 		$cacheDir = $this->cacheDir . $host;
