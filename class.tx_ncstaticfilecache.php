@@ -343,8 +343,8 @@ class tx_ncstaticfilecache {
 			}
 		}
 
-			// Only process if there are not query arguements and no link to external page (doktype=3):
-		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3) {
+			// Only process if there are not query arguements, no link to external page (doktype=3) and not called over https:
+		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3 && strpos(t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') !== false) {
 			if ($this->configuration['recreateURI']) {
 				$uri = $this->recreateURI();
 			}
