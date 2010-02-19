@@ -13,7 +13,7 @@ showGenerationSignature = 0
 # cat=basic; type=string; label=Timestamp format:The date format, formatted according to your locale.
 strftime = cached statically on: %d-%m-%y %H:%M
 
-# cat=basic; type=boolean; label=Log debug information to cc_devlog: If enabled, logging info will be written to cc_devlog. So make sure you have this installed if you have this option checked.
+# cat=basic; type=boolean; label=Log debug information to devlog: If enabled, logging info will be written to devlog. So make sure you have this installed if you have this option checked.
 debug = 0
 
 # cat=basic; type=boolean; label=Recreate URI to create cache files: Recreate URI by typoLink to have a vaild cached file name
