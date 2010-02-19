@@ -4,6 +4,9 @@ clearCacheForAllDomains = 1
 # cat=basic; type=boolean; label=Send Cache-Control header: If your apache installation has 'mod_expires' loaded, you can use it to send Cache-Control headers. For each statically cached page a .htaccess file will be creatred with a mod_expires rule. This rule will make apache send a cache header when delivering the cached page to the visitor. Please note that this will only work with a clean realurl setup (paths ending with a '/').
 sendCacheControlHeader = 1
 
+# cat=basic; type=boolean; label=Enable static file compression: When checked, a gzipped version of the static file is written to the cache directory as well as a plain version (used for fallback, not all browsers and proxies support gzip). This will speed up file transfer time. Apache can also compress files using mod_deflate, but does so on each request. Enabling this option makes sure it is done only once. Take care to also choose the propper .htaccess configuration when enbling this option.
+enableStaticFileCompression = 0
+
 # cat=basic; type=boolean; label=Show generation timestamp signature: This appends a comment at the end of the static html file. This can be usefull for debugging purposes (look at the source and see if the comment is present).
 showGenerationSignature = 0
 

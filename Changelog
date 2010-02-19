@@ -1,5 +1,9 @@
 2010-02-17  Michiel Roos  <michiel@netcreators.com>
 
+	* Feature #4179: Create gzipped versions of cache files (Thanks to Steffen Gebert)
+
+2010-02-17  Michiel Roos  <michiel@netcreators.com>
+
 	* Fixed bug #6504: port based installations doesn't work (Thanks to Stefan Galinski)
 
 2010-01-30  Michiel Roos  <michiel@netcreators.com>
