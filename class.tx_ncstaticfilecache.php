@@ -490,6 +490,7 @@ class tx_ncstaticfilecache {
 						'cache_timeout' => $timeOutSeconds,
 						'file' => $file,
 						'pid' => $pObj->page['uid'],
+						'reg1' => $pObj->page_cache_reg1,
 						'host' => $host,
 						'uri' => $uri,
 					);

@@ -15,6 +15,7 @@ CREATE TABLE tx_ncstaticfilecache_file (
 	cache_timeout int(11) DEFAULT '0' NOT NULL,
 	explanation mediumtext,
 	pid int(11) DEFAULT '0',
+	reg1 int(11) DEFAULT '0',
 	host mediumtext NOT NULL,
 	file mediumtext NOT NULL,
 	uri mediumtext NOT NULL,

@@ -1,4 +1,8 @@
-2010-02-17  Michiel Roos  <michiel@netcreators.com>
+2010-02-20  Michiel Roos  <michiel@netcreators.com>
+
+	* Feature #3286: Enable usage of value 'reg1' from cache pages (Thanks to Alienor.net)
+
+2010-02-19  Michiel Roos  <michiel@netcreators.com>
 
 	* Feature #4179: Create gzipped versions of cache files (Thanks to Steffen Gebert)
 	* Fixed bug #5290: nc_staticfilecache caches contents of https pages! (Thanks to Stefan Galinski)
