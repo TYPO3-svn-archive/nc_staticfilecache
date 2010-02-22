@@ -459,7 +459,7 @@ class tx_ncstaticfilecache {
 				t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
 
 				if ($this->configuration['enableStaticFileCompression']) {
-					$level = $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
+					$level = is_int($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
 					$contentGzip = gzencode($content, $level);
 					if ($contentGzip) {
 						t3lib_div::writeFile(PATH_site . $cacheDir . $file . '.gz', $contentGzip);
