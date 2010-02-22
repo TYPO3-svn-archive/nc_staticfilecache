@@ -5,7 +5,7 @@ clearCacheForAllDomains = 1
 sendCacheControlHeader = 1
 
 # cat=basic; type=boolean; label=Enable static file compression: When checked, a gzipped version of the static file is written to the cache directory as well as a plain version (used for fallback, not all browsers and proxies support gzip). This will speed up file transfer time. Apache can also compress files using mod_deflate, but does so on each request. Enabling this option makes sure it is done only once. Take care to also choose the proper .htaccess configuration when enabling this option.
-enableStaticFileCompression = 0
+enableStaticFileCompression = 1
 
 # cat=basic; type=boolean; label=Show generation timestamp signature: This appends a comment at the end of the static html file. This can be useful for debugging purposes (look at the source and see if the comment is present).
 showGenerationSignature = 0
