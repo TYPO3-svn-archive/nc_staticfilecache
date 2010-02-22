@@ -28,6 +28,9 @@ RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUE
 # don't show the anonymous version to logged in frontend users.
 RewriteCond %{HTTP_COOKIE} !nc_staticfilecache [NC]
 
+# Uncomment the following line if you use MnoGoSearch
+#RewriteCond %{HTTP:X-TYPO3-mnogosearch} ^$
+
 # We only redirect GET requests
 RewriteCond %{REQUEST_METHOD} GET
 
