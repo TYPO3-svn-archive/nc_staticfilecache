@@ -402,7 +402,9 @@ class tx_ncstaticfilecache {
 							'TSFE' => $pObj,
 							'content' => $content,
 							'directory' => PATH_site . $cacheDir,
-							'file' => $file, 
+							'file' => $file,
+							'host' => $host,
+							'uri' => $uri,
 						);
 						$content = t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 					}
