@@ -1,3 +1,7 @@
+2010-04-14  Oliver Hader  <oliver@typo3.org>
+
+	* Cleanup: Moved logging part of writing cache files to accordant place
+
 2010-02-22  Michiel Roos  <michiel@netcreators.com>
 
 	* Updated the manual

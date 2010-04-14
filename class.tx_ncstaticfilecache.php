@@ -351,60 +351,9 @@ class tx_ncstaticfilecache {
 
 			$loginsDeniedCfg = !$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch;
 			$doCache = $pObj->isStaticCacheble();
-			if (t3lib_div::int_from_ver(TYPO3_version) < 4000000) {
-				$workspaces = false;
-			}
 
-			// This is an 'explode' of the function isStaticCacheble()
-			if (!$pObj->page['tx_ncstaticfilecache_cache']) {
-				$this->debug('insertPageIncache: static cache disabled by user');
-				$explanation = 'static cache disabled on page';
-			}
-			if (isset($this->setup['disableCache']) && $this->setup['disableCache']) {
-				$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"');
-				$explanation = 'static cache disabled by TypoScript';
-			}
-			if ($pObj->no_cache) {
-				$this->debug('insertPageIncache: no_cache setting is true');
-				$explanation = 'config.no_cache is true';
-			}
-			if ($pObj->isINTincScript()) {
-				$this->debug('insertPageIncache: page has INTincScript');
-				$userFunc = array();
-				$includeLibs = array();
-				foreach($pObj->config['INTincScript'] as $k => $v) {
-					$userFunc[] = $v['conf']['userFunc'];
-					$includeLibs[] = $v['conf']['includeLibs'];
-				}
-				$userFunc = array_unique($userFunc);
-				$includeLibs = array_unique($includeLibs);
-				$explanation = 'page has INTincScript: <ul><li>'.implode('</li><li>', $userFunc).''.implode('</li><li>', $includeLibs).'</li></ul>';
-				unset($includeLibs);
-				unset($userFunc);
-			}
-			if ($pObj->isEXTincScript()) {
-				$this_>debug('insertPageIncache: page has EXTincScript');
-				$explanation = 'page has EXTincScript';
-			}
-			if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
-				$this->debug('insertPageIncache: page has user or group set');
-				// This is actually ok, we do not need to create cache nor an entry in the files table
-				//$explanation = "page has user or group set";
-			}
-
-			if ($workspaces) {
-				if ($pObj->doWorkspacePreview()) {
-					$this->debug('insertPageIncache: workspace preview');
-					$explanation = 'workspace preview';
-					$workspacePreview = true;
-				}
-			} else {
-				$workspacePreview = false;
-			}
-			if (!$loginsDeniedCfg) {
-				$this->debug('insertPageIncache: loginsDeniedCfg is true');
-				$explanation = 'loginsDeniedCfg is true';
-			}
+			// Workspaces have been introduced with TYPO3 4.0.0:
+			$workspacePreview = (t3lib_div::int_from_ver(TYPO3_version) >= 4000000 && $pObj->doWorkspacePreview());
 
 			$file = $uri . '/index.html';
 			$file = preg_replace('#//#', '/', $file);
@@ -496,7 +445,55 @@ class tx_ncstaticfilecache {
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fields_values);
 				}
+
 			} else {
+
+					// This is an 'explode' of the function isStaticCacheble()
+				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
+					$this->debug('insertPageIncache: static cache disabled by user');
+					$explanation = 'static cache disabled on page';
+				}
+				if (isset($this->setup['disableCache']) && $this->setup['disableCache']) {
+					$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"');
+					$explanation = 'static cache disabled by TypoScript';
+				}
+				if ($pObj->no_cache) {
+					$this->debug('insertPageIncache: no_cache setting is true');
+					$explanation = 'config.no_cache is true';
+				}
+				if ($pObj->isINTincScript()) {
+					$this->debug('insertPageIncache: page has INTincScript');
+					$userFunc = array();
+					$includeLibs = array();
+					foreach($pObj->config['INTincScript'] as $k => $v) {
+						$userFunc[] = $v['conf']['userFunc'];
+						$includeLibs[] = $v['conf']['includeLibs'];
+					}
+					$userFunc = array_unique($userFunc);
+					$includeLibs = array_unique($includeLibs);
+					$explanation = 'page has INTincScript: <ul><li>'.implode('</li><li>', $userFunc).''.implode('</li><li>', $includeLibs).'</li></ul>';
+					unset($includeLibs);
+					unset($userFunc);
+				}
+				if ($pObj->isEXTincScript()) {
+					$this_>debug('insertPageIncache: page has EXTincScript');
+					$explanation = 'page has EXTincScript';
+				}
+				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
+					$this->debug('insertPageIncache: page has user or group set');
+					// This is actually ok, we do not need to create cache nor an entry in the files table
+					//$explanation = "page has user or group set";
+				}
+				if ($workspacePreview) {
+					$this->debug('insertPageIncache: workspace preview');
+					$explanation = 'workspace preview';
+				}
+				if (!$loginsDeniedCfg) {
+					$this->debug('insertPageIncache: loginsDeniedCfg is true');
+					$explanation = 'loginsDeniedCfg is true';
+				}
+
+
 				// Check for existing entries with the same uid and file, if a
 				// record exists, update timestamp, otherwise create a new record.
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
