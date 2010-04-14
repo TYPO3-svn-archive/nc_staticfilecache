@@ -1,6 +1,7 @@
 2010-04-14  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Moved logging part of writing cache files to accordant place
+	* Cleanup: Moved information that determine whether a page is cachable and added to them to hook parameters
 
 2010-02-22  Michiel Roos  <michiel@netcreators.com>
 

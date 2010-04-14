@@ -328,6 +328,9 @@ class tx_ncstaticfilecache {
 
 		$cacheDir = $this->cacheDir . $host;
 
+		$loginsDeniedCfg = (!$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch);
+		$staticCacheable = $pObj->isStaticCacheble();
+
 			// Hook: Initialize variables before starting the processing.
 			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables']
 		$initializeVariablesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables'];
@@ -338,6 +341,8 @@ class tx_ncstaticfilecache {
 					'host' => &$host,
 					'uri' => &$uri,
 					'cacheDir' => &$cacheDir,
+					'loginDenied' => &$loginsDeniedCfg,
+					'staticCacheable' => &$staticCacheable,
 				);
 				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 			}
@@ -349,9 +354,6 @@ class tx_ncstaticfilecache {
 				$uri = $this->recreateURI();
 			}
 
-			$loginsDeniedCfg = !$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch;
-			$doCache = $pObj->isStaticCacheble();
-
 			// Workspaces have been introduced with TYPO3 4.0.0:
 			$workspacePreview = (t3lib_div::int_from_ver(TYPO3_version) >= 4000000 && $pObj->doWorkspacePreview());
 
@@ -362,7 +364,7 @@ class tx_ncstaticfilecache {
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
 			if ($pObj->page['tx_ncstaticfilecache_cache']
 				&& !(isset($this->setup['disableCache']) && $this->setup['disableCache'])
-				&& $doCache
+				&& $staticCacheable
 				&& !$workspacePreview
 				&& $loginsDeniedCfg) {
 
