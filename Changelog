@@ -5,6 +5,7 @@
 	* Cleanup: Moved implementation to write compressed content to separate method
 	* Cleanup: Extended parameters of createFile_processContent hook by URI and hostname
 	* Cleanup: Renamed internal variable name
+	* Added feature: Add possibility to predefine/extend values that are stored in the database
 
 2010-02-22  Michiel Roos  <michiel@netcreators.com>
 

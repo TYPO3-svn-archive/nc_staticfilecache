@@ -402,6 +402,7 @@ class tx_ncstaticfilecache {
 						$hookParameters = array(
 							'TSFE' => $pObj,
 							'content' => $content,
+							'fieldValues' => &$fieldValues,
 							'directory' => PATH_site . $cacheDir,
 							'file' => $file,
 							'host' => $host,
@@ -430,15 +431,18 @@ class tx_ncstaticfilecache {
 					$fieldValues['isdirty'] = 0;
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 				} else {
-					$fieldValues = array(
-						'crdate' => $GLOBALS['EXEC_TIME'],
-						'tstamp' => $GLOBALS['EXEC_TIME'],
-						'cache_timeout' => $timeOutSeconds,
-						'file' => $file,
-						'pid' => $pObj->page['uid'],
-						'reg1' => $pObj->page_cache_reg1,
-						'host' => $host,
-						'uri' => $uri,
+					$fieldValues = array_merge(
+						$fieldValues,
+						array(
+							'crdate' => $GLOBALS['EXEC_TIME'],
+							'tstamp' => $GLOBALS['EXEC_TIME'],
+							'cache_timeout' => $timeOutSeconds,
+							'file' => $file,
+							'pid' => $pObj->page['uid'],
+							'reg1' => $pObj->page_cache_reg1,
+							'host' => $host,
+							'uri' => $uri,
+						)
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
 				}
@@ -501,8 +505,10 @@ class tx_ncstaticfilecache {
 						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable)
 				);
 				if ($rows[0]['uid']) {
-					$fieldValues['explanation'] = $explanation;
-					$fieldValues['isdirty'] = 0;
+					$fieldValues = array(
+						'explanation' => $explanation,
+						'isdirty' => 0,
+					);
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 				} else {
 					$fieldValues = array(
