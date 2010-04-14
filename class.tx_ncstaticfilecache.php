@@ -407,18 +407,10 @@ class tx_ncstaticfilecache {
 						$content = t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 					}
 				}
-				t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
 
-				if ($this->configuration['enableStaticFileCompression']) {
-					$level = is_int($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
-					$contentGzip = gzencode($content, $level);
-					if ($contentGzip) {
-						t3lib_div::writeFile(PATH_site . $cacheDir . $file . '.gz', $contentGzip);
-					}
-					unset($contentGzip);
-					unset($level);
-				}
-				
+				t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
+				$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
+
 				// Check for existing entries with the same uid and file, if a
 				// record exists, update timestamp, otherwise create a new record.
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
@@ -821,6 +813,23 @@ class tx_ncstaticfilecache {
 		);
 
 		return $elements;
+	}
+
+	/**
+	 * Writes compressed content to the file system.
+	 *
+	 * @param string $filePath Name and path to the file containing the original content
+	 * @param string $content Content data to be compressed
+	 * @return void
+	 */
+	protected function writeCompressedContent($filePath, $content) {
+		if ($this->configuration['enableStaticFileCompression']) {
+			$level = is_int($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
+			$contentGzip = gzencode($content, $level);
+			if ($contentGzip) {
+				t3lib_div::writeFile($filePath . '.gz', $contentGzip);
+			}
+		}
 	}
 
 	/**

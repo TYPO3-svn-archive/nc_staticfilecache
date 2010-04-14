@@ -2,6 +2,7 @@
 
 	* Cleanup: Moved logging part of writing cache files to accordant place
 	* Cleanup: Moved information that determine whether a page is cachable and added to them to hook parameters
+	* Cleanup: Moved implementation to write compressed content to separate method
 
 2010-02-22  Michiel Roos  <michiel@netcreators.com>
 
