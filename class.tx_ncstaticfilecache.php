@@ -368,6 +368,7 @@ class tx_ncstaticfilecache {
 				&& !$workspacePreview
 				&& $loginsDeniedCfg) {
 
+				$fieldValues = array();
 				$content = $pObj->content;
 				t3lib_div::mkdir_deep(PATH_site, $cacheDir . $uri);
 
@@ -424,12 +425,12 @@ class tx_ncstaticfilecache {
 				);
 
 				if ($rows[0]['uid']) {
-					$fields_values['tstamp'] = $GLOBALS['EXEC_TIME'];
-					$fields_values['cache_timeout'] = $timeOutSeconds;
-					$fields_values['isdirty'] = 0;
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fields_values);
+					$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
+					$fieldValues['cache_timeout'] = $timeOutSeconds;
+					$fieldValues['isdirty'] = 0;
+					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 				} else {
-					$fields_values = array(
+					$fieldValues = array(
 						'crdate' => $GLOBALS['EXEC_TIME'],
 						'tstamp' => $GLOBALS['EXEC_TIME'],
 						'cache_timeout' => $timeOutSeconds,
@@ -439,7 +440,7 @@ class tx_ncstaticfilecache {
 						'host' => $host,
 						'uri' => $uri,
 					);
-					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fields_values);
+					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
 				}
 
 			} else {
@@ -500,18 +501,18 @@ class tx_ncstaticfilecache {
 						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable)
 				);
 				if ($rows[0]['uid']) {
-					$fields_values['explanation'] = $explanation;
-					$fields_values['isdirty'] = 0;
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fields_values);
+					$fieldValues['explanation'] = $explanation;
+					$fieldValues['isdirty'] = 0;
+					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 				} else {
-					$fields_values = array(
+					$fieldValues = array(
 						'explanation' => $explanation,
 						'file' => $file,
 						'pid' => $pObj->page['uid'],
 						'host' => $host,
 						'uri' => $uri,
 					);
-					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fields_values);
+					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
 				}
 
 				$this->debug('insertPageIncache: ... this page is not cached!');

@@ -4,6 +4,7 @@
 	* Cleanup: Moved information that determine whether a page is cachable and added to them to hook parameters
 	* Cleanup: Moved implementation to write compressed content to separate method
 	* Cleanup: Extended parameters of createFile_processContent hook by URI and hostname
+	* Cleanup: Renamed internal variable name
 
 2010-02-22  Michiel Roos  <michiel@netcreators.com>
 
