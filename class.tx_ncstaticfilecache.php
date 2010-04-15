@@ -556,6 +556,8 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	public function removeExpiredPages(t3lib_cli $parent = NULL) {
+		$clearedPages = array();
+
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'file, host, pid, (' . $GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
 			$this->fileTable,
@@ -563,14 +565,22 @@ class tx_ncstaticfilecache {
 		);
 
 		if ($rows) {
+			/* @var $tce t3lib_TCEmain */
 			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 			$tce->start(array(), array());
 
 			foreach ($rows as $row) {
+				$pageId = $row['pid'];
+
 				if (isset($parent)) {
-					$parent->cli_echo("Removed pid: " . $row['pid'] . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
+					$parent->cli_echo("Removed pid: " . $pageId . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
 				}
-				$tce->clear_cacheCmd($row['pid']);
+
+				// Check whether page was already cleared:
+				if (!isset($clearedPages[$pageId])) {
+					$tce->clear_cacheCmd($pageId);
+					$clearedPages[$pageId] = TRUE;
+				}
 			}
 		} elseif (isset($parent)) {
 			$parent->cli_echo("No expired pages found.\n");
