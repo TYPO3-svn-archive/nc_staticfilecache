@@ -331,6 +331,8 @@ class tx_ncstaticfilecache {
 		$loginsDeniedCfg = (!$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch);
 		$staticCacheable = $pObj->isStaticCacheble();
 
+		$fieldValues = array();
+
 			// Hook: Initialize variables before starting the processing.
 			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables']
 		$initializeVariablesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables'];
@@ -341,6 +343,7 @@ class tx_ncstaticfilecache {
 					'host' => &$host,
 					'uri' => &$uri,
 					'cacheDir' => &$cacheDir,
+					'fieldValues' => &$fieldValues,
 					'loginDenied' => &$loginsDeniedCfg,
 					'staticCacheable' => &$staticCacheable,
 				);
@@ -368,7 +371,6 @@ class tx_ncstaticfilecache {
 				&& !$workspacePreview
 				&& $loginsDeniedCfg) {
 
-				$fieldValues = array();
 				$content = $pObj->content;
 				t3lib_div::mkdir_deep(PATH_site, $cacheDir . $uri);
 
@@ -505,18 +507,19 @@ class tx_ncstaticfilecache {
 						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable)
 				);
 				if ($rows[0]['uid']) {
-					$fieldValues = array(
-						'explanation' => $explanation,
-						'isdirty' => 0,
-					);
+					$fieldValues['explanation'] = $explanation;
+					$fieldValues['isdirty'] = 0;
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 				} else {
-					$fieldValues = array(
-						'explanation' => $explanation,
-						'file' => $file,
-						'pid' => $pObj->page['uid'],
-						'host' => $host,
-						'uri' => $uri,
+					$fieldValues = array_merge(
+						$fieldValues,
+						array(
+							'explanation' => $explanation,
+							'file' => $file,
+							'pid' => $pObj->page['uid'],
+							'host' => $host,
+							'uri' => $uri,
+						)
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
 				}

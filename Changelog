@@ -1,3 +1,7 @@
+2010-04-15  Oliver Hader  <oliver@typo3.org>
+
+	* Follow-up to feature of predefining/extending values that are stored in the database
+
 2010-04-14  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Moved logging part of writing cache files to accordant place
