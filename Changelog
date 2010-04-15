@@ -1,6 +1,7 @@
 2010-04-15  Oliver Hader  <oliver@typo3.org>
 
 	* Follow-up to feature of predefining/extending values that are stored in the database
+	* Added feature: Add additionalhash to implement individual and more specific database elements (utilized by hooks)
 
 2010-04-14  Oliver Hader  <oliver@typo3.org>
 

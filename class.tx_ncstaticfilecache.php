@@ -332,6 +332,7 @@ class tx_ncstaticfilecache {
 		$staticCacheable = $pObj->isStaticCacheble();
 
 		$fieldValues = array();
+		$additionalHash = '';
 
 			// Hook: Initialize variables before starting the processing.
 			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables']
@@ -345,6 +346,7 @@ class tx_ncstaticfilecache {
 					'cacheDir' => &$cacheDir,
 					'fieldValues' => &$fieldValues,
 					'loginDenied' => &$loginsDeniedCfg,
+					'additionalHash' => &$additionalHash,
 					'staticCacheable' => &$staticCacheable,
 				);
 				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
@@ -424,7 +426,8 @@ class tx_ncstaticfilecache {
 					$this->fileTable,
 					'pid=' . $pObj->page['uid'] .
 						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
-						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable)
+						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
+						(!$additionalHash ? ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $fileTable) : '')
 				);
 
 				if ($rows[0]['uid']) {
@@ -504,7 +507,8 @@ class tx_ncstaticfilecache {
 					$this->fileTable,
 					'pid=' . $pObj->page['uid'] . 
 						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
-						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable)
+						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
+						(!$additionalHash ? ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $fileTable) : '')
 				);
 				if ($rows[0]['uid']) {
 					$fieldValues['explanation'] = $explanation;
