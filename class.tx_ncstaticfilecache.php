@@ -328,6 +328,7 @@ class tx_ncstaticfilecache {
 
 		$cacheDir = $this->cacheDir . $host;
 
+		$isHttp = (strpos(t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
 		$loginsDeniedCfg = (!$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch);
 		$staticCacheable = $pObj->isStaticCacheble();
 
@@ -343,6 +344,7 @@ class tx_ncstaticfilecache {
 					'TSFE' => $pObj,
 					'host' => &$host,
 					'uri' => &$uri,
+					'isHttp' => &$isHttp,
 					'cacheDir' => &$cacheDir,
 					'fieldValues' => &$fieldValues,
 					'loginDenied' => &$loginsDeniedCfg,
@@ -354,7 +356,7 @@ class tx_ncstaticfilecache {
 		}
 
 			// Only process if there are not query arguements, no link to external page (doktype=3) and not called over https:
-		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3 && strpos(t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') !== false) {
+		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3 && $isHttp) {
 			if ($this->configuration['recreateURI']) {
 				$uri = $this->recreateURI();
 			}
