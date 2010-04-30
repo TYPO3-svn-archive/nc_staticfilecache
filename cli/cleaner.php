@@ -76,10 +76,12 @@ class tx_ncstaticfilecache_cli extends t3lib_cli {
 
 		if ($task == 'removeExpiredPages') {
 			$this->cli_echo("Looking for expired pages.\n");
+			/* @var $cleaner tx_ncstaticfilecache */
 			$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
 			$cleaner->removeExpiredPages($this);
 		} elseif ($task == 'processDirtyPages') {
 			$this->cli_echo('Looking for dirty pages.' . PHP_EOL);
+			/* @var $cleaner tx_ncstaticfilecache */
 			$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
 			$cleaner->processDirtyPages($this);
 		}
