@@ -1,3 +1,7 @@
+2010-04-30  Oliver Hader  <oliver@typo3.org>
+
+	* Added feature: Integrate hook to handle deleting a static cached directory
+
 2010-04-19  Oliver Hader  <oliver@typo3.org>
 
 	* Follow-up to bug #5290: Expect the scheme name at first position and allow to modifiy with hook

@@ -612,6 +612,21 @@ class tx_ncstaticfilecache {
 	 */
 	public function processDirtyPagesElement(array $dirtyElement, t3lib_cli $parent = NULL) {
 		$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
+
+		$deleteStaticCacheDirectoryHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['deleteStaticCacheDirectory'];
+		if (is_array($deleteStaticCacheDirectoryHooks)) {
+			foreach ($deleteStaticCacheDirectoryHooks as $hookFunction) {
+				$hookParameters = array(
+					'dirtyElement' => $dirtyElement,
+					'cacheDirectory' => &$cacheDirectory,
+				);
+				if (isset($parent)) {
+					$hookParameters['cliDispatcher'] = $parent;
+				}
+				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+			}
+		}
+
 		$result = $this->deleteStaticCacheDirectory($cacheDirectory);
 
 		if (isset($parent)) {
