@@ -1,3 +1,7 @@
+2010-05-25  Oliver Hader  <oliver@typo3.org>
+
+	* Added feature: Integrate hook to post process the cache scenario after (no matter whether static cache was written)
+
 2010-04-30  Oliver Hader  <oliver@typo3.org>
 
 	* Added feature: Integrate hook to handle deleting a static cached directory

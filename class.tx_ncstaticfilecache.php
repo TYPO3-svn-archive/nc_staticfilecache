@@ -320,6 +320,7 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	public function insertPageIncache(&$pObj, &$timeOutTime) {
+		$isStaticCached = FALSE;
 		$this->debug('insertPageIncache');
 
 		// Find host-name / IP, always in lowercase:
@@ -454,6 +455,8 @@ class tx_ncstaticfilecache {
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
 				}
 
+				$isStaticCached = TRUE;
+
 			} else {
 
 					// This is an 'explode' of the function isStaticCacheble()
@@ -531,6 +534,21 @@ class tx_ncstaticfilecache {
 				}
 
 				$this->debug('insertPageIncache: ... this page is not cached!');
+			}
+		}
+
+			// Hook: Post process (no matter whether content was cached statically)
+			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['insertPageIncache_postProcess']
+		$postProcessHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['insertPageIncache_postProcess'];
+		if (is_array($postProcessHooks)) {
+			foreach ($postProcessHooks as $hookFunction) {
+				$hookParameters = array(
+					'TSFE' => $pObj,
+					'host' => $host,
+					'uri' => $uri,
+					'isStaticCached' => $isStaticCached,
+				);
+				$content = t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 			}
 		}
 	}
