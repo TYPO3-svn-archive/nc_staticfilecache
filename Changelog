@@ -2,6 +2,7 @@
 
 	* Fixed bug: markDirtyInsteadOfDeletion property shall only consider specific pages - thus not clear all or pages cache
 	* Cleanup: Fixed formatting and inline type hints
+	* Fixed bug: Database element is not removed if clearing files did not succeed
 
 2010-05-25  Oliver Hader  <oliver@typo3.org>
 

@@ -646,6 +646,7 @@ class tx_ncstaticfilecache {
 		}
 
 		$result = $this->deleteStaticCacheDirectory($cacheDirectory);
+		$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
 
 		if (isset($parent)) {
 			if (!isset($result)) {
@@ -672,11 +673,6 @@ class tx_ncstaticfilecache {
 				}
 				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
 			}
-		}
-
-		if ($result) {
-			// Remove the dirty entry if all process succeeded:
-			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
 		}
 
 		return $result;
