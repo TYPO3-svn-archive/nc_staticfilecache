@@ -454,6 +454,7 @@ class tx_ncstaticfilecache {
 							'reg1' => $pObj->page_cache_reg1,
 							'host' => $host,
 							'uri' => $uri,
+							'additionalhash' => $additionalHash,
 						)
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
@@ -532,6 +533,7 @@ class tx_ncstaticfilecache {
 							'pid' => $pObj->page['uid'],
 							'host' => $host,
 							'uri' => $uri,
+							'additionalhash' => $additionalHash,
 						)
 					);
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);

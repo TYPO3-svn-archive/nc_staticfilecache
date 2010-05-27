@@ -4,6 +4,7 @@
 	* Cleanup: Fixed formatting and inline type hints
 	* Fixed bug: Database element is not removed if clearing files did not succeed
 	* Fixed bug: Pages with an endtime that would expire a page before the general expiration time is not considered
+	* Fixed bug: Additional hash is not written for database elements
 
 2010-05-25  Oliver Hader  <oliver@typo3.org>
 
