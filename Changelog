@@ -5,6 +5,7 @@
 	* Fixed bug: Database element is not removed if clearing files did not succeed
 	* Fixed bug: Pages with an endtime that would expire a page before the general expiration time is not considered
 	* Fixed bug: Additional hash is not written for database elements
+	* Fixed bug: Additional hash is not considered for lookups when empty
 
 2010-05-25  Oliver Hader  <oliver@typo3.org>
 
