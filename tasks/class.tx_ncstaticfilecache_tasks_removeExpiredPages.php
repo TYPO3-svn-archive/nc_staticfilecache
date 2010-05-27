@@ -38,7 +38,7 @@ require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfil
  */
 class tx_ncstaticfilecache_tasks_removeExpiredPages extends tx_scheduler_Task {
 
-    /**
+	/**
 	 * This is the main method that is called when a task is executed
 	 * It MUST be implemented by all classes inheriting from this one
 	 * Note that there is no error handling, errors and failures are expected
@@ -51,8 +51,9 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages extends tx_scheduler_Task {
 	 * @author Michael Klapper <michael.klapper@aoemedia.de>
 	 */
 	public function execute() {
-        $cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
-        $cleaner->removeExpiredPages();
+		/* @var $cleaner tx_ncstaticfilecache */
+		$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
+		$cleaner->removeExpiredPages();
 
 		return true;
 	}

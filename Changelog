@@ -1,6 +1,7 @@
 2010-05-27  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: markDirtyInsteadOfDeletion property shall only consider specific pages - thus not clear all or pages cache
+	* Cleanup: Fixed formatting and inline type hints
 
 2010-05-25  Oliver Hader  <oliver@typo3.org>
 
