@@ -19,5 +19,5 @@ debug = 0
 # cat=basic; type=boolean; label=Recreate URI to create cache files: Recreate URI by typoLink to have a valid cached file name.
 recreateURI = 0
 
-# cat=basic; type=boolean; label=Mark dirty instead of deletion: Mark a cached element as dirty instead of delete it directly.
+# cat=basic; type=boolean; label=Mark dirty instead of deletion: Mark a specific cached element as dirty instead of delete it directly (does not apply to clear all or pages cache).
 markDirtyInsteadOfDeletion = 0

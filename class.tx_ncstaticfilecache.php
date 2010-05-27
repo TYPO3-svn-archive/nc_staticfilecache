@@ -821,8 +821,10 @@ class tx_ncstaticfilecache {
 		$pid = intval($pid);
 		$pidCondition = ($pid ? 'pid=' . $pid : '');
 
-		if ($this->configuration['markDirtyInsteadOfDeletion']) {
+			// Mark specific pages as dirty (does not macht clear all or pages cache):
+		if ($pid && $this->configuration['markDirtyInsteadOfDeletion']) {
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $pidCondition, array('isdirty' => 1));
+			// Clearing cache in filesystem and database:
 		} else {
 			if ($pid) {
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, $pidCondition);
