@@ -388,6 +388,10 @@ class tx_ncstaticfilecache {
 
 				$this->debug('writing cache for pid: ' . $pObj->id);
 
+					// If page has a endtime before the current timeOutTime, use it instead:
+				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
+					$timeOutTime = $pObj->page['endtime'];
+				}
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 
 				if ($this->configuration['sendCacheControlHeader']) {
