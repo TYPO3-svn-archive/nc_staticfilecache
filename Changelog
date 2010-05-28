@@ -1,3 +1,7 @@
+2010-05-28  Oliver Hader  <oliver@typo3.org>
+
+	* Added feature: Integrate possibility to disable the clear cache post processing on deman during runtime
+
 2010-05-27  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: markDirtyInsteadOfDeletion property shall only consider specific pages - thus not clear all or pages cache

@@ -64,6 +64,11 @@ class tx_ncstaticfilecache {
 	protected $setup = array();
 
 	/**
+	 * @var boolean
+	 */
+	protected $isClearCacheProcessingEnabled = TRUE;
+
+	/**
 	 * Constructs this object.
 	 */
 	public function __construct() {
@@ -143,6 +148,26 @@ class tx_ncstaticfilecache {
 	}
 
 	/**
+	 * Enables the clear cache processing.
+	 *
+	 * @return void
+	 * @see clearCachePostProc
+	 */
+	public function enableClearCacheProcessing() {
+		$this->isClearCacheProcessingEnabled = TRUE;
+	}
+
+	/**
+	 * Disables the clear cache processing.
+	 *
+	 * @return void
+	 * @see clearCachePostProc
+	 */
+	public function disableClearCacheProcessing() {
+		$this->isClearCacheProcessingEnabled = FALSE;
+	}
+
+	/**
 	 * Clear cache post processor.
 	 * The same structure as t3lib_TCEmain::clear_cache
 	 *
@@ -151,6 +176,10 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	public function clearCachePostProc(&$params, &$pObj) {
+		if ($this->isClearCacheProcessingEnabled === FALSE) {
+			return NULL;
+		}
+
 		if($params['cacheCmd']) {
 			$this->clearStaticFile($params);
 		} else {
