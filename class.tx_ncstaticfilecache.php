@@ -627,14 +627,25 @@ class tx_ncstaticfilecache {
 			foreach ($rows as $row) {
 				$pageId = $row['pid'];
 
-				if (isset($parent)) {
-					$parent->cli_echo("Removed pid: " . $pageId . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
-				}
+					// Marks an expired page as dirty without removing it:
+				if ($this->configuration['markDirtyInsteadOfDeletion']) {
+					if (isset($parent)) {
+						$parent->cli_echo("Marked pid as dirty: " . $pageId . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
+					}
 
-				// Check whether page was already cleared:
-				if (!isset($clearedPages[$pageId])) {
-					$tce->clear_cacheCmd($pageId);
-					$clearedPages[$pageId] = TRUE;
+					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'pid=' . $pageId, array('isdirty' => 1));
+
+					// Really removes an expired page:
+				} else {
+					if (isset($parent)) {
+						$parent->cli_echo("Removed pid: " . $pageId . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
+					}
+
+					// Check whether page was already cleared:
+					if (!isset($clearedPages[$pageId])) {
+						$tce->clear_cacheCmd($pageId);
+						$clearedPages[$pageId] = TRUE;
+					}
 				}
 			}
 		} elseif (isset($parent)) {

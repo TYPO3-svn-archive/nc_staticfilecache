@@ -1,3 +1,7 @@
+2010-07-13  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: TYPO3 cache gets cleared on removing expired pages with the markDirtyInsteadOfDeletion setting enabled (thanks to Juergen Kussmann)
+
 2010-05-28  Oliver Hader  <oliver@typo3.org>
 
 	* Added feature: Integrate possibility to disable the clear cache post processing on deman during runtime
