@@ -780,26 +780,6 @@ class tx_ncstaticfilecache {
 		}
 	}
 
-	/**
-	 * Delete directories recursively
-	 *
-	 * @param	string		$dir: The full path
-	 * @return	void
-	 */
-	protected function rm($dir) {
-		if (!$dh = @opendir($dir)) {
-			return;
-		}
-		while (($obj = readdir($dh))) {
-			if ($obj=='.' || $obj=='..') {
-				continue;
-			}
-			if (!@unlink($dir.'/'.$obj)) {
-				$this->rm($dir.'/'.$obj);
-			}
-		}
-		@rmdir($dir);
-	}
 
 	/**
 	 * Puts a message to the devlog.
@@ -862,7 +842,6 @@ class tx_ncstaticfilecache {
 	protected function deleteStaticCache($pid = 0, $directory = '') {
 		$pid = intval($pid);
 		$pidCondition = ($pid ? 'pid=' . $pid : '');
-
 			// Mark specific pages as dirty (does not macht clear all or pages cache):
 		if ($pid && $this->configuration['markDirtyInsteadOfDeletion']) {
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $pidCondition, array('isdirty' => 1));
@@ -875,14 +854,14 @@ class tx_ncstaticfilecache {
 					$this->deleteStaticCacheDirectory($cacheDirectory);
 				}
 			} else {
-				$this->rm(PATH_site . $this->cacheDir . $directory);
+				t3lib_div::rmdir(PATH_site . $this->cacheDir . $directory, true);
 			}
 			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
 		}
 	}
 
 	/**
-	 * Deletes a static cache directory in filesystem.
+	 * Deletes contents of a static cache directory in filesystem, but omit the subfolders
 	 *
 	 * @param	string		$directory: The directory to use on deletion below the static cache directory
 	 * @return	mixed		Whether the action was successful (if directory was not found, NULL is returned)
@@ -892,14 +871,31 @@ class tx_ncstaticfilecache {
 
 		$directory = trim($directory);
 		$cacheDirectory = PATH_site . $this->cacheDir . $directory;
-
+		$this->debug('removing files of ' . $cacheDirectory);					
 		if (!empty($directory) && is_dir($cacheDirectory)) {
-			$result = (bool)t3lib_div::rmdir($cacheDirectory, true);
+	
+			if (!$dh = @opendir($cacheDirectory)) {
+				return $result;
+			}
+			while (($obj = readdir($dh))) {
+				if ($obj=='.' || $obj=='..') {
+					continue;
+				}
+				
+				if (is_file($cacheDirectory.'/'.$obj)) {
+						//keep false if one file cannot be deleted -> entries marked dirty will not be deleted from DB
+					if ($result === false) {
+						unlink($cacheDirectory.'/'.$obj);
+					} else {
+						$result = unlink($cacheDirectory.'/'.$obj);
+					}
+				}
+			}
+			@rmdir($cacheDirectory);
 		}
-
 		return $result;
 	}
-
+	
 	/**
 	 * Gets all dirty elements from database.
 	 *
