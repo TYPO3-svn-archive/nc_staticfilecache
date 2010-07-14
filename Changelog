@@ -1,3 +1,7 @@
+2010-07-14  Franz Ripfel  <franz.ripfel@abezet.de>
+
+	* Fixed bug: Clearing cache of a single page deleted also all folders and files of subpages
+	
 2010-07-13  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: TYPO3 cache gets cleared on removing expired pages with the markDirtyInsteadOfDeletion setting enabled (thanks to Juergen Kussmann)
