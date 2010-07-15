@@ -1,6 +1,7 @@
 2010-07-15  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Fixed naming and formatting
+	* Cleanup: Removed superfluous hook in processDirtyPages() method that was only available in Trunk
 
 2010-07-14  Franz Ripfel  <franz.ripfel@abezet.de>
 
