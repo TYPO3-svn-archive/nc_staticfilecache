@@ -871,26 +871,27 @@ class tx_ncstaticfilecache {
 
 		$directory = trim($directory);
 		$cacheDirectory = PATH_site . $this->cacheDir . $directory;
-		$this->debug('removing files of ' . $cacheDirectory);					
+
+		$this->debug('Removing files of directory "' . $cacheDirectory . '"');
 		if (!empty($directory) && is_dir($cacheDirectory)) {
-	
-			if (!$dh = @opendir($cacheDirectory)) {
+			$directoryHandle = @opendir($cacheDirectory);
+
+			if ($directoryHandle === FALSE) {
 				return $result;
 			}
-			while (($obj = readdir($dh))) {
-				if ($obj=='.' || $obj=='..') {
+
+			while (($element = readdir($directoryHandle))) {
+				if ($element == '.' || $element == '..') {
 					continue;
 				}
-				
-				if (is_file($cacheDirectory.'/'.$obj)) {
+
+				if (is_file($cacheDirectory . '/' . $element)) {
 						//keep false if one file cannot be deleted -> entries marked dirty will not be deleted from DB
-					if ($result === false) {
-						unlink($cacheDirectory.'/'.$obj);
-					} else {
-						$result = unlink($cacheDirectory.'/'.$obj);
-					}
+					$result = (unlink($cacheDirectory . '/' . $element) && $result);
 				}
 			}
+
+			closedir($directoryHandle);
 			@rmdir($cacheDirectory);
 		}
 		return $result;
