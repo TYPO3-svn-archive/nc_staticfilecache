@@ -1,6 +1,7 @@
 2010-07-19  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Typing error in hook name
+	* Fixed bug: Infomodule shows creation time instead of last modification
 
 2010-07-15  Oliver Hader  <oliver@typo3.org>
 

@@ -130,8 +130,8 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 						$tCells[] = '<td nowrap="nowrap"' . $cellAttrib . '>' . $row['HTML_depthData'] . '</td>';
 					}
 
-					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">'.($frec['crdate']?t3lib_BEfunc::datetime($frec['crdate']):'').'</span></td>';
-					$timeout = ($frec['crdate'] > 0) ? t3lib_BEfunc::calcAge(($frec['cache_timeout']),$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')) : '';
+					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">'.($frec['tstamp']?t3lib_BEfunc::datetime($frec['tstamp']):'').'</span></td>';
+					$timeout = ($frec['tstamp'] > 0) ? t3lib_BEfunc::calcAge(($frec['cache_timeout']),$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')) : '';
 					$tCells[] = '<td nowrap="nowrap">'.$timeout.'</td>';
 					$tCells[] = '<td>' . ($frec['isdirty'] ? 'yes' : 'no') . '</td>';
 					$tCells[] = '<td nowrap="nowrap">'.($frec['explanation']?$frec['explanation']:'').'</td>';
@@ -160,7 +160,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		// Create header:
 		$tCells = array();
 		$tCells[]='<td>Page:</td>';
-		$tCells[]='<td>Created:</td>';
+		$tCells[]='<td>Last modified:</td>';
 		$tCells[]='<td>Cache Timeout:</td>';
 		$tCells[]='<td>is Dirty:</td>';
 		$tCells[]='<td>Explanation:</td>';
