@@ -678,9 +678,9 @@ class tx_ncstaticfilecache {
 		$cancelExecution = FALSE;
 		$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
 
-		$processDirtyPagesElementHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages'];
-		if (is_array($processDirtyPagesElement)) {
-			foreach ($processDirtyPagesElementHooks as $hookFunction) {
+		$processDirtyPagesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages'];
+		if (is_array($processDirtyPagesHooks)) {
+			foreach ($processDirtyPagesHooks as $hookFunction) {
 				$hookParameters = array(
 					'dirtyElement' => $dirtyElement,
 					'cacheDirectory' => &$cacheDirectory,
