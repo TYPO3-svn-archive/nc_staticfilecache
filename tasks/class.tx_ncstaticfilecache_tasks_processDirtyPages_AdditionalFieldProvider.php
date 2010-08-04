@@ -54,7 +54,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider {
 	public function getAdditionalFields(array &$taskInfo, $task, tx_scheduler_Module $schedulerModule) {
 		$additionalFields = array();
 
-		if (empty($taskInfo['itemLimit])) {
+		if (empty($taskInfo['itemLimit'])) {
                         if ($schedulerModule->CMD == 'add') {
                                 $taskInfo['itemLimit'] = 0;                       
                         } else {
