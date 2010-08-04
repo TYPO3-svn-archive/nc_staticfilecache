@@ -39,6 +39,12 @@ require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfil
 class tx_ncstaticfilecache_tasks_processDirtyPages extends tx_scheduler_Task {
 
 	/**
+	 * @var integer
+	 */
+	public $itemLimit = 0;
+
+
+	/**
 	 * This is the main method that is called when a task is executed
 	 * It MUST be implemented by all classes inheriting from this one
 	 * Note that there is no error handling, errors and failures are expected
@@ -53,7 +59,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages extends tx_scheduler_Task {
 	public function execute() {
 		/* @var $cleaner tx_ncstaticfilecache */
 		$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
-		$cleaner->processDirtyPages();
+		$cleaner->processDirtyPages(NULL, $this->itemLimit);
 
 		return true;
 	}

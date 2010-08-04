@@ -659,8 +659,8 @@ class tx_ncstaticfilecache {
 	 * @param	t3lib_cli		$parent: The calling parent object
 	 * @return	void
 	 */
-	public function processDirtyPages(t3lib_cli $parent = NULL) {
-		$dirtyElements = $this->getDirtyElements();
+	public function processDirtyPages(t3lib_cli $parent = NULL, $limit = 0) {
+		$dirtyElements = $this->getDirtyElements($limit );
 
 		foreach ($dirtyElements as $dirtyElement) {
 			$this->processDirtyPagesElement($dirtyElement, $parent);

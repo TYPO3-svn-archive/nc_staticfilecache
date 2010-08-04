@@ -52,7 +52,22 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider {
 	 *										['cshLabel']	=> The code of the CSH label
 	 */
 	public function getAdditionalFields(array &$taskInfo, $task, tx_scheduler_Module $schedulerModule) {
-		return array();
+		$additionalFields = array();
+
+		if (empty($taskInfo['itemLimit])) {
+                        if ($schedulerModule->CMD == 'add') {
+                                $taskInfo['itemLimit'] = 0;                       
+                        } else {
+                                $taskInfo['itemLimit'] = $task->itemLimit;
+                        }
+		}
+		$fieldID = 'task_itemLimit';
+		$fieldCode  = '<input type="text" name="tx_scheduler[itemLimit]" id="' . $fieldID . '" value="' . $taskInfo['itemLimit'] . '" />';
+		$additionalFields[$fieldID] = array(
+                        'code'     => $fieldCode,
+                        'label'    => 'LLL:EXT:nc_staticfilecache/locallang_db.xml:nc_staticfilecache_task_processDirtyPages.itemLimit'
+                );
+		return $additionalFields;
 	}
 
 	/**
@@ -63,7 +78,13 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider {
 	 * @return	boolean					True if validation was ok (or selected class is not relevant), false otherwise
 	 */
 	public function validateAdditionalFields(array &$submittedData, tx_scheduler_Module $schedulerModule) {
-		return true;
+		if ( t3lib_div::intval_positive($submittedData['itemLimit']) > 0 ) {
+			return true;
+		} else {
+			$schedulerModule->addMessage('no valid limit given (positive number expected)', t3lib_FlashMessage::ERROR);
+			return false;
+		}
+
 	}
 
 	/**
@@ -74,7 +95,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider {
 	 * @return	void
 	 */
 	public function saveAdditionalFields(array $submittedData, tx_scheduler_Task $task) {
-		return null;
+		$task->itemLimit = $submittedData['itemLimit'];
 	}
 }
 ?>
