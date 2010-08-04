@@ -34,7 +34,7 @@
  * @subpackage tx_ncstaticfilecache
  * @access public
  */
-class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider {
+class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider implements tx_scheduler_AdditionalFieldProvider {
 
 	/**
 	 * This method is used to define new fields for adding or editing a task
