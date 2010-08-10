@@ -139,12 +139,37 @@ class tx_ncstaticfilecache {
 	}
 
 	/**
+	 * Gets a specific property of the extension setup.
+	 *
+	 * @param	string		$property: The requested setup property
+	 * @return	mixed		The value of a property
+	 */
+	public function getSetupProperty($property) {
+		$result = NULL;
+
+		if (isset($this->setup[$property])) {
+			$result = $this->setup[$property];
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Gets the directory used for storing the cached files.
 	 *
 	 * @return	string		The directory used for storing the cached files
 	 */
 	public function getCacheDirectory() {
 		return $this->cacheDir;
+	}
+
+/**
+	 * Gets the file table used for storing the cache records.
+	 *
+	 * @return	string		The file table used for storing the cached records
+	 */
+	public function getFileTable() {
+		return $this->fileTable;
 	}
 
 	/**

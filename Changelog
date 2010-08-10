@@ -1,5 +1,6 @@
 2010-08-10  Stefan Sprenger  <stefan.sprenger@dkd.de>
 
+	* Feature #9231: Remove single static files
 	* Fixed issue #9232: Set domain used for cached pages
 
 2010-07-19  Oliver Hader  <oliver@typo3.org>
