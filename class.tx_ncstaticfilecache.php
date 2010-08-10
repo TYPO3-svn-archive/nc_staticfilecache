@@ -285,7 +285,7 @@ class tx_ncstaticfilecache {
 						if (isset($_params['host']) && $_params['host']) {
 							$directory = $_params['host'];
 						} else {
-							$directory = t3lib_div::getIndpEnv('HTTP_HOST');
+							$directory = (isset($this->setup['forcedUrl'])) ? $this->setup['forcedUrl'] : t3lib_div::getIndpEnv('HTTP_HOST');
 						}
 					}
 
@@ -353,7 +353,7 @@ class tx_ncstaticfilecache {
 		$this->debug('insertPageIncache');
 
 		// Find host-name / IP, always in lowercase:
-		$host = strtolower(t3lib_div::getIndpEnv('HTTP_HOST'));
+		$host = (isset($this->setup['forcedUrl'])) ? $this->setup['forcedUrl'] : strtolower(t3lib_div::getIndpEnv('HTTP_HOST'));
 		$uri = t3lib_div::getIndpEnv('REQUEST_URI');
 
 		$cacheDir = $this->cacheDir . $host;
@@ -544,7 +544,7 @@ class tx_ncstaticfilecache {
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 					'uid',
 					$this->fileTable,
-					'pid=' . $pObj->page['uid'] . 
+					'pid=' . $pObj->page['uid'] .
 						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
 						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
 						(!$additionalHash ? ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $fileTable) : '')
@@ -882,7 +882,7 @@ class tx_ncstaticfilecache {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Gets all dirty elements from database.
 	 *
