@@ -163,15 +163,6 @@ class tx_ncstaticfilecache {
 		return $this->cacheDir;
 	}
 
-/**
-	 * Gets the file table used for storing the cache records.
-	 *
-	 * @return	string		The file table used for storing the cached records
-	 */
-	public function getFileTable() {
-		return $this->fileTable;
-	}
-
 	/**
 	 * Enables the clear cache processing.
 	 *
