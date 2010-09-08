@@ -2,6 +2,7 @@
 
 	* Cleanup: Fixed svn:eol-style of PHP and text files
 	* Fixed bug: Only remove database elements if removal in filesystem was successful
+	* Added feature: Integrate logging to devLog if clearing static caches failes
 
 2010-07-19  Oliver Hader  <oliver@typo3.org>
 

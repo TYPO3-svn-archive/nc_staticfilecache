@@ -698,6 +698,8 @@ class tx_ncstaticfilecache {
 
 			if ($result !== FALSE) {
 				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
+			} elseif ($this->getConfigurationProperty('enableDevelopmentMode')) {
+				$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', 2);
 			}
 
 			if (isset($parent)) {
@@ -844,6 +846,8 @@ class tx_ncstaticfilecache {
 
 					if ($result !== FALSE) {
 						$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
+					} else {
+						$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', 2);
 					}
 				}
 			} else {
