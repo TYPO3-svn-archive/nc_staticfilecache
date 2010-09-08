@@ -837,12 +837,16 @@ class tx_ncstaticfilecache {
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, $pidCondition);
 				foreach ($rows as $row) {
 					$cacheDirectory = $row['host'] . dirname($row['file']);
-					$this->deleteStaticCacheDirectory($cacheDirectory);
+					$result = $this->deleteStaticCacheDirectory($cacheDirectory);
+
+					if ($result !== FALSE) {
+						$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
+					}
 				}
 			} else {
 				t3lib_div::rmdir(PATH_site . $this->cacheDir . $directory, true);
+				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
 			}
-			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
 		}
 	}
 
