@@ -1,3 +1,7 @@
+2010-09-08  Oliver Hader  <oliver@typo3.org>
+
+	* Cleanup: Fixed svn:eol-style of PHP and text files
+
 2010-07-19  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Typing error in hook name
