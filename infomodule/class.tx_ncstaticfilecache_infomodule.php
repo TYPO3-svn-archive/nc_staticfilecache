@@ -61,11 +61,6 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	protected $pageId = 0;
 
 	/**
-	 * @var array
-	 */
-	protected $setup = array();
-
-	/**
 	 * MAIN function for static publishing information
 	 *
 	 * @return	string		Output HTML for the module.
@@ -140,11 +135,6 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 					$tCells[] = '<td nowrap="nowrap">'.$timeout.'</td>';
 					$tCells[] = '<td>' . ($frec['isdirty'] ? 'yes' : 'no') . '</td>';
 					$tCells[] = '<td nowrap="nowrap">'.($frec['explanation']?$frec['explanation']:'').'</td>';
-					$tCells[] = '<td nowrap="nowrap">
-									<a href="'.htmlspecialchars(t3lib_div::getIndpEnv('PATH_INFO')).'?file='.urlencode($frec['file']).'&ACTION[deleteStaticFile]=true">
-										<img '.t3lib_iconWorks::skinImg($this->backPath,'gfx/garbage.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:nc_staticfilecache/locallang_db.xml:nc_staticfilecache.deleteSingleFile').'" />
-									</a>
-								</td>';
 
 				// Compile Row:
 					$output .= $this->renderTableRow(
@@ -174,12 +164,11 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$tCells[]='<td>Cache Timeout:</td>';
 		$tCells[]='<td>is Dirty:</td>';
 		$tCells[]='<td>Explanation:</td>';
-		$tCells[]='<td>Actions:</td>';
 
 		$output = $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . $output;
 
 		// Compile final table and return:
-		$output =
+		$output = 
 			$this->renderHeader() . '
 			<table border="0" cellspacing="1" cellpadding="0" class="lrPadding">'.$output.'
 			</table>';
@@ -235,8 +224,6 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 			$this->getStaticFileCacheInstance()->removeExpiredPages();
 		} elseif (isset($action['processDirtyPages'])) {
 			$this->getStaticFileCacheInstance()->processDirtyPages();
-		} elseif(isset($action['deleteStaticFile'])) {
-			$this->clearStaticFile(t3lib_div::_GP('file'));
 		}
 	}
 
@@ -252,54 +239,6 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 			false,
 			true
 		);
-	}
-
-	/**
-	 * Delete the given file and remove its record from the database if deleting was successful
-	 *
-	 * @param	String	The file, that should get deleted
-	 * @return	void
-	 */
-	protected function clearStaticFile($file) {
-		$id = (is_numeric($this->pageId) && $this->pageId > 0) ? $this->pageId : 1;
-		$this->loadTS($id);
-		$forcedUrlConfiguration = $this->setup['forcedUrl'];
-
-		$host = (isset($forcedUrlConfiguration)) ? $forcedUrlConfiguration : t3lib_div::getIndpEnv('HTTP_HOST');
-		$cacheDir = $this->getStaticFileCacheInstance()->getCacheDirectory() . $host;
-		$pathToFile = PATH_site.$cacheDir.$file;
-
-		if (is_file($pathToFile)) {
-				// Remove the file from file system
-			unlink($pathToFile);
-
-				// Write the action to syslog
-			$GLOBALS['BE_USER']->writelog(2, 4, 0, 0, 'User %s has removed file '.$file.' from static file cache', array($GLOBALS['BE_USER']->user['username']));
-
-				// Delete the database record, if the cached file does not exist any more
-			if (!file_exists($pathToFile)) {
-				$constraint = 'file=\''.$file.'\'';
-				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->getStaticFileCacheInstance()->getFileTable(), $constraint, array());
-			}
-		}
-	}
-
-	/**
-	 * Make the extension setup in the backend module available
-	 *
-	 * @param	integer $pageUid
-	 */
-	public function loadTS($pageUid) {
-		$sysPageObj = t3lib_div::makeInstance('t3lib_pageSelect');
-		$rootLine = $sysPageObj->getRootLine($pageUid);
-
-		$TSObj = t3lib_div::makeInstance('t3lib_tsparser_ext');
-		$TSObj->tt_track = 0;
-		$TSObj->init();
-		$TSObj->runThroughTemplates($rootLine);
-		$TSObj->generateConfig();
-
-		$this->setup = $TSObj->setup['tx_ncstaticfilecache.'];
 	}
 
 	/**
@@ -334,7 +273,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 	/**
 	 * Gets the instance of the static file cache object to modify the cached information.
-	 *
+	 * 
 	 * @return	tx_ncstaticfilecache
 	 */
 	protected function getStaticFileCacheInstance() {
