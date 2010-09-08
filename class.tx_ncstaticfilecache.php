@@ -695,7 +695,10 @@ class tx_ncstaticfilecache {
 
 		if (!$cancelExecution) {
 			$result = $this->deleteStaticCacheDirectory($cacheDirectory);
-			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
+
+			if ($result !== FALSE) {
+				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
+			}
 
 			if (isset($parent)) {
 				if (!isset($result)) {
