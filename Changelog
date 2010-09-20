@@ -1,6 +1,7 @@
 2010-09-20  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Removing of static files returned wrong boolean value
+	* Raised version to 2.3.3
 
 2010-09-08  Oliver Hader  <oliver@typo3.org>
 
