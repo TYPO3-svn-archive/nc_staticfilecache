@@ -463,7 +463,7 @@ class tx_ncstaticfilecache {
 					'pid=' . $pObj->page['uid'] .
 						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
 						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
-						' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $fileTable)
+						' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable)
 				);
 
 				if ($rows[0]['uid']) {
@@ -521,7 +521,7 @@ class tx_ncstaticfilecache {
 					unset($userFunc);
 				}
 				if ($pObj->isEXTincScript()) {
-					$this_>debug('insertPageIncache: page has EXTincScript');
+					$this->debug('insertPageIncache: page has EXTincScript');
 					$explanation = 'page has EXTincScript';
 				}
 				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
@@ -547,7 +547,7 @@ class tx_ncstaticfilecache {
 					'pid=' . $pObj->page['uid'] . 
 						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
 						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
-						(!$additionalHash ? ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $fileTable) : '')
+						(!$additionalHash ? ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable) : '')
 				);
 				if ($rows[0]['uid']) {
 					$fieldValues['explanation'] = $explanation;
