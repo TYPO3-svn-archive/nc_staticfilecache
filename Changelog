@@ -1,3 +1,7 @@
+2010-09-20  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Removing of static files returned wrong boolean value
+
 2010-09-08  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Fixed svn:eol-style of PHP and text files

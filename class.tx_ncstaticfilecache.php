@@ -884,7 +884,11 @@ class tx_ncstaticfilecache {
 
 				if (is_file($cacheDirectory . '/' . $element)) {
 						//keep false if one file cannot be deleted -> entries marked dirty will not be deleted from DB
-					$result = (unlink($cacheDirectory . '/' . $element) && $result);
+					if (FALSE === unlink($cacheDirectory . '/' . $element)) {
+						$result = FALSE;
+					} elseif ($result !== FALSE) {
+						$result = TRUE;
+					}
 				}
 			}
 
