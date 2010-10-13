@@ -316,7 +316,7 @@ class tx_ncstaticfilecache {
 	public function getRecordForPageID($pid) {
 		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'*',
-			'tx_ncstaticfilecache_file',
+			$this->fileTable,
 			'pid=' . intval($pid)
 		);
 	}
@@ -838,6 +838,7 @@ class tx_ncstaticfilecache {
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $pidCondition, array('isdirty' => 1));
 			// Clearing cache in filesystem and database:
 		} else {
+				// Cache of a single page shall be removed:
 			if ($pid) {
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, $pidCondition);
 				foreach ($rows as $row) {
@@ -850,6 +851,7 @@ class tx_ncstaticfilecache {
 						$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', 2);
 					}
 				}
+				// Cache of all pages shall be removed (clearCacheCmd "all" or "pages"):
 			} else {
 				t3lib_div::rmdir(PATH_site . $this->cacheDir . $directory, true);
 				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
@@ -874,7 +876,7 @@ class tx_ncstaticfilecache {
 			$directoryHandle = @opendir($cacheDirectory);
 
 			if ($directoryHandle === FALSE) {
-				return $result;
+				return FALSE;
 			}
 
 			while (($element = readdir($directoryHandle))) {

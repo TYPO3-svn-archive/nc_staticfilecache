@@ -1,3 +1,7 @@
+2010-10-13  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Database elements are removed if directory on the filesystem exists, but could not be accessed
+
 2010-09-20  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Removing of static files returned wrong boolean value
