@@ -699,7 +699,7 @@ class tx_ncstaticfilecache {
 
 			if ($result !== FALSE) {
 				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
-			} elseif ($this->getConfigurationProperty('enableDevelopmentMode')) {
+			} else {
 				$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
 			}
 
