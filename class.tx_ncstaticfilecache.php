@@ -300,7 +300,7 @@ class tx_ncstaticfilecache {
 						$this->debug('clearing cache for pid: ' . $cacheCmd);
 						$this->deleteStaticCache($cacheCmd);
 					} else {
-						$this->debug('Expected integer on clearing static cache', 1, $cacheCmd);
+						$this->debug('Expected integer on clearing static cache', LOG_WARNING, $cacheCmd);
 					}
 					break;
 			}
@@ -334,7 +334,7 @@ class tx_ncstaticfilecache {
 	public function headerNoCache(&$params, $parent) {
 		if (strtolower($_SERVER['HTTP_CACHE_CONTROL']) === 'no-cache' || strtolower($_SERVER['HTTP_PRAGMA']) === 'no-cache') {
 			if ($parent->beUserLogin) {
-				$this->debug('no-cache header found');
+				$this->debug('no-cache header found', LOG_INFO);
 				$cmd = array('cacheCmd' => $parent->id);
 				$this->clearStaticFile($cmd);
 			}
@@ -424,7 +424,7 @@ class tx_ncstaticfilecache {
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 
 				if ($this->configuration['sendCacheControlHeader']) {
-					$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds);
+					$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds, LOG_INFO);
 					$htaccess = $uri . '/.htaccess';
 					$htaccess = preg_replace('#//#', '/', $htaccess);
 					$htaccessContent = '<IfModule mod_expires.c>
@@ -463,7 +463,8 @@ class tx_ncstaticfilecache {
 					'pid=' . $pObj->page['uid'] .
 						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
 						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
-						' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable)
+						' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable) . 
+						' AND ismarkedtodelete=0'
 				);
 
 				if ($rows[0]['uid']) {
@@ -495,19 +496,19 @@ class tx_ncstaticfilecache {
 
 					// This is an 'explode' of the function isStaticCacheble()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
-					$this->debug('insertPageIncache: static cache disabled by user');
+					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
 					$explanation = 'static cache disabled on page';
 				}
 				if (isset($this->setup['disableCache']) && $this->setup['disableCache']) {
-					$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"');
+					$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"', LOG_INFO);
 					$explanation = 'static cache disabled by TypoScript';
 				}
 				if ($pObj->no_cache) {
-					$this->debug('insertPageIncache: no_cache setting is true');
+					$this->debug('insertPageIncache: no_cache setting is true', LOG_INFO);
 					$explanation = 'config.no_cache is true';
 				}
 				if ($pObj->isINTincScript()) {
-					$this->debug('insertPageIncache: page has INTincScript');
+					$this->debug('insertPageIncache: page has INTincScript', LOG_INFO);
 					$userFunc = array();
 					$includeLibs = array();
 					foreach($pObj->config['INTincScript'] as $k => $v) {
@@ -521,20 +522,20 @@ class tx_ncstaticfilecache {
 					unset($userFunc);
 				}
 				if ($pObj->isEXTincScript()) {
-					$this->debug('insertPageIncache: page has EXTincScript');
+					$this->debug('insertPageIncache: page has EXTincScript', LOG_INFO);
 					$explanation = 'page has EXTincScript';
 				}
 				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
-					$this->debug('insertPageIncache: page has user or group set');
+					$this->debug('insertPageIncache: page has user or group set', LOG_INFO);
 					// This is actually ok, we do not need to create cache nor an entry in the files table
 					//$explanation = "page has user or group set";
 				}
 				if ($workspacePreview) {
-					$this->debug('insertPageIncache: workspace preview');
+					$this->debug('insertPageIncache: workspace preview', LOG_INFO);
 					$explanation = 'workspace preview';
 				}
 				if (!$loginsDeniedCfg) {
-					$this->debug('insertPageIncache: loginsDeniedCfg is true');
+					$this->debug('insertPageIncache: loginsDeniedCfg is true', LOG_INFO);
 					$explanation = 'loginsDeniedCfg is true';
 				}
 
@@ -568,7 +569,7 @@ class tx_ncstaticfilecache {
 					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
 				}
 
-				$this->debug('insertPageIncache: ... this page is not cached!');
+				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
 			}
 		}
 
@@ -699,7 +700,7 @@ class tx_ncstaticfilecache {
 			if ($result !== FALSE) {
 				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
 			} elseif ($this->getConfigurationProperty('enableDevelopmentMode')) {
-				$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', 2);
+				$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
 			}
 
 			if (isset($parent)) {
@@ -779,8 +780,8 @@ class tx_ncstaticfilecache {
 	 * @param	integer		$severity: The severity value from warning to fatal error (default: 1)
 	 * @return	void
 	 */
-	protected function debug($message, $severity = 1, $additionalData = false) {
-		if (isset($this->configuration['debug']) && $this->configuration['debug']) {
+	protected function debug($message, $severity = LOG_NOTICE, $additionalData = false) {
+		if ( ( isset($this->configuration['debug']) && $this->configuration['debug']) || $severity <= LOG_CRIT) {
 			t3lib_div::devlog(
 				trim($message),
 				$this->extKey,
@@ -848,13 +849,45 @@ class tx_ncstaticfilecache {
 					if ($result !== FALSE) {
 						$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
 					} else {
-						$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', 2);
+						$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
 					}
 				}
 				// Cache of all pages shall be removed (clearCacheCmd "all" or "pages"):
 			} else {
-				t3lib_div::rmdir(PATH_site . $this->cacheDir . $directory, true);
-				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
+				try {
+					// 1. marked DB-records which should be deleted
+					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $pidCondition, array('ismarkedtodelete' => 1));
+
+					// 2. move directory and delete it after movement (if directory exists)
+					$srcDir = PATH_site . $this->cacheDir . $directory;
+					if(substr($srcDir, strlen($srcDir)-1, 1) === '/') {
+						$tmpDir = substr($srcDir, 0, strlen($srcDir)-1).'_ismarkedtodelete/';
+					} else {
+						$tmpDir = PATH_site . $this->cacheDir . $directory.'_ismarkedtodelete/';
+					}
+					if(is_dir($srcDir) === TRUE) {
+						if (is_dir($tmpDir)) {
+							$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
+							if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
+								throw new RuntimeException('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
+							}
+						}
+						
+						if(FALSE === rename($srcDir, $tmpDir)) {
+							throw new RuntimeException('Could not rename static cache directory "' . $srcDir . '"');
+						}
+						// delete moved directory
+						if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
+							throw new RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
+						}
+					}
+
+					// 3. delete marked DB-records
+					$pidCondition = empty($pidCondition) ? 'ismarkedtodelete=1' : $pidCondition . ' AND ismarkedtodelete=1';
+					$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
+				} catch (Exception $e) {
+					$this->debug($e->getMessage(), LOG_CRIT);
+				}
 			}
 		}
 	}
@@ -871,7 +904,7 @@ class tx_ncstaticfilecache {
 		$directory = trim($directory);
 		$cacheDirectory = PATH_site . $this->cacheDir . $directory;
 
-		$this->debug('Removing files of directory "' . $cacheDirectory . '"');
+		$this->debug('Removing files of directory "' . $cacheDirectory . '"', LOG_INFO);
 		if (!empty($directory) && is_dir($cacheDirectory)) {
 			$directoryHandle = @opendir($cacheDirectory);
 

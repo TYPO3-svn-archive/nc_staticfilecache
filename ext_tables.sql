@@ -20,6 +20,7 @@ CREATE TABLE tx_ncstaticfilecache_file (
 	file mediumtext NOT NULL,
 	uri mediumtext NOT NULL,
 	isdirty tinyint(1) DEFAULT '0',
+	ismarkedtodelete tinyint(1) DEFAULT '0',
 	additionalhash varchar(40) DEFAULT '' NOT NULL,
 
 	PRIMARY KEY (uid),
