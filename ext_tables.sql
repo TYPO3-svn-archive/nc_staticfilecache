@@ -24,4 +24,5 @@ CREATE TABLE tx_ncstaticfilecache_file (
 	additionalhash varchar(40) DEFAULT '' NOT NULL,
 
 	PRIMARY KEY (uid),
+	KEY pid (pid),
 ) ENGINE=InnoDB;
