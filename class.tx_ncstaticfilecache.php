@@ -452,9 +452,6 @@ class tx_ncstaticfilecache {
 					}
 				}
 
-				t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
-				$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
-
 				// Check for existing entries with the same uid and file, if a
 				// record exists, update timestamp, otherwise create a new record.
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
@@ -467,11 +464,12 @@ class tx_ncstaticfilecache {
 						' AND ismarkedtodelete=0'
 				);
 
+				// update or create DB-record
 				if ($rows[0]['uid']) {
 					$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
 					$fieldValues['cache_timeout'] = $timeOutSeconds;
 					$fieldValues['isdirty'] = 0;
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
+					$result = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 				} else {
 					$fieldValues = array_merge(
 						$fieldValues,
@@ -487,11 +485,15 @@ class tx_ncstaticfilecache {
 							'additionalhash' => $additionalHash,
 						)
 					);
-					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
+					$result = $GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
 				}
 
-				$isStaticCached = TRUE;
-
+				// write staticCache-files, after DB-record was successful updated or created
+				if($result === TRUE) {
+					t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
+					$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
+					$isStaticCached = TRUE;
+				}
 			} else {
 
 					// This is an 'explode' of the function isStaticCacheble()
