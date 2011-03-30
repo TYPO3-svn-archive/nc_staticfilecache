@@ -95,15 +95,6 @@ class tx_ncstaticfilecache {
 	}
 
 	/**
-	 * Gets the whole extension configuration (modified in extension manager).
-	 *
-	 * @return	array		The extension configuration
-	 */
-	public function getConfiguration() {
-		return $this->configuration;
-	}
-
-	/**
 	 * Sets the TypoScript setup.
 	 *
 	 * @param	array		$setup: The TypoScript setup
@@ -111,15 +102,6 @@ class tx_ncstaticfilecache {
 	 */
 	public function setSetup(array $setup) {
 		$this->setup = $setup;
-	}
-
-	/**
-	 * Gets the TypoScript setup.
-	 *
-	 * @return	array		The TypoScript setup
-	 */
-	public function getSetup() {
-		return $this->setup;
 	}
 
 	/**
@@ -133,6 +115,21 @@ class tx_ncstaticfilecache {
 
 		if (isset($this->configuration[$property])) {
 			$result = $this->configuration[$property];
+		}
+
+		return $result;
+	}
+	/**
+	 * Gets a specific property of the setup.
+	 *
+	 * @param	string		$property: Property to get setup from
+	 * @return	mixed		The setup of a property
+	 */
+	public function getSetupProperty($property) {
+		$result = NULL;
+
+		if (isset($this->setup[$property])) {
+			$result = $this->setup[$property];
 		}
 
 		return $result;
@@ -281,7 +278,7 @@ class tx_ncstaticfilecache {
 				case 'all':
 				case 'pages':
 					$directory = '';
-					if (!$this->configuration['clearCacheForAllDomains']) {
+					if ((boolean) $this->getConfigurationProperty('clearCacheForAllDomains') === FALSE) {
 						if (isset($_params['host']) && $_params['host']) {
 							$directory = $_params['host'];
 						} else {
@@ -387,7 +384,7 @@ class tx_ncstaticfilecache {
 
 			// Only process if there are not query arguements, no link to external page (doktype=3) and not called over https:
 		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3 && $isHttp) {
-			if ($this->configuration['recreateURI']) {
+			if ($this->getConfigurationProperty('recreateURI')) {
 				$uri = $this->recreateURI();
 			}
 
@@ -400,15 +397,13 @@ class tx_ncstaticfilecache {
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
 			if ($pObj->page['tx_ncstaticfilecache_cache']
-				&& !(isset($this->setup['disableCache']) && $this->setup['disableCache'])
+				&& (boolean)$this->getSetupProperty('disableCache') === FALSE
 				&& $staticCacheable
 				&& !$workspacePreview
 				&& $loginsDeniedCfg) {
 
 				$content = $pObj->content;
-				t3lib_div::mkdir_deep(PATH_site, $cacheDir . $uri);
-
-				if ($this->configuration['showGenerationSignature']) {
+				if ($this->getConfigurationProperty('showGenerationSignature')) {
 					$content .= "\n<!-- ".strftime (
 						$this->configuration['strftime'],
 						$GLOBALS['EXEC_TIME']
@@ -422,17 +417,6 @@ class tx_ncstaticfilecache {
 					$timeOutTime = $pObj->page['endtime'];
 				}
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
-
-				if ($this->configuration['sendCacheControlHeader']) {
-					$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds, LOG_INFO);
-					$htaccess = $uri . '/.htaccess';
-					$htaccess = preg_replace('#//#', '/', $htaccess);
-					$htaccessContent = '<IfModule mod_expires.c>
-	ExpiresActive on
-	ExpiresByType text/html A' . $timeOutSeconds . '
-</IfModule>';
-					t3lib_div::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
-				}
 
 					// Hook: Process content before writing to static cached file:
 					// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent']
@@ -489,7 +473,8 @@ class tx_ncstaticfilecache {
 				}
 
 				// write staticCache-files, after DB-record was successful updated or created
-				if($result === TRUE) {
+				if($result === TRUE && $this->mkdirDeep(PATH_site, $cacheDir . $uri) === TRUE) {
+					$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
 					t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
 					$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
 					$isStaticCached = TRUE;
@@ -501,7 +486,7 @@ class tx_ncstaticfilecache {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
 					$explanation = 'static cache disabled on page';
 				}
-				if (isset($this->setup['disableCache']) && $this->setup['disableCache']) {
+				if ((boolean)$this->getSetupProperty('disableCache') === TRUE) {
 					$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"', LOG_INFO);
 					$explanation = 'static cache disabled by TypoScript';
 				}
@@ -631,7 +616,7 @@ class tx_ncstaticfilecache {
 				$pageId = $row['pid'];
 
 					// Marks an expired page as dirty without removing it:
-				if ($this->configuration['markDirtyInsteadOfDeletion']) {
+				if ($this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
 					if (isset($parent)) {
 						$parent->cli_echo("Marked pid as dirty: " . $pageId . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
 					}
@@ -783,7 +768,7 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	protected function debug($message, $severity = LOG_NOTICE, $additionalData = false) {
-		if ( ( isset($this->configuration['debug']) && $this->configuration['debug']) || $severity <= LOG_CRIT) {
+		if ($this->getConfigurationProperty('debug') || $severity <= LOG_CRIT) {
 			t3lib_div::devlog(
 				trim($message),
 				$this->extKey,
@@ -837,7 +822,7 @@ class tx_ncstaticfilecache {
 		$pid = intval($pid);
 		$pidCondition = ($pid ? 'pid=' . $pid : '');
 			// Mark specific pages as dirty (does not macht clear all or pages cache):
-		if ($pid && $this->configuration['markDirtyInsteadOfDeletion']) {
+		if ($pid && $this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $pidCondition, array('isdirty' => 1));
 			// Clearing cache in filesystem and database:
 		} else {
@@ -963,7 +948,7 @@ class tx_ncstaticfilecache {
 	 * @return void
 	 */
 	protected function writeCompressedContent($filePath, $content) {
-		if ($this->configuration['enableStaticFileCompression']) {
+		if ($this->getConfigurationProperty('enableStaticFileCompression')) {
 			$level = is_int($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
 			$contentGzip = gzencode($content, $level);
 			if ($contentGzip) {
@@ -979,6 +964,40 @@ class tx_ncstaticfilecache {
 	 */
 	public function getFileTable() {
 		return $this->fileTable;
+	}
+
+	/**
+	 * create directory and return boolean, if directory could be created
+	 * 
+	 * @param string $destination
+	 * @param string $deepDir
+	 * @return boolean
+	 */
+	protected function mkdirDeep($destination,$deepDir) {
+		$result = t3lib_div::mkdir_deep($destination,$deepDir);
+		if(stristr($result, 'error')) {
+			$this->debug($result, LOG_CRIT);
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+	/**
+	 * @param string $cacheDir
+	 * @param string $uri
+	 * @param string $timeOutSeconds
+	 */
+	protected function writeHtAccessFile($cacheDir, $uri, $timeOutSeconds) {
+		if ($this->getConfigurationProperty('sendCacheControlHeader')) {
+			$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds, LOG_INFO);
+			$htaccess = $uri . '/.htaccess';
+			$htaccess = preg_replace('#//#', '/', $htaccess);
+			$htaccessContent = '<IfModule mod_expires.c>
+	ExpiresActive on
+	ExpiresByType text/html A' . $timeOutSeconds . '
+</IfModule>';
+			t3lib_div::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
+		}
 	}
 }
 
