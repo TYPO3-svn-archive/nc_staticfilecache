@@ -538,6 +538,7 @@ class tx_ncstaticfilecache {
 						(!$additionalHash ? ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable) : '')
 				);
 				if ($rows[0]['uid']) {
+					$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
 					$fieldValues['explanation'] = $explanation;
 					$fieldValues['isdirty'] = 0;
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
@@ -545,6 +546,8 @@ class tx_ncstaticfilecache {
 					$fieldValues = array_merge(
 						$fieldValues,
 						array(
+							'crdate' => $GLOBALS['EXEC_TIME'],
+							'tstamp' => $GLOBALS['EXEC_TIME'],
 							'explanation' => $explanation,
 							'file' => $file,
 							'pid' => $pObj->page['uid'],
