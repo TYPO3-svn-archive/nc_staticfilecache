@@ -179,88 +179,91 @@ class tx_ncstaticfilecache {
 
 		if($params['cacheCmd']) {
 			$this->clearStaticFile($params);
-		} else {
-			$uid = intval($params['uid']);
-			$table = strval($params['table']);
+			return;
+		}
 
-			if ($uid > 0) {
-				// Get Page TSconfig relavant:
-				list($tscPID) = t3lib_BEfunc::getTSCpid($table, $uid, '');
-				$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
+		$uid = intval($params['uid']);
+		$table = strval($params['table']);
 
-				if (!$TSConfig['clearCache_disable']) {
-					// If table is "pages":
-					if (t3lib_extMgm::isLoaded('cms')) {
-						$list_cache = array();
-						if ($table == 'pages') {
+		if($uid <= 0) {
+			return;
+		}
 
-							// Builds list of pages on the SAME level as this page (siblings)
-							$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-											'A.pid AS pid, B.uid AS uid',
-											'pages A, pages B',
-											'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0'
-										);
+		// Get Page TSconfig relavant:
+		list($tscPID) = t3lib_BEfunc::getTSCpid($table, $uid, '');
+		$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 
-							$pid_tmp = 0;
-							while ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
-								$list_cache[] = $row_tmp['uid'];
-								$pid_tmp = $row_tmp['pid'];
+		if (!$TSConfig['clearCache_disable']) {
+			// If table is "pages":
+			if (t3lib_extMgm::isLoaded('cms')) {
+				$list_cache = array();
+				if ($table == 'pages') {
 
-								// Add children as well:
-								if ($TSConfig['clearCache_pageSiblingChildren']) {
-									$res_tmp2 = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-										'uid',
-										'pages',
-										'pid='.intval($row_tmp['uid']).' AND deleted=0'
-									);
-									while ($row_tmp2 = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp2)) {
-										$list_cache[] = $row_tmp2['uid'];
-									}
-									$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp2);
-								}
-							}
-							$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp);
-
-							// Finally, add the parent page as well:
-							$list_cache[] = $pid_tmp;
-
-							// Add grand-parent as well:
-							if ($TSConfig['clearCache_pageGrandParent']) {
-								$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-									'pid',
-									'pages',
-									'uid=' . intval($pid_tmp)
+					// Builds list of pages on the SAME level as this page (siblings)
+					$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+									'A.pid AS pid, B.uid AS uid',
+									'pages A, pages B',
+									'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0'
 								);
-								if ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
-									$list_cache[] = $row_tmp['pid'];
-								}
-								$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp);
-							}
-						} else {
-							// For other tables than "pages", delete cache for the records "parent page".
-							$list_cache[] = intval($pObj->getPID($table, $uid));
-						}
 
-						// Delete cache for selected pages:
-						if (is_array($list_cache)) {
-							$ids = $GLOBALS['TYPO3_DB']->cleanIntArray($list_cache);
-							foreach ($ids as $id) {
-								$cmd = array ('cacheCmd' => $id);
-								$this->clearStaticFile($cmd);
+					$pid_tmp = 0;
+					while ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
+						$list_cache[] = $row_tmp['uid'];
+						$pid_tmp = $row_tmp['pid'];
+
+						// Add children as well:
+						if ($TSConfig['clearCache_pageSiblingChildren']) {
+							$res_tmp2 = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+								'uid',
+								'pages',
+								'pid='.intval($row_tmp['uid']).' AND deleted=0'
+							);
+							while ($row_tmp2 = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp2)) {
+								$list_cache[] = $row_tmp2['uid'];
 							}
+							$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp2);
 						}
 					}
+					$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp);
+
+					// Finally, add the parent page as well:
+					$list_cache[] = $pid_tmp;
+
+					// Add grand-parent as well:
+					if ($TSConfig['clearCache_pageGrandParent']) {
+						$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+							'pid',
+							'pages',
+							'uid=' . intval($pid_tmp)
+						);
+						if ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
+							$list_cache[] = $row_tmp['pid'];
+						}
+						$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp);
+					}
+				} else {
+					// For other tables than "pages", delete cache for the records "parent page".
+					$list_cache[] = intval($pObj->getPID($table, $uid));
 				}
 
-				// Clear cache for pages entered in TSconfig:
-				if ($TSConfig['clearCacheCmd']) {
-					$Commands = t3lib_div::trimExplode(',', strtolower($TSConfig['clearCacheCmd']), true);
-					$Commands = array_unique($Commands);
-					foreach($Commands as $cmdPart) {
-						$cmd = array ('cacheCmd' => $cmdPart);
+				// Delete cache for selected pages:
+				if (is_array($list_cache)) {
+					$ids = $GLOBALS['TYPO3_DB']->cleanIntArray($list_cache);
+					foreach ($ids as $id) {
+						$cmd = array ('cacheCmd' => $id);
 						$this->clearStaticFile($cmd);
 					}
 				}
+			}
+		}
+
+		// Clear cache for pages entered in TSconfig:
+		if ($TSConfig['clearCacheCmd']) {
+			$Commands = t3lib_div::trimExplode(',', strtolower($TSConfig['clearCacheCmd']), true);
+			$Commands = array_unique($Commands);
+			foreach($Commands as $cmdPart) {
+				$cmd = array ('cacheCmd' => $cmdPart);
+				$this->clearStaticFile($cmd);
 			}
 		}
 	}
@@ -412,14 +415,8 @@ class tx_ncstaticfilecache {
 
 				$this->debug('writing cache for pid: ' . $pObj->id);
 
-					// If page has a endtime before the current timeOutTime, use it instead:
-				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
-					$timeOutTime = $pObj->page['endtime'];
-				}
-				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
-
-					// Hook: Process content before writing to static cached file:
-					// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent']
+				// Hook: Process content before writing to static cached file:
+				// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent']
 				$processContentHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent'];
 				if (is_array($processContentHooks)) {
 					foreach ($processContentHooks as $hookFunction) {
@@ -436,51 +433,18 @@ class tx_ncstaticfilecache {
 					}
 				}
 
-				// Check for existing entries with the same uid and file, if a
-				// record exists, update timestamp, otherwise create a new record.
-				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-					'uid',
-					$this->fileTable,
-					'pid=' . $pObj->page['uid'] .
-						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
-						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
-						' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable) . 
-						' AND ismarkedtodelete=0'
-				);
-
-				// update or create DB-record
-				if ($rows[0]['uid']) {
-					$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
-					$fieldValues['cache_timeout'] = $timeOutSeconds;
-					$fieldValues['isdirty'] = 0;
-					$result = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
-				} else {
-					$fieldValues = array_merge(
-						$fieldValues,
-						array(
-							'crdate' => $GLOBALS['EXEC_TIME'],
-							'tstamp' => $GLOBALS['EXEC_TIME'],
-							'cache_timeout' => $timeOutSeconds,
-							'file' => $file,
-							'pid' => $pObj->page['uid'],
-							'reg1' => $pObj->page_cache_reg1,
-							'host' => $host,
-							'uri' => $uri,
-							'additionalhash' => $additionalHash,
-						)
-					);
-					$result = $GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
+				// If page has a endtime before the current timeOutTime, use it instead:
+				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
+					$timeOutTime = $pObj->page['endtime'];
 				}
-
-				// write staticCache-files, after DB-record was successful updated or created
-				if($result === TRUE && $this->mkdirDeep(PATH_site, $cacheDir . $uri) === TRUE) {
-					$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
-					t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
-					$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
-					$isStaticCached = TRUE;
+				
+				// write DB-record and staticCache-files, after DB-record was successful updated or created
+				$timeOutSeconds  = $timeOutTime - $GLOBALS['EXEC_TIME'];
+				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '' );
+				if($recordIsWritten === TRUE) {
+					$isStaticCached  = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
 				}
 			} else {
-
 					// This is an 'explode' of the function isStaticCacheble()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
@@ -527,38 +491,7 @@ class tx_ncstaticfilecache {
 				}
 
 
-				// Check for existing entries with the same uid and file, if a
-				// record exists, update timestamp, otherwise create a new record.
-				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-					'uid',
-					$this->fileTable,
-					'pid=' . $pObj->page['uid'] . 
-						' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
-						' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
-						(!$additionalHash ? ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable) : '')
-				);
-				if ($rows[0]['uid']) {
-					$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
-					$fieldValues['explanation'] = $explanation;
-					$fieldValues['isdirty'] = 0;
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
-				} else {
-					$fieldValues = array_merge(
-						$fieldValues,
-						array(
-							'crdate' => $GLOBALS['EXEC_TIME'],
-							'tstamp' => $GLOBALS['EXEC_TIME'],
-							'explanation' => $explanation,
-							'file' => $file,
-							'pid' => $pObj->page['uid'],
-							'host' => $host,
-							'uri' => $uri,
-							'additionalhash' => $additionalHash,
-						)
-					);
-					$GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
-				}
-
+				$this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, 0, $explanation );
 				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
 			}
 		}
@@ -651,9 +584,7 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	public function processDirtyPages(t3lib_cli $parent = NULL, $limit = 0) {
-		$dirtyElements = $this->getDirtyElements($limit );
-
-		foreach ($dirtyElements as $dirtyElement) {
+		foreach ($this->getDirtyElements($limit) as $dirtyElement) {
 			$this->processDirtyPagesElement($dirtyElement, $parent);
 		}
 	}
@@ -684,24 +615,19 @@ class tx_ncstaticfilecache {
 			}
 		}
 
-		if (!$cancelExecution) {
-			$result = $this->deleteStaticCacheDirectory($cacheDirectory);
+		if ($cancelExecution === TRUE) {
+			return;
+		}
 
-			if ($result !== FALSE) {
-				$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
-			} else {
-				$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
-			}
-
+		if (TRUE === $this->deleteStaticCacheDirectory($cacheDirectory)) {
+			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
 			if (isset($parent)) {
-				if (!isset($result)) {
-					$resultMessage = 'NOT FOUND';
-				} elseif ($result) {
-					$resultMessage = 'OK';
-				} else {
-					$resultMessage = 'FAILED';
-				}
-				$parent->cli_echo('Removing directory ' . $cacheDirectory . '... ' . $resultMessage . PHP_EOL);
+				$parent->cli_echo('Removing directory ' . $cacheDirectory . '... OK' . PHP_EOL);
+			}
+		} else {
+			$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
+			if (isset($parent)) {
+				$parent->cli_echo('Removing directory ' . $cacheDirectory . '... FAILED' . PHP_EOL);
 			}
 		}
 	}
@@ -823,62 +749,63 @@ class tx_ncstaticfilecache {
 	 */
 	protected function deleteStaticCache($pid = 0, $directory = '') {
 		$pid = intval($pid);
-		$pidCondition = ($pid ? 'pid=' . $pid : '');
-			// Mark specific pages as dirty (does not macht clear all or pages cache):
-		if ($pid && $this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
-			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $pidCondition, array('isdirty' => 1));
-			// Clearing cache in filesystem and database:
-		} else {
-				// Cache of a single page shall be removed:
-			if ($pid) {
-				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, $pidCondition);
-				foreach ($rows as $row) {
-					$cacheDirectory = $row['host'] . dirname($row['file']);
-					$result = $this->deleteStaticCacheDirectory($cacheDirectory);
 
-					if ($result !== FALSE) {
-						$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
-					} else {
-						$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
-					}
-				}
-				// Cache of all pages shall be removed (clearCacheCmd "all" or "pages"):
-			} else {
-				try {
-					// 1. marked DB-records which should be deleted
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $pidCondition, array('ismarkedtodelete' => 1));
 
-					// 2. move directory and delete it after movement (if directory exists)
-					$srcDir = PATH_site . $this->cacheDir . $directory;
-					if(substr($srcDir, strlen($srcDir)-1, 1) === '/') {
-						$tmpDir = substr($srcDir, 0, strlen($srcDir)-1).'_ismarkedtodelete/';
-					} else {
-						$tmpDir = PATH_site . $this->cacheDir . $directory.'_ismarkedtodelete/';
-					}
-					if(is_dir($srcDir) === TRUE) {
-						if (is_dir($tmpDir)) {
-							$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
-							if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
-								throw new RuntimeException('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
-							}
-						}
-						
-						if(FALSE === rename($srcDir, $tmpDir)) {
-							throw new RuntimeException('Could not rename static cache directory "' . $srcDir . '"');
-						}
-						// delete moved directory
-						if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
-							throw new RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
-						}
-					}
+		if ($pid > 0 && $this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
+			// Mark specific page as dirty
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'pid=' . $pid, array('isdirty' => 1));
+			return;
+		}
 
-					// 3. delete marked DB-records
-					$pidCondition = empty($pidCondition) ? 'ismarkedtodelete=1' : $pidCondition . ' AND ismarkedtodelete=1';
-					$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, $pidCondition);
-				} catch (Exception $e) {
-					$this->debug($e->getMessage(), LOG_CRIT);
+
+		if ($pid > 0) {
+			// Cache of a single page shall be removed
+			$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . $pid);
+			foreach ($rows as $row) {
+				$cacheDirectory = $row['host'] . dirname($row['file']);
+				if (TRUE === $this->deleteStaticCacheDirectory($cacheDirectory)) {
+					$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
+				} else {
+					$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
 				}
 			}
+			return;
+		}
+
+
+		// Cache of all pages shall be removed (clearCacheCmd "all" or "pages")
+		try {
+			// 1. marked DB-records which should be deleted
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, '', array('ismarkedtodelete' => 1));
+
+			// 2. move directory and delete it after movement (if directory exists)
+			$srcDir = PATH_site . $this->cacheDir . $directory;
+			if(substr($srcDir, strlen($srcDir)-1, 1) === '/') {
+				$tmpDir = substr($srcDir, 0, strlen($srcDir)-1).'_ismarkedtodelete/';
+			} else {
+				$tmpDir = PATH_site . $this->cacheDir . $directory.'_ismarkedtodelete/';
+			}
+			if(is_dir($srcDir) === TRUE) {
+				if (is_dir($tmpDir)) {
+					$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
+					if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
+						throw new RuntimeException('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
+					}
+				}
+
+				if(FALSE === rename($srcDir, $tmpDir)) {
+					throw new RuntimeException('Could not rename static cache directory "' . $srcDir . '"');
+				}
+				// delete moved directory
+				if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
+					throw new RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
+				}
+			}
+
+			// 3. delete marked DB-records
+			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'ismarkedtodelete=1');
+		} catch (Exception $e) {
+			$this->debug($e->getMessage(), LOG_CRIT);
 		}
 	}
 
@@ -889,37 +816,37 @@ class tx_ncstaticfilecache {
 	 * @return	mixed		Whether the action was successful (if directory was not found, NULL is returned)
 	 */
 	public function deleteStaticCacheDirectory($directory) {
-		$result = NULL;
-
 		$directory = trim($directory);
 		$cacheDirectory = PATH_site . $this->cacheDir . $directory;
 
 		$this->debug('Removing files of directory "' . $cacheDirectory . '"', LOG_INFO);
-		if (!empty($directory) && is_dir($cacheDirectory)) {
-			$directoryHandle = @opendir($cacheDirectory);
-
-			if ($directoryHandle === FALSE) {
-				return FALSE;
-			}
-
-			while (($element = readdir($directoryHandle))) {
-				if ($element == '.' || $element == '..') {
-					continue;
-				}
-
-				if (is_file($cacheDirectory . '/' . $element)) {
-						//keep false if one file cannot be deleted -> entries marked dirty will not be deleted from DB
-					if (FALSE === unlink($cacheDirectory . '/' . $element)) {
-						$result = FALSE;
-					} elseif ($result !== FALSE) {
-						$result = TRUE;
-					}
-				}
-			}
-
-			closedir($directoryHandle);
-			@rmdir($cacheDirectory);
+		if (empty($directory) === TRUE || is_dir($cacheDirectory) === FALSE) {
+			// directory is not existing, so we don't must delete anything
+			return TRUE;
 		}
+
+
+		$directoryHandle = @opendir($cacheDirectory);
+		if ($directoryHandle === FALSE) {
+			// we have no handle to delete the directory
+			return FALSE;
+		}
+
+
+		$result = TRUE;
+		while (($element = readdir($directoryHandle))) {
+			if ($element == '.' || $element == '..') {
+				continue;
+			}
+			if (is_file($cacheDirectory . '/' . $element)) {
+				// keep false if one file cannot be deleted -> entries marked dirty will not be deleted from DB
+				if (FALSE === unlink($cacheDirectory . '/' . $element)) {
+					$result = FALSE;
+				}
+			}
+		}
+		closedir($directoryHandle);
+		@rmdir($cacheDirectory);
 		return $result;
 	}
 	
@@ -939,7 +866,9 @@ class tx_ncstaticfilecache {
 			'uri ASC',
 			($limit ? $limit : '')
 		);
-
+		if(is_array($elements) === FALSE) {
+			$elements = array();
+		}
 		return $elements;
 	}
 
@@ -1001,6 +930,81 @@ class tx_ncstaticfilecache {
 </IfModule>';
 			t3lib_div::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
 		}
+	}
+
+	/**
+	 * 	Check for existing entries with the same uid and file, if a record exists, update timestamp, otherwise create a new record.
+	 * 
+	 * @param object $pObj
+	 * @param array $fieldValues
+	 * @param string $host
+	 * @param string $uri
+	 * @param string $file
+	 * @param string $additionalHash
+	 * @param integer $timeOutSeconds
+	 * @param string $explanation
+	 * @return boolean
+	 */
+	private function writeStaticCacheRecord($pObj, array $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, $explanation ) {
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+			'uid',
+			$this->fileTable,
+			'pid=' . $pObj->page['uid'] .
+			' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
+			' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
+			' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable)
+		);
+
+		// update DB-record
+		if (is_array($rows) === TRUE && count($rows) > 0) {
+			$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
+			$fieldValues['cache_timeout'] = $timeOutSeconds;
+			$fieldValues['explanation'] = $explanation;
+			$fieldValues['isdirty'] = 0;
+			$fieldValues['ismarkedtodelete'] = 0;
+			$result = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
+			if($result === TRUE) {
+				return TRUE;
+			}
+		}
+
+		// create DB-record
+		$fieldValues = array_merge(
+			$fieldValues,
+			array(
+				'crdate' => $GLOBALS['EXEC_TIME'],
+				'tstamp' => $GLOBALS['EXEC_TIME'],
+				'cache_timeout' => $timeOutSeconds,
+				'explanation' => $explanation,
+				'file' => $file,
+				'pid' => $pObj->page['uid'],
+				'reg1' => $pObj->page_cache_reg1,
+				'host' => $host,
+				'uri' => $uri,
+				'additionalhash' => $additionalHash,
+			)
+		);
+		return $GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
+	}
+	/**
+	 * write static-cache-file
+	 *
+	 * @param string $cacheDir
+	 * @param string $uri
+	 * @param string $file
+	 * @param string $timeOutSeconds
+	 * @param string $content
+	 * @return boolean
+	 */
+	private function writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content) {
+		if($this->mkdirDeep(PATH_site, $cacheDir . $uri) === FALSE) {
+			return FALSE;
+		}
+
+		$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
+		t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
+		$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
+		return TRUE;
 	}
 }
 
