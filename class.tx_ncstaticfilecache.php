@@ -777,37 +777,14 @@ class tx_ncstaticfilecache {
 		try {
 			// 1. marked DB-records which should be deleted
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, '', array('ismarkedtodelete' => 1));
-
-			// 2. move directory and delete it after movement (if directory exists)
-			$srcDir = PATH_site . $this->cacheDir . $directory;
-			if(substr($srcDir, strlen($srcDir)-1, 1) === '/') {
-				$tmpDir = substr($srcDir, 0, strlen($srcDir)-1).'_ismarkedtodelete/';
-			} else {
-				$tmpDir = PATH_site . $this->cacheDir . $directory.'_ismarkedtodelete/';
-			}
-			if(is_dir($srcDir) === TRUE) {
-				if (is_dir($tmpDir)) {
-					$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
-					if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
-						throw new RuntimeException('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
-					}
-				}
-
-				if(FALSE === rename($srcDir, $tmpDir)) {
-					throw new RuntimeException('Could not rename static cache directory "' . $srcDir . '"');
-				}
-				// delete moved directory
-				if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
-					throw new RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
-				}
-			}
-
+			$this->removeCacheDirectory($directory);
 			// 3. delete marked DB-records
 			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'ismarkedtodelete=1');
 		} catch (Exception $e) {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
 	}
+	
 
 	/**
 	 * Deletes contents of a static cache directory in filesystem, but omit the subfolders
@@ -1005,6 +982,39 @@ class tx_ncstaticfilecache {
 		t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
 		$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
 		return TRUE;
+	}
+	/**
+	 *  move directory and delete it after movement (if directory exists)
+	 *  @param string $directory
+	 */
+	private function removeCacheDirectory($directory){
+		try{
+			$srcDir = PATH_site . $this->cacheDir . $directory;
+			if(substr($srcDir, strlen($srcDir)-1, 1) === '/') {
+				$tmpDir = substr($srcDir, 0, strlen($srcDir)-1).'_ismarkedtodelete/';
+			} else {
+				$tmpDir = PATH_site . $this->cacheDir . $directory.'_ismarkedtodelete/';
+			}
+			if(is_dir($srcDir) === TRUE) {
+				if (is_dir($tmpDir)) {
+					$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
+					if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
+						throw new RuntimeException('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
+					}
+				}
+	
+				if(FALSE === rename($srcDir, $tmpDir)) {
+					throw new Exception('Could not rename static cache directory "' . $srcDir . '"');
+				}
+				// delete moved directory
+				if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
+					throw new RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
+				}
+			}
+		}catch(RuntimeException $e){
+			$this->debug($e->getMessage(), LOG_CRIT);
+		}
+		
 	}
 }
 
