@@ -986,6 +986,7 @@ class tx_ncstaticfilecache {
 	/**
 	 *  move directory and delete it after movement (if directory exists)
 	 *  @param string $directory
+	 *  @throws Exception
 	 */
 	private function removeCacheDirectory($directory){
 		try{
@@ -999,7 +1000,7 @@ class tx_ncstaticfilecache {
 				if (is_dir($tmpDir)) {
 					$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
 					if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
-						throw new RuntimeException('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
+						throw new Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
 					}
 				}
 	
