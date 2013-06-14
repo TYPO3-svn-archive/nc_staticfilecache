@@ -296,7 +296,11 @@ class tx_ncstaticfilecache {
 					// Clear temp files, not frontend cache.
 					break;
 				default:
-					if (t3lib_div::testInt($cacheCmd)) {
+					$doClearCache = class_exists('TYPO3\CMS\Core\Utility\MathUtility')
+						? \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($cacheCmd)
+						: t3lib_div::testInt($cacheCmd);
+
+					if ($doClearCache) {
 						$this->debug('clearing cache for pid: ' . $cacheCmd);
 						$this->deleteStaticCache($cacheCmd);
 					} else {
@@ -344,7 +348,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Write the static file and .htaccess
 	 *
-	 * @param	object		$pObj: The parent object
+	 * @param   tslib_fe	$pObj: The parent object
 	 * @param	string		$timeOutTime: The timestamp when the page times out
 	 * @return	void
 	 */
@@ -385,14 +389,17 @@ class tx_ncstaticfilecache {
 			}
 		}
 
-			// Only process if there are not query arguements, no link to external page (doktype=3) and not called over https:
+			// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
 		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3 && $isHttp) {
 			if ($this->getConfigurationProperty('recreateURI')) {
 				$uri = $this->recreateURI();
 			}
 
 			// Workspaces have been introduced with TYPO3 4.0.0:
-			$workspacePreview = (t3lib_div::int_from_ver(TYPO3_version) >= 4000000 && $pObj->doWorkspacePreview());
+			$version = class_exists('TYPO3\CMS\Core\Utility\VersionNumberUtility')
+				? \TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version)
+				: t3lib_div::int_from_ver(TYPO3_version);
+			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
 
 			$file = $uri . '/index.html';
 			$file = preg_replace('#//#', '/', $file);
@@ -445,7 +452,7 @@ class tx_ncstaticfilecache {
 					$isStaticCached  = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
 				}
 			} else {
-					// This is an 'explode' of the function isStaticCacheble()
+					// This is an 'explode' of the function isStaticCacheable()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
 					$explanation = 'static cache disabled on page';
@@ -471,10 +478,6 @@ class tx_ncstaticfilecache {
 					$explanation = 'page has INTincScript: <ul><li>'.implode('</li><li>', $userFunc).''.implode('</li><li>', $includeLibs).'</li></ul>';
 					unset($includeLibs);
 					unset($userFunc);
-				}
-				if ($pObj->isEXTincScript()) {
-					$this->debug('insertPageIncache: page has EXTincScript', LOG_INFO);
-					$explanation = 'page has EXTincScript';
 				}
 				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
 					$this->debug('insertPageIncache: page has user or group set', LOG_INFO);
