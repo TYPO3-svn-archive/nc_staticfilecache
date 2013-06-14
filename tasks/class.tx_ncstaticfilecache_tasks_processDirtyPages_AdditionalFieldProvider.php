@@ -19,7 +19,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
- *  This copyright notice MUST APPEAR in all copies of the script! 
+ *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
 /**
@@ -56,7 +56,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider imple
 
 		if (empty($taskInfo['itemLimit'])) {
                         if ($schedulerModule->CMD == 'add') {
-                                $taskInfo['itemLimit'] = 0;                       
+                                $taskInfo['itemLimit'] = 0;
                         } else {
                                 $taskInfo['itemLimit'] = $task->itemLimit;
                         }

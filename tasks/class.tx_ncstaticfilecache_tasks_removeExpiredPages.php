@@ -46,7 +46,7 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages extends tx_scheduler_Task {
 	 * Should return true on successful execution, false on error.
 	 *
 	 * @access public
-	 * @return boolean	Returns true on successful execution, false on error 
+	 * @return boolean	Returns true on successful execution, false on error
 	 *
 	 * @author Michael Klapper <michael.klapper@aoemedia.de>
 	 */

@@ -437,7 +437,7 @@ class tx_ncstaticfilecache {
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
 					$timeOutTime = $pObj->page['endtime'];
 				}
-				
+
 				// write DB-record and staticCache-files, after DB-record was successful updated or created
 				$timeOutSeconds  = $timeOutTime - $GLOBALS['EXEC_TIME'];
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '' );
@@ -820,7 +820,7 @@ class tx_ncstaticfilecache {
             }
         }
     }
-	
+
 
 	/**
 	 * Deletes contents of a static cache directory in filesystem, but omit the subfolders
@@ -862,7 +862,7 @@ class tx_ncstaticfilecache {
 		@rmdir($cacheDirectory);
 		return $result;
 	}
-	
+
 	/**
 	 * Gets all dirty elements from database.
 	 *
@@ -913,7 +913,7 @@ class tx_ncstaticfilecache {
 
 	/**
 	 * create directory and return boolean, if directory could be created
-	 * 
+	 *
 	 * @param string $destination
 	 * @param string $deepDir
 	 * @return boolean
@@ -947,7 +947,7 @@ class tx_ncstaticfilecache {
 
 	/**
 	 * 	Check for existing entries with the same uid and file, if a record exists, update timestamp, otherwise create a new record.
-	 * 
+	 *
 	 * @param object $pObj
 	 * @param array $fieldValues
 	 * @param string $host
@@ -1043,7 +1043,7 @@ class tx_ncstaticfilecache {
 						throw new Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
 					}
 				}
-	
+
 				if(FALSE === rename($srcDir, $tmpDir)) {
 					throw new Exception('Could not rename static cache directory "' . $srcDir . '"');
 				}
@@ -1055,7 +1055,7 @@ class tx_ncstaticfilecache {
 		}catch(RuntimeException $e){
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
-		
+
 	}
 }
 

@@ -49,7 +49,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages extends tx_scheduler_Task {
 	 * It MUST be implemented by all classes inheriting from this one
 	 * Note that there is no error handling, errors and failures are expected
 	 * to be handled and logged by the client implementations.
-	 * Should return true on successful execution, false on error. 
+	 * Should return true on successful execution, false on error.
 	 *
 	 * @access public
 	 * @return boolean	Returns true on successful execution, false on error
