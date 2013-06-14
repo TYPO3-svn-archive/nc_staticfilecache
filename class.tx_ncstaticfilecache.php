@@ -296,7 +296,11 @@ class tx_ncstaticfilecache {
 					// Clear temp files, not frontend cache.
 					break;
 				default:
-					if (t3lib_div::testInt($cacheCmd)) {
+					$doClearCache = class_exists('TYPO3\CMS\Core\Utility\MathUtility')
+						? \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($cacheCmd)
+						: t3lib_div::testInt($cacheCmd);
+
+					if ($doClearCache) {
 						$this->debug('clearing cache for pid: ' . $cacheCmd);
 						$this->deleteStaticCache($cacheCmd);
 					} else {
@@ -344,7 +348,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Write the static file and .htaccess
 	 *
-	 * @param	object		$pObj: The parent object
+	 * @param   tslib_fe	$pObj: The parent object
 	 * @param	string		$timeOutTime: The timestamp when the page times out
 	 * @return	void
 	 */
@@ -385,14 +389,17 @@ class tx_ncstaticfilecache {
 			}
 		}
 
-			// Only process if there are not query arguements, no link to external page (doktype=3) and not called over https:
+			// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
 		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3 && $isHttp) {
 			if ($this->getConfigurationProperty('recreateURI')) {
 				$uri = $this->recreateURI();
 			}
 
 			// Workspaces have been introduced with TYPO3 4.0.0:
-			$workspacePreview = (t3lib_div::int_from_ver(TYPO3_version) >= 4000000 && $pObj->doWorkspacePreview());
+			$version = class_exists('TYPO3\CMS\Core\Utility\VersionNumberUtility')
+				? \TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version)
+				: t3lib_div::int_from_ver(TYPO3_version);
+			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
 
 			$file = $uri . '/index.html';
 			$file = preg_replace('#//#', '/', $file);
@@ -437,7 +444,7 @@ class tx_ncstaticfilecache {
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
 					$timeOutTime = $pObj->page['endtime'];
 				}
-				
+
 				// write DB-record and staticCache-files, after DB-record was successful updated or created
 				$timeOutSeconds  = $timeOutTime - $GLOBALS['EXEC_TIME'];
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '' );
@@ -445,7 +452,7 @@ class tx_ncstaticfilecache {
 					$isStaticCached  = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
 				}
 			} else {
-					// This is an 'explode' of the function isStaticCacheble()
+					// This is an 'explode' of the function isStaticCacheable()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
 					$explanation = 'static cache disabled on page';
@@ -471,10 +478,6 @@ class tx_ncstaticfilecache {
 					$explanation = 'page has INTincScript: <ul><li>'.implode('</li><li>', $userFunc).''.implode('</li><li>', $includeLibs).'</li></ul>';
 					unset($includeLibs);
 					unset($userFunc);
-				}
-				if ($pObj->isEXTincScript()) {
-					$this->debug('insertPageIncache: page has EXTincScript', LOG_INFO);
-					$explanation = 'page has EXTincScript';
 				}
 				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
 					$this->debug('insertPageIncache: page has user or group set', LOG_INFO);
@@ -820,7 +823,7 @@ class tx_ncstaticfilecache {
             }
         }
     }
-	
+
 
 	/**
 	 * Deletes contents of a static cache directory in filesystem, but omit the subfolders
@@ -862,7 +865,7 @@ class tx_ncstaticfilecache {
 		@rmdir($cacheDirectory);
 		return $result;
 	}
-	
+
 	/**
 	 * Gets all dirty elements from database.
 	 *
@@ -913,7 +916,7 @@ class tx_ncstaticfilecache {
 
 	/**
 	 * create directory and return boolean, if directory could be created
-	 * 
+	 *
 	 * @param string $destination
 	 * @param string $deepDir
 	 * @return boolean
@@ -947,7 +950,7 @@ class tx_ncstaticfilecache {
 
 	/**
 	 * 	Check for existing entries with the same uid and file, if a record exists, update timestamp, otherwise create a new record.
-	 * 
+	 *
 	 * @param object $pObj
 	 * @param array $fieldValues
 	 * @param string $host
@@ -1043,7 +1046,7 @@ class tx_ncstaticfilecache {
 						throw new Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
 					}
 				}
-	
+
 				if(FALSE === rename($srcDir, $tmpDir)) {
 					throw new Exception('Could not rename static cache directory "' . $srcDir . '"');
 				}
@@ -1055,7 +1058,7 @@ class tx_ncstaticfilecache {
 		}catch(RuntimeException $e){
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
-		
+
 	}
 }
 

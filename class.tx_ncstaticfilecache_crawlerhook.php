@@ -36,7 +36,7 @@ class tx_ncstaticfilecache_crawlerhook {
 	 */
 	public $pubObj;
 
-	public function __construct() {	
+	public function __construct() {
 		$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
 	}
 
@@ -64,7 +64,7 @@ class tx_ncstaticfilecache_crawlerhook {
 			} else {
 				$pObj->applicationData['tx_crawler']['log'][] = 'EXT:nc_staticfilecache skipped';
 			}
-		} 
+		}
 	}
 }
 

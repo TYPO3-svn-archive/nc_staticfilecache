@@ -168,7 +168,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$output = $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . $output;
 
 		// Compile final table and return:
-		$output = 
+		$output =
 			$this->renderHeader() . '
 			<table border="0" cellspacing="1" cellpadding="0" class="lrPadding">'.$output.'
 			</table>';
@@ -273,7 +273,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 
 	/**
 	 * Gets the instance of the static file cache object to modify the cached information.
-	 * 
+	 *
 	 * @return	tx_ncstaticfilecache
 	 */
 	protected function getStaticFileCacheInstance() {

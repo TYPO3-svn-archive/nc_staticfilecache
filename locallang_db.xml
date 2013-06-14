@@ -9,7 +9,7 @@
 			<label index="nc_staticfilecache.field">Cache page as static file</label>
 			<label index="moduleFunction.tx_ncstaticfilecache_infomodule">Static file cache</label>
 			<label index="nc_staticfilecache_task_processDirtyPages.itemLimit">Item limit</label>
-		        
+
 			<label index="nc_staticfilecache_task_removeExpiredPages.name">Remove expired pages</label>
 		        <label index="nc_staticfilecache_task_removeExpiredPages.description">All expired pages will be removed from the cache.</label>
         		<label index="nc_staticfilecache_task_processDirtyPages.name">Process dirty pages</label>
