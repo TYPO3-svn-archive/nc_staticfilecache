@@ -298,7 +298,9 @@ class tx_ncstaticfilecache {
 				default:
 					$doClearCache = class_exists('TYPO3\CMS\Core\Utility\MathUtility')
 						? \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($cacheCmd)
-						: t3lib_div::testInt($cacheCmd);
+						: (class_exists('t3lib_utility_Math') ? t3lib_utility_Math::canBeInterpretedAsInteger($cacheCmd) : t3lib_div::testInt($cacheCmd));
+
+
 
 					if ($doClearCache) {
 						$this->debug('clearing cache for pid: ' . $cacheCmd);
@@ -314,7 +316,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Returns records for a page id
 	 *
-	 * @param	integer		Page id
+	 * @param	integer	$pid	Page id
 	 * @return	array		Array of records
 	 */
 	public function getRecordForPageID($pid) {
