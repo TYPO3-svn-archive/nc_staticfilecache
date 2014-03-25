@@ -1,3 +1,17 @@
+2014-03-25  Tim Lochmueller  <tim@fruit-lab.de>
+
+	* Backport changes from TER version to trunk
+	* Remove PATH_t3lib usage to fit 6.x
+
+2014-03-11  Klaus Bitto  <klaus@netcreators.nl>
+
+	* Fixed bug: Call to undefined method TYPO3\CMS\Core\Utility\GeneralUtility::intval_positive() in class.tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider.php (Thank you, Hendrik Reimers)
+	* Increased compatibility to TYPO3 6.2.
+
+2014-03-07  Klaus Bitto  <klaus@netcreators.nl>
+
+	* Integrated TYPO3 6 compatibility adjustments for TER release as v2.4.0. (Selective merge from https://svn.typo3.org/TYPO3v4/Extensions/nc_staticfilecache/trunk/.)
+
 2010-10-13  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Database elements are removed if directory on the filesystem exists, but could not be accessed

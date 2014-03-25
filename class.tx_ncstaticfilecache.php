@@ -348,7 +348,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Write the static file and .htaccess
 	 *
-	 * @param   tslib_fe	$pObj: The parent object
+	 * @param	tslib_fe	$pObj: The parent object
 	 * @param	string		$timeOutTime: The timestamp when the page times out
 	 * @return	void
 	 */
@@ -444,7 +444,7 @@ class tx_ncstaticfilecache {
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
 					$timeOutTime = $pObj->page['endtime'];
 				}
-
+				
 				// write DB-record and staticCache-files, after DB-record was successful updated or created
 				$timeOutSeconds  = $timeOutTime - $GLOBALS['EXEC_TIME'];
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '' );
@@ -787,43 +787,7 @@ class tx_ncstaticfilecache {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
 	}
-
-    /**
-     * Deletes the static cache in database and filesystem for a given identifier.
-     * If the extension configuration 'markDirtyInsteadOfDeletion' is set,
-     * the database elements only get tagged a "dirty".
-     *
-     * @param	string|array		$identifier: the hexadecimal identifier of the entries in the database
-     * @return	void
-     */
-    public function deleteStaticCacheByIdentifier($identifier) {
-        if(is_array($identifier)) {
-            $escapedIdentifiers = array();
-            foreach($identifier as $ident) {
-                $escapedIdentifiers[] = $GLOBALS['TYPO3_DB']->fullQuoteStr($ident, $this->fileTable);
-            }
-            $identifierCondition = 'identifier IN (' . implode(', ', $escapedIdentifiers) . ')';
-        } else {
-            $identifierCondition = ($identifier ? 'identifier=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($identifier, $this->fileTable) : '');
-        }
-
-        // Mark specific pages as dirty
-        if ($this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
-            $GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, $identifierCondition, array('isdirty' => 1));
-            // Clearing cache in filesystem and database:
-        } else {
-            $rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, $identifierCondition);
-            foreach ($rows as $row) {
-                $cacheDirectory = $row['host'] . dirname($row['file']);
-                if (TRUE === $this->deleteStaticCacheDirectory($cacheDirectory)) {
-                    $GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
-                } else {
-                    $this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
-                }
-            }
-        }
-    }
-
+	
 
 	/**
 	 * Deletes contents of a static cache directory in filesystem, but omit the subfolders
@@ -865,7 +829,7 @@ class tx_ncstaticfilecache {
 		@rmdir($cacheDirectory);
 		return $result;
 	}
-
+	
 	/**
 	 * Gets all dirty elements from database.
 	 *
@@ -971,8 +935,6 @@ class tx_ncstaticfilecache {
 			' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable)
 		);
 
-        $identifier = $pObj->newHash; // the identifier used by the TYPO3 caching tables
-
 		// update DB-record
 		if (is_array($rows) === TRUE && count($rows) > 0) {
 			$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
@@ -980,7 +942,6 @@ class tx_ncstaticfilecache {
 			$fieldValues['explanation'] = $explanation;
 			$fieldValues['isdirty'] = 0;
 			$fieldValues['ismarkedtodelete'] = 0;
-            $fieldValues['identifier'] = $identifier;
 			$result = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 			if($result === TRUE) {
 				return TRUE;
@@ -1001,7 +962,6 @@ class tx_ncstaticfilecache {
 				'host' => $host,
 				'uri' => $uri,
 				'additionalhash' => $additionalHash,
-                'identifier' => $identifier,
 			)
 		);
 		return $GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
@@ -1046,7 +1006,7 @@ class tx_ncstaticfilecache {
 						throw new Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
 					}
 				}
-
+	
 				if(FALSE === rename($srcDir, $tmpDir)) {
 					throw new Exception('Could not rename static cache directory "' . $srcDir . '"');
 				}
@@ -1058,7 +1018,7 @@ class tx_ncstaticfilecache {
 		}catch(RuntimeException $e){
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
-
+		
 	}
 }
 

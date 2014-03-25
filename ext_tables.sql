@@ -22,7 +22,6 @@ CREATE TABLE tx_ncstaticfilecache_file (
 	isdirty tinyint(1) DEFAULT '0',
 	ismarkedtodelete tinyint(1) DEFAULT '0',
 	additionalhash varchar(40) DEFAULT '' NOT NULL,
-	identifier varchar(250) DEFAULT '' NOT NULL,
 
 	PRIMARY KEY (uid),
 	KEY pid (pid),
