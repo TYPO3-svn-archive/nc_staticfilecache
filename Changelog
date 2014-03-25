@@ -1,5 +1,6 @@
 2014-03-25  Tim Lochmueller  <tim@fruit-lab.de>
 
+	* Wrap removed function t3lib_div::intval_positive in the Scheduler task to support 6.x
 	* Fix old PHP4 constructor call in the cleaner task
 	* Backport changes from TER version to trunk
 	* Set dependencies to TYPO3 4.5 minimum
