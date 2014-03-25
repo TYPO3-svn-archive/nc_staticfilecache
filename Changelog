@@ -3,6 +3,7 @@
 	* Backport changes from TER version to trunk
 	* Set dependencies to TYPO3 4.5 minimum
 	* Wrap testInt once more, to prefer the TYPO3 CMS 4.7 t3lib_utility_Math function
+	* Cleanup and add same classes to the ext_autoload.php
 	* Remove PATH_t3lib usage to fit 6.x
 
 2014-03-11  Klaus Bitto  <klaus@netcreators.nl>
