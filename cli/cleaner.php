@@ -46,7 +46,7 @@ class tx_ncstaticfilecache_cli extends t3lib_cli {
 	function tx_ncstaticfilecache_cli () {
 
 		// Running parent class constructor
-		parent::t3lib_cli();
+		parent::__construct();
 
 		// Setting help texts:
 		$this->cli_help['name'] = 'static file cache cleaner -- Removes expired pages from static file cache.';
@@ -61,7 +61,7 @@ class tx_ncstaticfilecache_cli extends t3lib_cli {
 	/**
 	 * CLI engine
 	 *
-	 * @param	array		Command line arguments
+	 * @param	array	$argv	Command line arguments
 	 * @return	string
 	 */
 	function cli_main($argv) {
