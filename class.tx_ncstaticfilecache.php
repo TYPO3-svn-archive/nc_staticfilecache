@@ -693,20 +693,35 @@ class tx_ncstaticfilecache {
 		}
 	}
 
-
 	/**
 	 * Puts a message to the devlog.
 	 *
-	 * @param	string		$message: The message to log
-	 * @param	integer		$severity: The severity value from warning to fatal error (default: 1)
-	 * @return	void
+	 * @param string $message  The message to log
+	 * @param int    $severity The severity value from warning to fatal error (default: 1)
+	 * @param bool   $additionalData
+	 *
+	 * @return    void
 	 */
-	protected function debug($message, $severity = LOG_NOTICE, $additionalData = false) {
+	protected function debug($message, $severity = LOG_NOTICE, $additionalData = FALSE) {
 		if ($this->getConfigurationProperty('debug') || $severity <= LOG_CRIT) {
+
+			// map PHP or nc_staticfilecache error levels to
+			// t3lib_div::devLog() severity level
+			$arMapping = array(
+				LOG_EMERG   => 3,
+				LOG_ALERT   => 3,
+				LOG_CRIT    => 3,
+				LOG_ERR     => 3,
+				LOG_WARNING => 2,
+				LOG_NOTICE  => 1,
+				LOG_INFO    => -1,
+				LOG_DEBUG   => 0,
+			);
+
 			t3lib_div::devlog(
 				trim($message),
 				$this->extKey,
-				$severity,
+				isset($arMapping[$severity]) ? $arMapping[$severity] : 1,
 				$additionalData
 			);
 		}
