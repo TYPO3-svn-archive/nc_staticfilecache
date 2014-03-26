@@ -1,3 +1,7 @@
+2014-03-26  Tim Lochmueller  <tim@fruit-lab.de>
+
+	* Remove global statements and use $GLOBAL
+
 2014-03-25  Tim Lochmueller  <tim@fruit-lab.de>
 
 	* Wrong severity in call to t3lib_div::devLog()

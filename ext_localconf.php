@@ -4,9 +4,9 @@ if(!defined('TYPO3_MODE')) {
 }
 
 // Register with "crawler" extension:
-$TYPO3_CONF_VARS['EXTCONF']['crawler']['procInstructions']['tx_ncstaticfilecache_clearstaticfile'] = 'clear static cache file';
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['crawler']['procInstructions']['tx_ncstaticfilecache_clearstaticfile'] = 'clear static cache file';
 // Hook to process clearing static cached files if "crawler" extension is active:
-$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache'][$_EXTKEY] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache_crawlerhook.php:&tx_ncstaticfilecache_crawlerhook->clearStaticFile';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache'][$_EXTKEY] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache_crawlerhook.php:&tx_ncstaticfilecache_crawlerhook->clearStaticFile';
 
 // Create cache
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPageIncache'][$_EXTKEY] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache.php:&tx_ncstaticfilecache';
@@ -46,4 +46,3 @@ if (TYPO3_MODE=='BE') {
         'additionalFields' => 'tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider'
     );
 }
-?>

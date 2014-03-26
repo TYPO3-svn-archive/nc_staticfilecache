@@ -63,14 +63,13 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 * @return	string		Output HTML for the module.
 	 */
 	function main()	{
-		global $BACK_PATH,$LANG,$BE_USER;
 
 		// Handle actions:
 		$this->handleActions();
 
 		$output = '';
 
-		$this->backPath = $BACK_PATH;
+		$this->backPath = $GLOBALS['BACK_PATH'];
 
 		$this->pageId = intval($this->pObj->id);
 
@@ -84,7 +83,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 			$tree->MOUNTS = array(0 => $this->pageId);
 		}
 		$tree->ext_IconMode = true;
-		$tree->ext_showPageId = $BE_USER->getTSConfigVal('options.pageTree.showPageIdWithTitle');
+		$tree->ext_showPageId = $GLOBALS['BE_USER']->getTSConfigVal('options.pageTree.showPageIdWithTitle');
 		$tree->showDefaultTitleAttribute = true;
 		$tree->thisScript = 'index.php';
 		$tree->setTreeName('staticfilecache');
@@ -101,11 +100,10 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	/**
 	 * Rendering the information
 	 *
-	 * @param	array		The Page tree data
+	 * @param	array	$tree	The Page tree data
 	 * @return	string		HTML for the information table.
 	 */
 	function renderModule($tree)	{
-		global $LANG;
 
 		$pubDir = $this->getStaticFileCacheInstance()->getCacheDirectory();
 
@@ -174,8 +172,8 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$output.= '
 			<p class="c-refresh">
 				<a href="'.htmlspecialchars(t3lib_div::getIndpEnv('REQUEST_URI')).'">'.
-		'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/refresh_n.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'" alt="" />'.
-		$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'</a>
+		'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/refresh_n.gif','width="14" height="14"').' title="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'" alt="" />'.
+			$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'</a>
 			</p>';
 
 		// Set the current page Id:

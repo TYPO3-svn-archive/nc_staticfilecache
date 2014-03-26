@@ -652,19 +652,18 @@ class tx_ncstaticfilecache {
 	 * @return	void
 	 */
 	public function setFeUserCookie(&$params, &$pObj) {
-		global $TYPO3_CONF_VARS;
-
+		$cookieDomain = NULL;
 			// Setting cookies
-		if ($TYPO3_CONF_VARS['SYS']['cookieDomain']) {
-			if ($TYPO3_CONF_VARS['SYS']['cookieDomain']{0} == '/')	{
-				$matchCnt = @preg_match($TYPO3_CONF_VARS['SYS']['cookieDomain'], t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'), $match);
+		if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']) {
+			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']{0} == '/')	{
+				$matchCnt = @preg_match($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain'], t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'), $match);
 				if ($matchCnt === FALSE)	{
 					t3lib_div::sysLog('The regular expression of $TYPO3_CONF_VARS[SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
 				} elseif ($matchCnt) {
 					$cookieDomain = $match[0];
 				}
 			} else {
-				$cookieDomain = $TYPO3_CONF_VARS['SYS']['cookieDomain'];
+				$cookieDomain = $GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain'];
 			}
 		}
 
