@@ -1,6 +1,7 @@
 2014-03-26  Tim Lochmueller  <tim@fruit-lab.de>
 
 	* Remove global statements and use $GLOBAL
+	* Smarter explanation for plugins like ExtBase plugins, if the page is not cacheable. More details about extensionName, pluginName...
 
 2014-03-25  Tim Lochmueller  <tim@fruit-lab.de>
 

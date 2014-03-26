@@ -469,17 +469,26 @@ class tx_ncstaticfilecache {
 				}
 				if ($pObj->isINTincScript()) {
 					$this->debug('insertPageIncache: page has INTincScript', LOG_INFO);
-					$userFunc = array();
-					$includeLibs = array();
+
+					$INTincScripts = array();
 					foreach($pObj->config['INTincScript'] as $k => $v) {
-						$userFunc[] = $v['conf']['userFunc'];
-						$includeLibs[] = $v['conf']['includeLibs'];
+						$infos = array();
+						if(isset($v['type']))
+							$infos[] = 'type: '.$v['type'];
+						if(isset($v['conf']['userFunc']))
+							$infos[] = 'userFunc: '.$v['conf']['userFunc'];
+						if(isset($v['conf']['includeLibs']))
+							$infos[] = 'includeLibs: '.$v['conf']['includeLibs'];
+						if(isset($v['conf']['extensionName']))
+							$infos[] = 'extensionName: '.$v['conf']['extensionName'];
+						if(isset($v['conf']['pluginName']))
+							$infos[] = 'pluginName: '.$v['conf']['pluginName'];
+
+						$INTincScripts[] = implode(',', $infos);
 					}
-					$userFunc = array_unique($userFunc);
-					$includeLibs = array_unique($includeLibs);
-					$explanation = 'page has INTincScript: <ul><li>'.implode('</li><li>', $userFunc).''.implode('</li><li>', $includeLibs).'</li></ul>';
-					unset($includeLibs);
-					unset($userFunc);
+					$explanation = 'page has INTincScript: <ul><li>'.implode('</li><li>', $INTincScripts).'</li></ul>';
+					unset($INTincScripts);
+
 				}
 				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
 					$this->debug('insertPageIncache: page has user or group set', LOG_INFO);
