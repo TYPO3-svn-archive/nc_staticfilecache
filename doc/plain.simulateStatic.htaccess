@@ -10,6 +10,11 @@ RewriteRule .* - [L]
 #------------------------------------------------------------------------------
 # beginning of static file cache ruleset
 
+# Check if the requested file exists in the cache, otherwise default to index.html that
+# set in an environment variable that is used later on
+RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI} !-f
+RewriteRule .* - [E=TX_NCSTATICFILECACHE_FILE:/index.html]
+
 # Don't cache HTTPS traffic. You may choose to comment out this
 # option if your site runs fully on https. If your site runs mixed, you will
 # not want https traffic to be cached in the same typo3temp folder where it can
@@ -21,7 +26,7 @@ RewriteRule .* - [L]
 RewriteCond %{QUERY_STRING} ^$
 
 # It only makes sense to do the other checks if a static file actually exists.
-RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}/index.html -f
+RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE} -f
 
 # NO frontend user is logged in. Logged in frontend users may see different
 # information than anonymous users. But the anonymous version is cached. So
@@ -43,7 +48,7 @@ RewriteCond %{HTTP:Pragma} !no-cache
 RewriteCond %{HTTP:Cache-Control} !no-cache
 
 # Rewrite the request to the static file.
-RewriteRule .* typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}/index.html [L]
+RewriteRule .* typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE} [L]
 
 # end of static file cache ruleset
 #------------------------------------------------------------------------------

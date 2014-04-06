@@ -403,7 +403,19 @@ class tx_ncstaticfilecache {
 				: t3lib_div::int_from_ver(TYPO3_version);
 			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
 
-			$file = $uri . '/index.html';
+
+			// check the allowed file types
+			$basename = basename($uri);
+			$fileExtension = pathinfo($basename, PATHINFO_EXTENSION);
+			$fileTypes = explode(',', $this->configuration['fileTypes']);
+
+			$file = $uri;
+			if (!in_array($fileExtension, $fileTypes)) {
+				$file .= '/index.html';
+			} else {
+				$uri = dirname($uri);
+			}
+
 			$file = preg_replace('#//#', '/', $file);
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well

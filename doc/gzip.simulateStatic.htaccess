@@ -14,6 +14,10 @@ RewriteRule .* - [L]
 RewriteCond %{HTTP:Accept-Encoding} gzip [NC]
 RewriteRule .* - [E=TX_NCSTATICFILECACHE_GZIP:.gz]
 
+# Check if the requested file exists in the cache, otherwise default to index.html that
+# set in an environment variable that is used later on
+RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI} !-f
+RewriteRule .* - [E=TX_NCSTATICFILECACHE_FILE:/index.html]
 
 # Don't cache HTTPS traffic. You may choose to comment out this
 # option if your site runs fully on https. If your site runs mixed, you will
@@ -26,7 +30,7 @@ RewriteRule .* - [E=TX_NCSTATICFILECACHE_GZIP:.gz]
 RewriteCond %{QUERY_STRING} ^$
 
 # It only makes sense to do the other checks if a static file actually exists.
-RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}/index.html%{ENV:TX_NCSTATICFILECACHE_GZIP} -f
+RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE}%{ENV:TX_NCSTATICFILECACHE_GZIP} -f
 
 # NO frontend user is logged in. Logged in frontend users may see different
 # information than anonymous users. But the anonymous version is cached. So
@@ -48,15 +52,23 @@ RewriteCond %{HTTP:Pragma} !no-cache
 RewriteCond %{HTTP:Cache-Control} !no-cache
 
 # Rewrite the request to the static file.
-RewriteRule .* typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}/index.html%{ENV:TX_NCSTATICFILECACHE_GZIP} [L]
+RewriteRule .* typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE}%{ENV:TX_NCSTATICFILECACHE_GZIP} [L]
 
 # Set proper content type and encoding for gzipped html.
-<Files *.html.gz>
-	ForceType text/html
+<FilesMatch "\.gz">
 	<IfModule mod_headers.c>
 		Header set Content-Encoding gzip
 	</IfModule>
-</Files>
+</FilesMatch>
+
+# Set proper content type gzipped html
+<FilesMatch "\.html\.gz">
+	ForceType text/html
+</FilesMatch>
+# Set proper content type gzipped xml and rss feeds
+<FilesMatch "\.(xml|rss)\.gz">
+	ForceType text/xml
+</FilesMatch>
 
 # end of static file cache ruleset
 #------------------------------------------------------------------------------
