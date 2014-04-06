@@ -940,11 +940,23 @@ class tx_ncstaticfilecache {
 		if ($this->getConfigurationProperty('sendCacheControlHeader')) {
 			$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds, LOG_INFO);
 			$htaccess = $uri . '/.htaccess';
+
 			$htaccess = preg_replace('#//#', '/', $htaccess);
 			$htaccessContent = '<IfModule mod_expires.c>
 	ExpiresActive on
 	ExpiresByType text/html A' . $timeOutSeconds . '
+</IfModule>
+';
+			if($this->getConfigurationProperty('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
+				$invalidTime = date("YmdHis", time()+(int)$timeOutSeconds);
+				$htaccessContent .= '
+				<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{TIME} >' . $invalidTime . '
+RewriteRule ^.*$ /index.php
 </IfModule>';
+			}
+
 			t3lib_div::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
 		}
 	}
