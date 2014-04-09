@@ -1,3 +1,7 @@
+2014-04-10  Klaus Bitto <klaus@netcreators.nl>
+
+	* Release of v2.5.1 to TER.
+
 2014-03-26  Tim Lochmueller  <tim@fruit-lab.de>
 
 	* Remove global statements and use $GLOBAL
