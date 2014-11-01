@@ -62,6 +62,7 @@ class tx_ncstaticfilecache {
 	protected $isDebugEnabled = false;
 	protected $configuration = array();
 	protected $setup = array();
+	protected $timeOutAccess = 0;
 
 	/**
 	 * @var boolean
@@ -463,6 +464,12 @@ class tx_ncstaticfilecache {
 				$timeOutSeconds  = $timeOutTime - $GLOBALS['EXEC_TIME'];
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '' );
 				if($recordIsWritten === TRUE) {
+					/**
+					 * The htaccess should allow a browser to cache the content for not more than an hour
+					 * Use to enable:
+					 * config.tx_staticfilecache.htaccessTimeout = 900
+					 */
+					$this->timeOutAccess = intval($pObj->config['config']['tx_staticfilecache.']['htaccessTimeout']);
 					$isStaticCached  = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
 				}
 			} else {
@@ -938,13 +945,18 @@ class tx_ncstaticfilecache {
 	 */
 	protected function writeHtAccessFile($cacheDir, $uri, $timeOutSeconds) {
 		if ($this->getConfigurationProperty('sendCacheControlHeader')) {
+			$timeOutMode = 'M';
+			if ($this->timeOutAccess) {
+				$timeOutSeconds = $this->timeOutAccess;
+				$timeOutMode = 'A';
+			}
 			$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds, LOG_INFO);
 			$htaccess = $uri . '/.htaccess';
 
 			$htaccess = preg_replace('#//#', '/', $htaccess);
 			$htaccessContent = '<IfModule mod_expires.c>
 	ExpiresActive on
-	ExpiresByType text/html A' . $timeOutSeconds . '
+	ExpiresByType text/html ' . $timeOutMode . $timeOutSeconds . '
 </IfModule>
 ';
 			if($this->getConfigurationProperty('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
