@@ -411,7 +411,7 @@ class tx_ncstaticfilecache {
 			$fileTypes = explode(',', $this->configuration['fileTypes']);
 
 			$file = $uri;
-			if (!in_array($fileExtension, $fileTypes)) {
+			if (empty($fileExtension) || !in_array($fileExtension, $fileTypes)) {
 				$file .= '/index.html';
 			} else {
 				$uri = dirname($uri);
