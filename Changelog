@@ -1,3 +1,13 @@
+
+2014-11-11  Klaus Bitto <klaus@netcreators.nl>
+
+	* Release of v2.5.2 to TER.
+
+2014-11-01  Tim Lochmueller  <tim@fruit-lab.de>
+
+	* Fix #61980: Use M code for ExpireByType instead of A (https://forge.typo3.org/issues/61980)
+	* Fix #62538: URLs ending with "/" not handled properly (https://forge.typo3.org/issues/62538)
+
 2014-04-10  Klaus Bitto <klaus@netcreators.nl>
 
 	* Release of v2.5.1 to TER.
