@@ -12,9 +12,14 @@ $tmp = Array (
 	),
 );
 
-t3lib_div::loadTCA('pages');
-t3lib_extMgm::addTCAcolumns('pages', $tmp, 1);
+if (t3lib_div::compat_version('6.2')) {
+    t3lib_extMgm::addTCAcolumns('pages', $tmp);
+} else {
+    t3lib_div::loadTCA('pages');
+    t3lib_extMgm::addTCAcolumns('pages', $tmp, 1);
+}
 t3lib_extMgm::addToAllTCAtypes('pages', 'tx_ncstaticfilecache_cache;;;;1-1-1');
+
 
 if (TYPO3_MODE=='BE')	{
 
