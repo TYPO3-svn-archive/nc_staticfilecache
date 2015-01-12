@@ -1,6 +1,8 @@
 <?php
 if (!defined ('TYPO3_MODE')) die('Access denied.');
 
+use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+
 $tmp = Array (
 	'tx_ncstaticfilecache_cache' => Array (
 		'exclude' => 0,
@@ -12,22 +14,17 @@ $tmp = Array (
 	),
 );
 
-if (t3lib_div::compat_version('6.2')) {
-    t3lib_extMgm::addTCAcolumns('pages', $tmp);
-} else {
-    t3lib_div::loadTCA('pages');
-    t3lib_extMgm::addTCAcolumns('pages', $tmp, 1);
-}
-t3lib_extMgm::addToAllTCAtypes('pages', 'tx_ncstaticfilecache_cache;;;;1-1-1');
+
+ExtensionManagementUtility::addTCAcolumns('pages', $tmp);
+ExtensionManagementUtility::addToAllTCAtypes('pages', 'tx_ncstaticfilecache_cache;;;;1-1-1');
 
 
 if (TYPO3_MODE=='BE')	{
-
 	// Add Web>Info module:
-	t3lib_extMgm::insertModuleFunction(
+    ExtensionManagementUtility::insertModuleFunction(
 		'web_info',
 		'tx_ncstaticfilecache_infomodule',
-		t3lib_extMgm::extPath($_EXTKEY).'infomodule/class.tx_ncstaticfilecache_infomodule.php',
+        null,
 		'LLL:EXT:nc_staticfilecache/locallang_db.php:moduleFunction.tx_ncstaticfilecache_infomodule'
 	);
 }

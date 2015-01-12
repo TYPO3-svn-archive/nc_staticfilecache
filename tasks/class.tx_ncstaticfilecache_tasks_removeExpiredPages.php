@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2009 AOE media (dev@aoemedia.de)
+ *  (c) 2009 AOE GmbH (dev@aoe.com)
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -22,13 +22,13 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfilecache.php');
+use use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * {@inheritdoc}
  *
  * @author Michael Klapper <michael.klapper@aoemedia.de>
- * @copyright Copyright (c) 2009, AOE media GmbH <dev@aoemedia.de>
+ * @copyright Copyright (c) 2009, AOE GmbH <dev@aoe.com>
  * @version $Id$
  * @date $Date$
  * @since 08.01.2010 - 11:00:44
@@ -36,8 +36,7 @@ require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfil
  * @subpackage tx_ncstaticfilecache
  * @access public
  */
-class tx_ncstaticfilecache_tasks_removeExpiredPages extends tx_scheduler_Task {
-
+class tx_ncstaticfilecache_tasks_removeExpiredPages extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
 	/**
 	 * This is the main method that is called when a task is executed
 	 * It MUST be implemented by all classes inheriting from this one
@@ -52,7 +51,7 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages extends tx_scheduler_Task {
 	 */
 	public function execute() {
 		/* @var $cleaner tx_ncstaticfilecache */
-		$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
+		$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 		$cleaner->removeExpiredPages();
 
 		return true;

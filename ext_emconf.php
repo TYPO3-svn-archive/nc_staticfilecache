@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array (
 	'description' => 'Transparent static file cache solution using mod_rewrite and mod_expires. Increase response times for static pages by a factor of 230!',
 	'category' => 'fe',
 	'shy' => 0,
-	'version' => '2.5.3',
+	'version' => '2.6.0',
 	'dependencies' => '',
 	'conflicts' => '',
 	'priority' => '',
@@ -36,8 +36,8 @@ $EM_CONF[$_EXTKEY] = array (
 	array (
 		'depends' => 
 		array (
-			'typo3' => '4.5.0-6.2.99',
-			'' => '',
+			'typo3' => '6.2.0-0.0.0',
+            'php' => '5.3.0-0.0.0',
 		),
 		'conflicts' => 
 		array (

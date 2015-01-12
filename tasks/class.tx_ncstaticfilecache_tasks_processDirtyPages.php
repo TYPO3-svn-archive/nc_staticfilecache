@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2009 AOE media (dev@aoemedia.de)
+ *  (c) 2009 AOE GmbH (dev@aoe.com)
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -22,12 +22,12 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfilecache.php');
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * {@inheritdoc}
  *
- * @author Michael Klapper <michael.klapper@aoemedia.de>
+ * @author Michael Klapper <michael.klapper@aoe.com>
  * @copyright Copyright (c) 2009, AOE media GmbH <dev@aoemedia.de>
  * @version $Id$
  * @date $Date$
@@ -36,13 +36,11 @@ require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfil
  * @subpackage tx_ncstaticfilecache
  * @access public
  */
-class tx_ncstaticfilecache_tasks_processDirtyPages extends tx_scheduler_Task {
-
+class tx_ncstaticfilecache_tasks_processDirtyPages extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
 	/**
 	 * @var integer
 	 */
 	public $itemLimit = 0;
-
 
 	/**
 	 * This is the main method that is called when a task is executed
@@ -58,7 +56,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages extends tx_scheduler_Task {
 	 */
 	public function execute() {
 		/* @var $cleaner tx_ncstaticfilecache */
-		$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
+		$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 		$cleaner->processDirtyPages(NULL, $this->itemLimit);
 
 		return true;

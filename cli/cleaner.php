@@ -28,7 +28,7 @@
 
 if (!defined('TYPO3_cliMode'))  die('You cannot run this script directly!');
 
-require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfilecache.php');
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
@@ -42,9 +42,8 @@ require_once(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfil
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
-class tx_ncstaticfilecache_cli extends t3lib_cli {
-	function tx_ncstaticfilecache_cli () {
-
+class tx_ncstaticfilecache_cli extends \TYPO3\CMS\Core\Controller\CommandLineController {
+	public function __construct () {
 		// Running parent class constructor
 		parent::__construct();
 
@@ -61,10 +60,9 @@ class tx_ncstaticfilecache_cli extends t3lib_cli {
 	/**
 	 * CLI engine
 	 *
-	 * @param	array	$argv	Command line arguments
 	 * @return	string
 	 */
-	function cli_main($argv) {
+    public function cli_main() {
 		// Print help
 		$task = (string)$this->cli_args['_DEFAULT'][1];
 		if (!$task)	{
@@ -76,18 +74,18 @@ class tx_ncstaticfilecache_cli extends t3lib_cli {
 		if ($task == 'removeExpiredPages') {
 			$this->cli_echo("Looking for expired pages.\n");
 			/* @var $cleaner tx_ncstaticfilecache */
-			$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
+			$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 			$cleaner->removeExpiredPages($this);
 		} elseif ($task == 'processDirtyPages') {
 			$this->cli_echo('Looking for dirty pages.' . PHP_EOL);
 			/* @var $cleaner tx_ncstaticfilecache */
-			$cleaner = t3lib_div::makeInstance('tx_ncstaticfilecache');
+			$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 			$cleaner->processDirtyPages($this);
 		}
 	}
 }
 
 // Call the functionality
-$cleanerObj = t3lib_div::makeInstance('tx_ncstaticfilecache_cli');
-$cleanerObj->cli_main($_SERVER["argv"]);
+$cleanerObj = GeneralUtility::makeInstance('tx_ncstaticfilecache_cli');
+$cleanerObj->cli_main();
 ?>

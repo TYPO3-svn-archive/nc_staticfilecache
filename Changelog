@@ -1,3 +1,7 @@
+2015-01-12  Jürgen Kußmann <juergen.kussmann@aoe.com>
+
+	* Add/Update dependency to TYPO3 6.2 and PHP 5.3
+	* Use TYPO3-CORE-classes with namespaces
 
 2014-11-11  Klaus Bitto <klaus@netcreators.nl>
 

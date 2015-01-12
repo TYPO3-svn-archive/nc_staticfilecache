@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2009 AOE media (dev@aoemedia.de)
+ *  (c) 2009 AOE GmbH (dev@aoe.com)
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -22,11 +22,13 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use \TYPO3\CMS\Core\Utility\MathUtility;
+
 /**
  * {@inheritdoc}
  *
- * @author Michael Klapper <michael.klapper@aoemedia.de>
- * @copyright Copyright (c) 2009, AOE media GmbH <dev@aoemedia.de>
+ * @author Michael Klapper <michael.klapper@aoe.com>
+ * @copyright Copyright (c) 2009, AOE media GmbH <dev@aoe.com>
  * @version $Id$
  * @date $Date$
  * @since 08.01.2010 - 11:00:44
@@ -34,15 +36,14 @@
  * @subpackage tx_ncstaticfilecache
  * @access public
  */
-class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider implements tx_scheduler_AdditionalFieldProvider {
-
+class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider implements \TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface {
 	/**
 	 * This method is used to define new fields for adding or editing a task
 	 * In this case, it adds an email field
 	 *
 	 * @param	array					$taskInfo: reference to the array containing the info used in the add/edit form
 	 * @param	object					$task: when editing, reference to the current task object. Null when adding.
-	 * @param	tx_scheduler_Module		$parentObject: reference to the calling object (Scheduler's BE module)
+	 * @param	\TYPO3\CMS\Scheduler\Controller\SchedulerModuleController		$parentObject: reference to the calling object (Scheduler's BE module)
 	 * @return	array					Array containg all the information pertaining to the additional fields
 	 *									The array is multidimensional, keyed to the task class name and each field's id
 	 *									For each field it provides an associative sub-array with the following:
@@ -51,7 +52,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider imple
 	 *										['cshKey']		=> The CSH key for the field
 	 *										['cshLabel']	=> The code of the CSH label
 	 */
-	public function getAdditionalFields(array &$taskInfo, $task, tx_scheduler_Module $schedulerModule) {
+	public function getAdditionalFields(array &$taskInfo, $task, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
 		$additionalFields = array();
 
 		if (empty($taskInfo['itemLimit'])) {
@@ -74,14 +75,11 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider imple
 	 * Validates the additional fields' values
 	 *
 	 * @param	array					An array containing the data submitted by the add/edit task form
-	 * @param	tx_scheduler_Module		Reference to the scheduler backend module
+	 * @param	\TYPO3\CMS\Scheduler\Controller\SchedulerModuleController		Reference to the scheduler backend module
 	 * @return	boolean					True if validation was ok (or selected class is not relevant), false otherwise
 	 */
-	public function validateAdditionalFields(array &$submittedData, tx_scheduler_Module $schedulerModule) {
-
-		$itemLimit = class_exists('t3lib_utility_Math') ?
-			t3lib_utility_Math::convertToPositiveInteger($submittedData['itemLimit']) :
-			t3lib_div::intval_positive($submittedData['itemLimit']);
+	public function validateAdditionalFields(array &$submittedData, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
+		$itemLimit = MathUtility::convertToPositiveInteger($submittedData['itemLimit']);
 
 		if ( $itemLimit > 0 ) {
 			return true;
@@ -99,7 +97,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider imple
 	 * @param	tx_scheduler_Module		Reference to the scheduler backend module
 	 * @return	void
 	 */
-	public function saveAdditionalFields(array $submittedData, tx_scheduler_Task $task) {
+	public function saveAdditionalFields(array $submittedData, \TYPO3\CMS\Scheduler\Task\AbstractTask $task) {
 		$task->itemLimit = $submittedData['itemLimit'];
 	}
 }

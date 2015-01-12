@@ -39,6 +39,10 @@
  *
  */
 
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use \TYPO3\CMS\Backend\Utility\BackendUtility;
+use \TYPO3\CMS\Backend\Utility\IconUtility;
+
 /**
  * Static file cache extension
  *
@@ -46,7 +50,7 @@
  * @package TYPO3
  * @subpackage tx_ncstaticfilecache
  */
-class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
+class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\AbstractFunctionModule {
 	/**
 	 * @var	tx_ncstaticfilecache
 	 */
@@ -62,8 +66,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 *
 	 * @return	string		Output HTML for the module.
 	 */
-	function main()	{
-
+	public function main()	{
 		// Handle actions:
 		$this->handleActions();
 
@@ -74,7 +77,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		$this->pageId = intval($this->pObj->id);
 
 		// Initialize tree object:
-		$tree = t3lib_div::makeInstance('t3lib_browsetree');
+		$tree = GeneralUtility::makeInstance('t3lib_browsetree');
 		// Also store tree prefix markup:
 		$tree->makeHTML = 2;
 		$tree->init();
@@ -103,8 +106,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 * @param	array	$tree	The Page tree data
 	 * @return	string		HTML for the information table.
 	 */
-	function renderModule($tree)	{
-
+	protected function renderModule($tree)	{
 		$pubDir = $this->getStaticFileCacheInstance()->getCacheDirectory();
 
 		// Traverse tree:
@@ -120,13 +122,13 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 					$tCells = array();
 
 					if (!$k)	{
-						$tCells[] = '<td nowrap="nowrap"' . $cellAttrib . '>' . $row['HTML'] . t3lib_BEfunc::getRecordTitle('pages', $row['row'], TRUE) . '</td>';
+						$tCells[] = '<td nowrap="nowrap"' . $cellAttrib . '>' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>';
 					} else {
 						$tCells[] = '<td nowrap="nowrap"' . $cellAttrib . '>' . $row['HTML_depthData'] . '</td>';
 					}
 
-					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">'.($frec['tstamp']?t3lib_BEfunc::datetime($frec['tstamp']):'').'</span></td>';
-					$timeout = ($frec['tstamp'] > 0) ? t3lib_BEfunc::calcAge(($frec['cache_timeout']),$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')) : '';
+					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">'.($frec['tstamp']?BackendUtility::datetime($frec['tstamp']):'').'</span></td>';
+					$timeout = ($frec['tstamp'] > 0) ? BackendUtility::calcAge(($frec['cache_timeout']),$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')) : '';
 					$tCells[] = '<td nowrap="nowrap">'.$timeout.'</td>';
 					$tCells[] = '<td>' . ($frec['isdirty'] ? 'yes' : 'no') . '</td>';
 					$tCells[] = '<td nowrap="nowrap">'.($frec['explanation']?$frec['explanation']:'').'</td>';
@@ -140,7 +142,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 				}
 			} else {
 				$tCells = array(
-					'<td nowrap="nowrap" colspan="4"' . $cellAttrib . '>' . $row['HTML'] . t3lib_BEfunc::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
+					'<td nowrap="nowrap" colspan="4"' . $cellAttrib . '>' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
 					'<td><span class="typo3-dimmed">' . ($row['row']['uid'] == 0 ? '' : 'not hit') . '</span></td>',
 				);
 
@@ -171,8 +173,8 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 		// Outputting refresh-link
 		$output.= '
 			<p class="c-refresh">
-				<a href="'.htmlspecialchars(t3lib_div::getIndpEnv('REQUEST_URI')).'">'.
-		'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/refresh_n.gif','width="14" height="14"').' title="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'" alt="" />'.
+				<a href="'.htmlspecialchars(GeneralUtility::getIndpEnv('REQUEST_URI')).'">'.
+		'<img'.IconUtility::skinImg($this->backPath,'gfx/refresh_n.gif','width="14" height="14"').' title="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'" alt="" />'.
 			$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh',1).'</a>
 			</p>';
 
@@ -213,7 +215,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 * @return	void
 	 */
 	protected function handleActions() {
-		$action = t3lib_div::_GP('ACTION');
+		$action = GeneralUtility::_GP('ACTION');
 
 		if (isset($action['removeExpiredPages'])) {
 			$this->getStaticFileCacheInstance()->removeExpiredPages();
@@ -273,8 +275,7 @@ class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase {
 	 */
 	protected function getStaticFileCacheInstance() {
 		if (!isset($this->pubObj)) {
-			t3lib_div::requireOnce(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfilecache.php');
-			$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
+			$this->pubObj = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 		}
 		return $this->pubObj;
 	}

@@ -21,7 +21,8 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-t3lib_div::requireOnce(t3lib_extMgm::extPath('nc_staticfilecache') . 'class.tx_ncstaticfilecache.php');
+use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Static file cache extension crawlerhook
@@ -37,7 +38,7 @@ class tx_ncstaticfilecache_crawlerhook {
 	public $pubObj;
 
 	public function __construct() {
-		$this->pubObj = t3lib_div::makeInstance('tx_ncstaticfilecache');
+		$this->pubObj = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 	}
 
 	/**
@@ -45,13 +46,13 @@ class tx_ncstaticfilecache_crawlerhook {
 	 * (Hook-function called from TSFE, see ext_localconf.php for configuration)
 	 *
 	 * @param	array		$parameters: Parameters delived by TSFE
-	 * @param	tslib_fe	$pObj: The calling parent object (TSFE)
+	 * @param	\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController	$pObj: The calling parent object (TSFE)
 	 * @return	void
 	 */
-	public function clearStaticFile(array $parameters, tslib_fe $pObj) {
+	public function clearStaticFile(array $parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $pObj) {
 			// Look for "crawler" extension activity:
 			// Requirements are that the crawler is loaded, a crawler session is running and tx_ncstaticfilecache_markdirty requested as processing instruction:
-		if (t3lib_extMgm::isLoaded('crawler')
+		if (ExtensionManagementUtility::isLoaded('crawler')
 			&& $pObj->applicationData['tx_crawler']['running']
 			&& in_array('tx_ncstaticfilecache_clearstaticfile', $pObj->applicationData['tx_crawler']['parameters']['procInstructions'])) {
 

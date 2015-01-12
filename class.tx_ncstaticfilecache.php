@@ -48,6 +48,11 @@
  *
  */
 
+use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use \TYPO3\CMS\Core\Utility\MathUtility;
+use \TYPO3\CMS\Core\Utility\VersionNumberUtility;
+
 /**
  * Static file cache extension
  *
@@ -196,7 +201,7 @@ class tx_ncstaticfilecache {
 
 		if (!$TSConfig['clearCache_disable']) {
 			// If table is "pages":
-			if (t3lib_extMgm::isLoaded('cms')) {
+			if (ExtensionManagementUtility::isLoaded('cms')) {
 				$list_cache = array();
 				if ($table == 'pages') {
 
@@ -260,7 +265,7 @@ class tx_ncstaticfilecache {
 
 		// Clear cache for pages entered in TSconfig:
 		if ($TSConfig['clearCacheCmd']) {
-			$Commands = t3lib_div::trimExplode(',', strtolower($TSConfig['clearCacheCmd']), true);
+			$Commands = GeneralUtility::trimExplode(',', strtolower($TSConfig['clearCacheCmd']), true);
 			$Commands = array_unique($Commands);
 			foreach($Commands as $cmdPart) {
 				$cmd = array ('cacheCmd' => $cmdPart);
@@ -286,7 +291,7 @@ class tx_ncstaticfilecache {
 						if (isset($_params['host']) && $_params['host']) {
 							$directory = $_params['host'];
 						} else {
-							$directory = t3lib_div::getIndpEnv('HTTP_HOST');
+							$directory = GeneralUtility::getIndpEnv('HTTP_HOST');
 						}
 					}
 
@@ -297,11 +302,7 @@ class tx_ncstaticfilecache {
 					// Clear temp files, not frontend cache.
 					break;
 				default:
-					$doClearCache = class_exists('TYPO3\CMS\Core\Utility\MathUtility')
-						? \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($cacheCmd)
-						: (class_exists('t3lib_utility_Math') ? t3lib_utility_Math::canBeInterpretedAsInteger($cacheCmd) : t3lib_div::testInt($cacheCmd));
-
-
+					$doClearCache = MathUtility::canBeInterpretedAsInteger($cacheCmd);
 
 					if ($doClearCache) {
 						$this->debug('clearing cache for pid: ' . $cacheCmd);
@@ -360,12 +361,12 @@ class tx_ncstaticfilecache {
 		$this->debug('insertPageIncache');
 
 		// Find host-name / IP, always in lowercase:
-		$host = strtolower(t3lib_div::getIndpEnv('HTTP_HOST'));
-		$uri = t3lib_div::getIndpEnv('REQUEST_URI');
+		$host = strtolower(GeneralUtility::getIndpEnv('HTTP_HOST'));
+		$uri = GeneralUtility::getIndpEnv('REQUEST_URI');
 
 		$cacheDir = $this->cacheDir . $host;
 
-		$isHttp = (strpos(t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
+		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
 		$loginsDeniedCfg = (!$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch);
 		$staticCacheable = $pObj->isStaticCacheble();
 
@@ -388,7 +389,7 @@ class tx_ncstaticfilecache {
 					'additionalHash' => &$additionalHash,
 					'staticCacheable' => &$staticCacheable,
 				);
-				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+                GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 			}
 		}
 
@@ -399,9 +400,7 @@ class tx_ncstaticfilecache {
 			}
 
 			// Workspaces have been introduced with TYPO3 4.0.0:
-			$version = class_exists('TYPO3\CMS\Core\Utility\VersionNumberUtility')
-				? \TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version)
-				: t3lib_div::int_from_ver(TYPO3_version);
+			$version = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
 			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
 
 
@@ -451,7 +450,7 @@ class tx_ncstaticfilecache {
 							'host' => $host,
 							'uri' => $uri,
 						);
-						$content = t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+						$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 					}
 				}
 
@@ -540,7 +539,7 @@ class tx_ncstaticfilecache {
 					'uri' => $uri,
 					'isStaticCached' => $isStaticCached,
 				);
-				$content = t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+				$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 			}
 		}
 	}
@@ -578,7 +577,7 @@ class tx_ncstaticfilecache {
 
 		if ($rows) {
 			/* @var $tce t3lib_TCEmain */
-			$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+			$tce = GeneralUtility::makeInstance('t3lib_TCEmain');
 			$tce->start(array(), array());
 
 			foreach ($rows as $row) {
@@ -644,7 +643,7 @@ class tx_ncstaticfilecache {
 				if (isset($parent)) {
 					$hookParameters['cliDispatcher'] = $parent;
 				}
-				t3lib_div::callUserFunction($hookFunction, $hookParameters, $this);
+                GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 			}
 		}
 
@@ -684,9 +683,9 @@ class tx_ncstaticfilecache {
 			// Setting cookies
 		if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']) {
 			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']{0} == '/')	{
-				$matchCnt = @preg_match($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain'], t3lib_div::getIndpEnv('TYPO3_HOST_ONLY'), $match);
+				$matchCnt = @preg_match($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain'], GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY'), $match);
 				if ($matchCnt === FALSE)	{
-					t3lib_div::sysLog('The regular expression of $TYPO3_CONF_VARS[SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
+                    GeneralUtility::sysLog('The regular expression of $TYPO3_CONF_VARS[SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
 				} elseif ($matchCnt) {
 					$cookieDomain = $match[0];
 				}
@@ -733,7 +732,7 @@ class tx_ncstaticfilecache {
 		if ($this->getConfigurationProperty('debug') || $severity <= LOG_CRIT) {
 
 			// map PHP or nc_staticfilecache error levels to
-			// t3lib_div::devLog() severity level
+			// GeneralUtility::devLog() severity level
 			$arMapping = array(
 				LOG_EMERG   => 3,
 				LOG_ALERT   => 3,
@@ -745,7 +744,7 @@ class tx_ncstaticfilecache {
 				LOG_DEBUG   => 0,
 			);
 
-			t3lib_div::devlog(
+            GeneralUtility::devlog(
 				trim($message),
 				$this->extKey,
 				isset($arMapping[$severity]) ? $arMapping[$severity] : 1,
@@ -767,7 +766,7 @@ class tx_ncstaticfilecache {
 		$typoLinkConfiguration = array(
 			'parameter' => $GLOBALS['TSFE']->id . ' ' . $GLOBALS['TSFE']->type,
 		);
-		$uri = t3lib_div::getIndpEnv('TYPO3_SITE_PATH') . $this->getContentObject()->typoLink_URL($typoLinkConfiguration);
+		$uri = GeneralUtility::getIndpEnv('TYPO3_SITE_PATH') . $this->getContentObject()->typoLink_URL($typoLinkConfiguration);
 
 		return $uri;
 	}
@@ -908,7 +907,7 @@ class tx_ncstaticfilecache {
 			$level = is_int($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
 			$contentGzip = gzencode($content, $level);
 			if ($contentGzip) {
-				t3lib_div::writeFile($filePath . '.gz', $contentGzip);
+                GeneralUtility::writeFile($filePath . '.gz', $contentGzip);
 			}
 		}
 	}
@@ -930,7 +929,7 @@ class tx_ncstaticfilecache {
 	 * @return boolean
 	 */
 	protected function mkdirDeep($destination,$deepDir) {
-		$result = t3lib_div::mkdir_deep($destination,$deepDir);
+		$result = GeneralUtility::mkdir_deep($destination,$deepDir);
 		if(stristr($result, 'error')) {
 			$this->debug($result, LOG_CRIT);
 			return FALSE;
@@ -969,7 +968,7 @@ RewriteRule ^.*$ /index.php
 </IfModule>';
 			}
 
-			t3lib_div::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
+            GeneralUtility::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
 		}
 	}
 
@@ -1043,7 +1042,7 @@ RewriteRule ^.*$ /index.php
 		}
 
 		$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
-		t3lib_div::writeFile(PATH_site . $cacheDir . $file, $content);
+        GeneralUtility::writeFile(PATH_site . $cacheDir . $file, $content);
 		$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
 		return TRUE;
 	}
@@ -1063,7 +1062,7 @@ RewriteRule ^.*$ /index.php
 			if(is_dir($srcDir) === TRUE) {
 				if (is_dir($tmpDir)) {
 					$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
-					if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
+					if(FALSE === GeneralUtility::rmdir($tmpDir, true)) {
 						throw new Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
 					}
 				}
@@ -1072,7 +1071,7 @@ RewriteRule ^.*$ /index.php
 					throw new Exception('Could not rename static cache directory "' . $srcDir . '"');
 				}
 				// delete moved directory
-				if(FALSE === t3lib_div::rmdir($tmpDir, true)) {
+				if(FALSE === GeneralUtility::rmdir($tmpDir, true)) {
 					throw new RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
 				}
 			}

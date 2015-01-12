@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2009 AOE media (dev@aoemedia.de)
+ *  (c) 2009 AOE GmbH (dev@aoe.com)
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -25,8 +25,8 @@
 /**
  * {@inheritdoc}
  *
- * @author Michael Klapper <michael.klapper@aoemedia.de>
- * @copyright Copyright (c) 2009, AOE media GmbH <dev@aoemedia.de>
+ * @author Michael Klapper <michael.klapper@aoe.com>
+ * @copyright Copyright (c) 2009, AOE media GmbH <dev@aoe.com>
  * @version $Id$
  * @date $Date$
  * @since 08.01.2010 - 11:00:44
@@ -34,7 +34,7 @@
  * @subpackage tx_ncstaticfilecache
  * @access public
  */
-class tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider {
+class tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider implements \TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface {
 
 	/**
 	 * This method is used to define new fields for adding or editing a task
@@ -51,7 +51,7 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider {
 	 *										['cshKey']		=> The CSH key for the field
 	 *										['cshLabel']	=> The code of the CSH label
 	 */
-	public function getAdditionalFields(array &$taskInfo, $task, tx_scheduler_Module $schedulerModule) {
+	public function getAdditionalFields(array &$taskInfo, $task, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
 		return array();
 	}
 
@@ -59,10 +59,10 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider {
 	 * Validates the additional fields' values
 	 *
 	 * @param	array					An array containing the data submitted by the add/edit task form
-	 * @param	tx_scheduler_Module		Reference to the scheduler backend module
+	 * @param	\TYPO3\CMS\Scheduler\Controller\SchedulerModuleController		Reference to the scheduler backend module
 	 * @return	boolean					True if validation was ok (or selected class is not relevant), false otherwise
 	 */
-	public function validateAdditionalFields(array &$submittedData, tx_scheduler_Module $schedulerModule) {
+	public function validateAdditionalFields(array &$submittedData, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
 		return true;
 	}
 
@@ -73,7 +73,7 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider {
 	 * @param	tx_scheduler_Module		Reference to the scheduler backend module
 	 * @return	void
 	 */
-	public function saveAdditionalFields(array $submittedData, tx_scheduler_Task $task) {
+	public function saveAdditionalFields(array $submittedData, \TYPO3\CMS\Scheduler\Task\AbstractTask $task) {
 		return null;
 	}
 }
