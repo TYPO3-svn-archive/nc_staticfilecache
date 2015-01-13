@@ -28,7 +28,7 @@
 
 if (!defined('TYPO3_cliMode'))  die('You cannot run this script directly!');
 
-use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]

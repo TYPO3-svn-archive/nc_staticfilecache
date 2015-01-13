@@ -1,8 +1,6 @@
 <?php
 if (!defined ('TYPO3_MODE')) die('Access denied.');
 
-use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-
 $tmp = Array (
 	'tx_ncstaticfilecache_cache' => Array (
 		'exclude' => 0,
@@ -15,13 +13,13 @@ $tmp = Array (
 );
 
 
-ExtensionManagementUtility::addTCAcolumns('pages', $tmp);
-ExtensionManagementUtility::addToAllTCAtypes('pages', 'tx_ncstaticfilecache_cache;;;;1-1-1');
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('pages', $tmp);
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('pages', 'tx_ncstaticfilecache_cache;;;;1-1-1');
 
 
 if (TYPO3_MODE=='BE')	{
 	// Add Web>Info module:
-    ExtensionManagementUtility::insertModuleFunction(
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::insertModuleFunction(
 		'web_info',
 		'tx_ncstaticfilecache_infomodule',
         null,
