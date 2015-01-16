@@ -84,7 +84,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider imple
 		if ( $itemLimit > 0 ) {
 			return true;
 		} else {
-			$schedulerModule->addMessage('no valid limit given (positive number expected)', t3lib_FlashMessage::ERROR);
+			$schedulerModule->addMessage('no valid limit given (positive number expected)', \TYPO3\CMS\Core\Messaging\FlashMessage::ERROR);
 			return false;
 		}
 

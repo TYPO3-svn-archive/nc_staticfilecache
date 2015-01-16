@@ -35,7 +35,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  *
  *
- *   46: class tx_ncstaticfilecache_cli extends t3lib_cli
+ *   46: class tx_ncstaticfilecache_cli extends \TYPO3\CMS\Core\Controller\CommandLineController
  *   66:     function cli_main($argv)
  *
  * TOTAL FUNCTIONS: 1

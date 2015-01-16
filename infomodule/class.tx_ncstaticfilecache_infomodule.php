@@ -30,9 +30,9 @@
  *
  *
  *
- *   53: class tx_ncstaticfilecache_infomodule extends t3lib_extobjbase
+ *   53: class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\AbstractFunctionModule
  *   60:     function main()
- *  101:     function renderModule($tree)
+ *  101:     function renderModule(\TYPO3\CMS\Backend\Tree\View\BrowseTreeView $tree)
  *
  * TOTAL FUNCTIONS: 2
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -77,7 +77,8 @@ class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\Abstract
 		$this->pageId = intval($this->pObj->id);
 
 		// Initialize tree object:
-		$tree = GeneralUtility::makeInstance('t3lib_browsetree');
+        /* @var $tree \TYPO3\CMS\Backend\Tree\View\BrowseTreeView */
+		$tree = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Tree\\View\\BrowseTreeView');
 		// Also store tree prefix markup:
 		$tree->makeHTML = 2;
 		$tree->init();
@@ -86,7 +87,6 @@ class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\Abstract
 			$tree->MOUNTS = array(0 => $this->pageId);
 		}
 		$tree->ext_IconMode = true;
-		$tree->ext_showPageId = $GLOBALS['BE_USER']->getTSConfigVal('options.pageTree.showPageIdWithTitle');
 		$tree->showDefaultTitleAttribute = true;
 		$tree->thisScript = 'index.php';
 		$tree->setTreeName('staticfilecache');
@@ -103,10 +103,10 @@ class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\Abstract
 	/**
 	 * Rendering the information
 	 *
-	 * @param	array	$tree	The Page tree data
+	 * @param	\TYPO3\CMS\Backend\Tree\View\BrowseTreeView	$tree	The Page tree data
 	 * @return	string		HTML for the information table.
 	 */
-	protected function renderModule($tree)	{
+	protected function renderModule(\TYPO3\CMS\Backend\Tree\View\BrowseTreeView $tree)	{
 		$pubDir = $this->getStaticFileCacheInstance()->getCacheDirectory();
 
 		// Traverse tree:

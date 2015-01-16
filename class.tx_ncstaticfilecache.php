@@ -48,6 +48,8 @@
  *
  */
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Controller\CommandLineController;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -172,7 +174,7 @@ class tx_ncstaticfilecache {
 
 	/**
 	 * Clear cache post processor.
-	 * The same structure as t3lib_TCEmain::clear_cache
+	 * The same structure as \TYPO3\CMS\Core\DataHandling\DataHandler::clear_cache
 	 *
 	 * @param	object		$_params: parameter array
 	 * @param	object		$pObj: partent object
@@ -196,7 +198,7 @@ class tx_ncstaticfilecache {
 		}
 
 		// Get Page TSconfig relavant:
-		list($tscPID) = t3lib_BEfunc::getTSCpid($table, $uid, '');
+		list($tscPID) = BackendUtility::getTSCpid($table, $uid, '');
 		$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 
 		if (!$TSConfig['clearCache_disable']) {
@@ -563,10 +565,10 @@ class tx_ncstaticfilecache {
 	/**
 	 * Remove expired pages. Call from cli script.
 	 *
-	 * @param	t3lib_cli		$parent: The calling parent object
+	 * @param	TYPO3\CMS\Core\Controller\CommandLineController		$parent: The calling parent object
 	 * @return	void
 	 */
-	public function removeExpiredPages(t3lib_cli $parent = NULL) {
+	public function removeExpiredPages(CommandLineController $parent = NULL) {
 		$clearedPages = array();
 
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
@@ -576,8 +578,8 @@ class tx_ncstaticfilecache {
 		);
 
 		if ($rows) {
-			/* @var $tce t3lib_TCEmain */
-			$tce = GeneralUtility::makeInstance('t3lib_TCEmain');
+			/* @var $tce TYPO3\CMS\Core\DataHandling\DataHandler */
+			$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
 			$tce->start(array(), array());
 
 			foreach ($rows as $row) {
@@ -612,10 +614,10 @@ class tx_ncstaticfilecache {
 	/**
 	 * Processes elements that have been marked as dirty.
 	 *
-	 * @param	t3lib_cli		$parent: The calling parent object
+	 * @param	TYPO3\CMS\Core\Controller\CommandLineController		$parent: The calling parent object
 	 * @return	void
 	 */
-	public function processDirtyPages(t3lib_cli $parent = NULL, $limit = 0) {
+	public function processDirtyPages(CommandLineController $parent = NULL, $limit = 0) {
 		foreach ($this->getDirtyElements($limit) as $dirtyElement) {
 			$this->processDirtyPagesElement($dirtyElement, $parent);
 		}
@@ -625,10 +627,10 @@ class tx_ncstaticfilecache {
 	 * Processes one single dirty element - removes data from file system and database.
 	 *
 	 * @param	array		$dirtyElement: The dirty element record
-	 * @param	t3lib_cli	$parent: (optional) The calling parent object
+	 * @param	TYPO3\CMS\Core\Controller\CommandLineController	$parent: (optional) The calling parent object
 	 * @return	void
 	 */
-	public function processDirtyPagesElement(array $dirtyElement, t3lib_cli $parent = NULL) {
+	public function processDirtyPagesElement(array $dirtyElement, CommandLineController $parent = NULL) {
 		$cancelExecution = FALSE;
 		$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
 
