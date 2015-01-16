@@ -35,7 +35,7 @@
  *   71:     function clearCachePostProc (&$params, &$pObj)
  *  165:     function clearStaticFile (&$_params)
  *  216:     function getRecordForPageID($pid)
- *  234:     function headerNoCache (&$params, $parent)
+ *  234:     function headerNoCache (&$params, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
  *  250:     function insertPageIncache (&$pObj, &$timeOutTime)
  *  385:     function logNoCache (&$params)
  *  405:     function mkdir_deep($destination,$deepDir)
@@ -337,11 +337,11 @@ class tx_ncstaticfilecache {
 	 * is not in cache yet!) Also, a backend user MUST be logged in for the
 	 * shift-reload to be detected due to DoS-attack-security reasons.
 	 *
-	 * @param	object		$_params: array containing pObj among other things
-	 * @param	object		$parent: The calling parent object (tslib_fe)
+	 * @param	array $_params: array containing pObj among other things
+	 * @param	\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController		$parent: The calling parent object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
 	 * @return	void
 	 */
-	public function headerNoCache(&$params, $parent) {
+	public function headerNoCache(array &$params, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parent) {
 		if (strtolower($_SERVER['HTTP_CACHE_CONTROL']) === 'no-cache' || strtolower($_SERVER['HTTP_PRAGMA']) === 'no-cache') {
 			if ($parent->beUserLogin) {
 				$this->debug('no-cache header found', LOG_INFO);
@@ -354,11 +354,11 @@ class tx_ncstaticfilecache {
 	/**
 	 * Write the static file and .htaccess
 	 *
-	 * @param	tslib_fe	$pObj: The parent object
+	 * @param	\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController	$pObj: The parent object
 	 * @param	string		$timeOutTime: The timestamp when the page times out
 	 * @return	void
 	 */
-	public function insertPageIncache(&$pObj, &$timeOutTime) {
+	public function insertPageIncache(\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController &$pObj, &$timeOutTime) {
 		$isStaticCached = FALSE;
 		$this->debug('insertPageIncache');
 
@@ -549,8 +549,8 @@ class tx_ncstaticfilecache {
 	/**
 	 * Log cache miss if no_cache is true
 	 *
-	 * @param	array		$params: Parameters delivered by the calling object (tslib_fe)
-	 * @param	object		$parent: The calling parent object (tslib_fe)
+	 * @param	array		$params: Parameters delivered by the calling object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
+	 * @param	object		$parent: The calling parent object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
 	 * @return	void
 	 */
 	public function logNoCache(&$params, $parent) {
