@@ -176,19 +176,24 @@ class tx_ncstaticfilecache {
 	 * Clear cache post processor.
 	 * The same structure as \TYPO3\CMS\Core\DataHandling\DataHandler::clear_cache
 	 *
-	 * @param	object		$_params: parameter array
-	 * @param	object		$pObj: partent object
+	 * @param	array $_params: parameter array
+	 * @param	\TYPO3\CMS\Core\DataHandling\DataHandler $pObj: partent object
 	 * @return	void
 	 */
-	public function clearCachePostProc(&$params, &$pObj) {
+	public function clearCachePostProc(array &$params, \TYPO3\CMS\Core\DataHandling\DataHandler &$pObj) {
 		if ($this->isClearCacheProcessingEnabled === FALSE) {
-			return NULL;
+			return;
 		}
 
 		if($params['cacheCmd']) {
 			$this->clearStaticFile($params);
 			return;
 		}
+
+        // Do not do anything when inside a workspace
+        if ($pObj->BE_USER->workspace > 0) {
+            return;
+        }
 
 		$uid = intval($params['uid']);
 		$table = strval($params['table']);
@@ -251,7 +256,7 @@ class tx_ncstaticfilecache {
 					}
 				} else {
 					// For other tables than "pages", delete cache for the records "parent page".
-					$list_cache[] = intval($pObj->getPID($table, $uid));
+					$list_cache[] = $tscPID;
 				}
 
 				// Delete cache for selected pages:
@@ -460,7 +465,7 @@ class tx_ncstaticfilecache {
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
 					$timeOutTime = $pObj->page['endtime'];
 				}
-				
+
 				// write DB-record and staticCache-files, after DB-record was successful updated or created
 				$timeOutSeconds  = $timeOutTime - $GLOBALS['EXEC_TIME'];
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '' );
@@ -832,7 +837,7 @@ class tx_ncstaticfilecache {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
 	}
-	
+
 
 	/**
 	 * Deletes contents of a static cache directory in filesystem, but omit the subfolders
@@ -874,7 +879,7 @@ class tx_ncstaticfilecache {
 		@rmdir($cacheDirectory);
 		return $result;
 	}
-	
+
 	/**
 	 * Gets all dirty elements from database.
 	 *
@@ -1068,7 +1073,7 @@ RewriteRule ^.*$ /index.php
 						throw new Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
 					}
 				}
-	
+
 				if(FALSE === rename($srcDir, $tmpDir)) {
 					throw new Exception('Could not rename static cache directory "' . $srcDir . '"');
 				}
@@ -1080,7 +1085,7 @@ RewriteRule ^.*$ /index.php
 		}catch(RuntimeException $e){
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
-		
+
 	}
 }
 
