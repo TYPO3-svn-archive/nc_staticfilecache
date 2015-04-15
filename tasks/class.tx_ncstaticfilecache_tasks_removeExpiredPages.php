@@ -27,16 +27,15 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * {@inheritdoc}
  *
- * @author Michael Klapper <michael.klapper@aoemedia.de>
- * @copyright Copyright (c) 2009, AOE GmbH <dev@aoe.com>
- * @version $Id$
- * @date $Date$
- * @since 08.01.2010 - 11:00:44
- * @package TYPO3
+ * @author     Michael Klapper <michael.klapper@aoemedia.de>
+ * @copyright  Copyright (c) 2009, AOE GmbH <dev@aoe.com>
+ * @since      08.01.2010 - 11:00:44
+ * @package    TYPO3
  * @subpackage tx_ncstaticfilecache
- * @access public
+ * @access     public
  */
 class tx_ncstaticfilecache_tasks_removeExpiredPages extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
+
 	/**
 	 * This is the main method that is called when a task is executed
 	 * It MUST be implemented by all classes inheriting from this one
@@ -45,7 +44,7 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages extends \TYPO3\CMS\Scheduler
 	 * Should return true on successful execution, false on error.
 	 *
 	 * @access public
-	 * @return boolean	Returns true on successful execution, false on error
+	 * @return boolean    Returns true on successful execution, false on error
 	 *
 	 * @author Michael Klapper <michael.klapper@aoemedia.de>
 	 */
@@ -54,7 +53,6 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages extends \TYPO3\CMS\Scheduler
 		$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 		$cleaner->removeExpiredPages();
 
-		return true;
+		return TRUE;
 	}
 }
-?>

@@ -58,17 +58,24 @@ use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 /**
  * Static file cache extension
  *
- * @author	Michiel Roos <extensions@netcreators.com>
- * @package TYPO3
+ * @author     Michiel Roos <extensions@netcreators.com>
+ * @package    TYPO3
  * @subpackage tx_ncstaticfilecache
  */
 class tx_ncstaticfilecache {
+
 	protected $extKey = 'nc_staticfilecache';
+
 	protected $fileTable = 'tx_ncstaticfilecache_file';
+
 	protected $cacheDir = 'typo3temp/tx_ncstaticfilecache/';
-	protected $isDebugEnabled = false;
+
+	protected $isDebugEnabled = FALSE;
+
 	protected $configuration = array();
+
 	protected $setup = array();
+
 	protected $timeOutAccess = 0;
 
 	/**
@@ -81,22 +88,19 @@ class tx_ncstaticfilecache {
 	 */
 	public function __construct() {
 		if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey])) {
-			$this->setConfiguration(
-				unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey])
-			);
+			$this->setConfiguration(unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]));
 		}
 		if (isset($GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.'])) {
-			$this->setSetup(
-				$GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.']
-			);
+			$this->setSetup($GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.']);
 		}
 	}
 
 	/**
 	 * Sets the extension configuration (can be modified by admins in extension manager).
 	 *
-	 * @param	array		$configuration: The extension configuration
-	 * @return	void
+	 * @param    array $configuration : The extension configuration
+	 *
+	 * @return    void
 	 */
 	public function setConfiguration(array $configuration) {
 		$this->configuration = $configuration;
@@ -105,8 +109,9 @@ class tx_ncstaticfilecache {
 	/**
 	 * Sets the TypoScript setup.
 	 *
-	 * @param	array		$setup: The TypoScript setup
-	 * @return	void
+	 * @param    array $setup : The TypoScript setup
+	 *
+	 * @return    void
 	 */
 	public function setSetup(array $setup) {
 		$this->setup = $setup;
@@ -115,8 +120,9 @@ class tx_ncstaticfilecache {
 	/**
 	 * Gets a specific property of the extension configuration.
 	 *
-	 * @param	string		$property: Property to get configuration from
-	 * @return	mixed		The configuration of a property
+	 * @param    string $property : Property to get configuration from
+	 *
+	 * @return    mixed        The configuration of a property
 	 */
 	public function getConfigurationProperty($property) {
 		$result = NULL;
@@ -127,11 +133,13 @@ class tx_ncstaticfilecache {
 
 		return $result;
 	}
+
 	/**
 	 * Gets a specific property of the setup.
 	 *
-	 * @param	string		$property: Property to get setup from
-	 * @return	mixed		The setup of a property
+	 * @param    string $property : Property to get setup from
+	 *
+	 * @return    mixed        The setup of a property
 	 */
 	public function getSetupProperty($property) {
 		$result = NULL;
@@ -146,7 +154,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Gets the directory used for storing the cached files.
 	 *
-	 * @return	string		The directory used for storing the cached files
+	 * @return    string        The directory used for storing the cached files
 	 */
 	public function getCacheDirectory() {
 		return $this->cacheDir;
@@ -176,29 +184,30 @@ class tx_ncstaticfilecache {
 	 * Clear cache post processor.
 	 * The same structure as \TYPO3\CMS\Core\DataHandling\DataHandler::clear_cache
 	 *
-	 * @param	array $_params: parameter array
-	 * @param	\TYPO3\CMS\Core\DataHandling\DataHandler $pObj: partent object
-	 * @return	void
+	 * @param    array                                    $_params : parameter array
+	 * @param    \TYPO3\CMS\Core\DataHandling\DataHandler $pObj    : partent object
+	 *
+	 * @return    void
 	 */
 	public function clearCachePostProc(array &$params, \TYPO3\CMS\Core\DataHandling\DataHandler &$pObj) {
 		if ($this->isClearCacheProcessingEnabled === FALSE) {
 			return;
 		}
 
-		if($params['cacheCmd']) {
+		if ($params['cacheCmd']) {
 			$this->clearStaticFile($params);
 			return;
 		}
 
-        // Do not do anything when inside a workspace
-        if ($pObj->BE_USER->workspace > 0) {
-            return;
-        }
+		// Do not do anything when inside a workspace
+		if ($pObj->BE_USER->workspace > 0) {
+			return;
+		}
 
 		$uid = intval($params['uid']);
 		$table = strval($params['table']);
 
-		if($uid <= 0) {
+		if ($uid <= 0) {
 			return;
 		}
 
@@ -213,11 +222,7 @@ class tx_ncstaticfilecache {
 				if ($table == 'pages') {
 
 					// Builds list of pages on the SAME level as this page (siblings)
-					$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-									'A.pid AS pid, B.uid AS uid',
-									'pages A, pages B',
-									'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0'
-								);
+					$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery('A.pid AS pid, B.uid AS uid', 'pages A, pages B', 'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0');
 
 					$pid_tmp = 0;
 					while ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
@@ -226,11 +231,7 @@ class tx_ncstaticfilecache {
 
 						// Add children as well:
 						if ($TSConfig['clearCache_pageSiblingChildren']) {
-							$res_tmp2 = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-								'uid',
-								'pages',
-								'pid='.intval($row_tmp['uid']).' AND deleted=0'
-							);
+							$res_tmp2 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'pages', 'pid=' . intval($row_tmp['uid']) . ' AND deleted=0');
 							while ($row_tmp2 = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp2)) {
 								$list_cache[] = $row_tmp2['uid'];
 							}
@@ -244,11 +245,7 @@ class tx_ncstaticfilecache {
 
 					// Add grand-parent as well:
 					if ($TSConfig['clearCache_pageGrandParent']) {
-						$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-							'pid',
-							'pages',
-							'uid=' . intval($pid_tmp)
-						);
+						$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pid', 'pages', 'uid=' . intval($pid_tmp));
 						if ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
 							$list_cache[] = $row_tmp['pid'];
 						}
@@ -263,7 +260,7 @@ class tx_ncstaticfilecache {
 				if (is_array($list_cache)) {
 					$ids = $GLOBALS['TYPO3_DB']->cleanIntArray($list_cache);
 					foreach ($ids as $id) {
-						$cmd = array ('cacheCmd' => $id);
+						$cmd = array('cacheCmd' => $id);
 						$this->clearStaticFile($cmd);
 					}
 				}
@@ -272,10 +269,10 @@ class tx_ncstaticfilecache {
 
 		// Clear cache for pages entered in TSconfig:
 		if ($TSConfig['clearCacheCmd']) {
-			$Commands = GeneralUtility::trimExplode(',', strtolower($TSConfig['clearCacheCmd']), true);
+			$Commands = GeneralUtility::trimExplode(',', strtolower($TSConfig['clearCacheCmd']), TRUE);
 			$Commands = array_unique($Commands);
-			foreach($Commands as $cmdPart) {
-				$cmd = array ('cacheCmd' => $cmdPart);
+			foreach ($Commands as $cmdPart) {
+				$cmd = array('cacheCmd' => $cmdPart);
 				$this->clearStaticFile($cmd);
 			}
 		}
@@ -284,8 +281,9 @@ class tx_ncstaticfilecache {
 	/**
 	 * Clear static file
 	 *
-	 * @param	object		$_params: array containing 'cacheCmd'
-	 * @return	void
+	 * @param    object $_params : array containing 'cacheCmd'
+	 *
+	 * @return    void
 	 */
 	public function clearStaticFile(&$_params) {
 		if (isset($_params['cacheCmd']) && $_params['cacheCmd']) {
@@ -294,7 +292,7 @@ class tx_ncstaticfilecache {
 				case 'all':
 				case 'pages':
 					$directory = '';
-					if ((boolean) $this->getConfigurationProperty('clearCacheForAllDomains') === FALSE) {
+					if ((boolean)$this->getConfigurationProperty('clearCacheForAllDomains') === FALSE) {
 						if (isset($_params['host']) && $_params['host']) {
 							$directory = $_params['host'];
 						} else {
@@ -325,15 +323,12 @@ class tx_ncstaticfilecache {
 	/**
 	 * Returns records for a page id
 	 *
-	 * @param	integer	$pid	Page id
-	 * @return	array		Array of records
+	 * @param    integer $pid Page id
+	 *
+	 * @return    array        Array of records
 	 */
 	public function getRecordForPageID($pid) {
-		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'*',
-			$this->fileTable,
-			'pid=' . intval($pid)
-		);
+		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . intval($pid));
 	}
 
 	/**
@@ -342,9 +337,10 @@ class tx_ncstaticfilecache {
 	 * is not in cache yet!) Also, a backend user MUST be logged in for the
 	 * shift-reload to be detected due to DoS-attack-security reasons.
 	 *
-	 * @param	array $_params: array containing pObj among other things
-	 * @param	\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController		$parent: The calling parent object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
-	 * @return	void
+	 * @param    array                                                       $_params : array containing pObj among other things
+	 * @param    \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parent  : The calling parent object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
+	 *
+	 * @return    void
 	 */
 	public function headerNoCache(array &$params, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parent) {
 		if (strtolower($_SERVER['HTTP_CACHE_CONTROL']) === 'no-cache' || strtolower($_SERVER['HTTP_PRAGMA']) === 'no-cache') {
@@ -359,9 +355,10 @@ class tx_ncstaticfilecache {
 	/**
 	 * Write the static file and .htaccess
 	 *
-	 * @param	\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController	$pObj: The parent object
-	 * @param	string		$timeOutTime: The timestamp when the page times out
-	 * @return	void
+	 * @param    \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $pObj        : The parent object
+	 * @param    string                                                      $timeOutTime : The timestamp when the page times out
+	 *
+	 * @return    void
 	 */
 	public function insertPageIncache(\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController &$pObj, &$timeOutTime) {
 		$isStaticCached = FALSE;
@@ -380,28 +377,28 @@ class tx_ncstaticfilecache {
 		$fieldValues = array();
 		$additionalHash = '';
 
-			// Hook: Initialize variables before starting the processing.
-			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables']
+		// Hook: Initialize variables before starting the processing.
+		// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables']
 		$initializeVariablesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables'];
 		if (is_array($initializeVariablesHooks)) {
 			foreach ($initializeVariablesHooks as $hookFunction) {
 				$hookParameters = array(
-					'TSFE' => $pObj,
-					'host' => &$host,
-					'uri' => &$uri,
-					'isHttp' => &$isHttp,
-					'cacheDir' => &$cacheDir,
-					'fieldValues' => &$fieldValues,
-					'loginDenied' => &$loginsDeniedCfg,
-					'additionalHash' => &$additionalHash,
+					'TSFE'            => $pObj,
+					'host'            => &$host,
+					'uri'             => &$uri,
+					'isHttp'          => &$isHttp,
+					'cacheDir'        => &$cacheDir,
+					'fieldValues'     => &$fieldValues,
+					'loginDenied'     => &$loginsDeniedCfg,
+					'additionalHash'  => &$additionalHash,
 					'staticCacheable' => &$staticCacheable,
 				);
-                GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
+				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 			}
 		}
 
-			// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
-		if (strpos($uri, '?') === false && $pObj->page['doktype'] != 3 && $isHttp) {
+		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
+		if (strpos($uri, '?') === FALSE && $pObj->page['doktype'] != 3 && $isHttp) {
 			if ($this->getConfigurationProperty('recreateURI')) {
 				$uri = $this->recreateURI();
 			}
@@ -427,18 +424,11 @@ class tx_ncstaticfilecache {
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
-			if ($pObj->page['tx_ncstaticfilecache_cache']
-				&& (boolean)$this->getSetupProperty('disableCache') === FALSE
-				&& $staticCacheable
-				&& !$workspacePreview
-				&& $loginsDeniedCfg) {
+			if ($pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->getSetupProperty('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
 
 				$content = $pObj->content;
 				if ($this->getConfigurationProperty('showGenerationSignature')) {
-					$content .= "\n<!-- ".strftime (
-						$this->configuration['strftime'],
-						$GLOBALS['EXEC_TIME']
-					) . ' -->';
+					$content .= "\n<!-- " . strftime($this->configuration['strftime'], $GLOBALS['EXEC_TIME']) . ' -->';
 				}
 
 				$this->debug('writing cache for pid: ' . $pObj->id);
@@ -449,13 +439,13 @@ class tx_ncstaticfilecache {
 				if (is_array($processContentHooks)) {
 					foreach ($processContentHooks as $hookFunction) {
 						$hookParameters = array(
-							'TSFE' => $pObj,
-							'content' => $content,
+							'TSFE'        => $pObj,
+							'content'     => $content,
 							'fieldValues' => &$fieldValues,
-							'directory' => PATH_site . $cacheDir,
-							'file' => $file,
-							'host' => $host,
-							'uri' => $uri,
+							'directory'   => PATH_site . $cacheDir,
+							'file'        => $file,
+							'host'        => $host,
+							'uri'         => $uri,
 						);
 						$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 					}
@@ -467,19 +457,19 @@ class tx_ncstaticfilecache {
 				}
 
 				// write DB-record and staticCache-files, after DB-record was successful updated or created
-				$timeOutSeconds  = $timeOutTime - $GLOBALS['EXEC_TIME'];
-				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '' );
-				if($recordIsWritten === TRUE) {
+				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
+				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '');
+				if ($recordIsWritten === TRUE) {
 					/**
 					 * The htaccess should allow a browser to cache the content for not more than an hour
 					 * Use to enable:
 					 * config.tx_staticfilecache.htaccessTimeout = 900
 					 */
 					$this->timeOutAccess = intval($pObj->config['config']['tx_staticfilecache.']['htaccessTimeout']);
-					$isStaticCached  = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
+					$isStaticCached = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
 				}
 			} else {
-					// This is an 'explode' of the function isStaticCacheable()
+				// This is an 'explode' of the function isStaticCacheable()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
 					$explanation = 'static cache disabled on page';
@@ -496,22 +486,27 @@ class tx_ncstaticfilecache {
 					$this->debug('insertPageIncache: page has INTincScript', LOG_INFO);
 
 					$INTincScripts = array();
-					foreach($pObj->config['INTincScript'] as $k => $v) {
+					foreach ($pObj->config['INTincScript'] as $k => $v) {
 						$infos = array();
-						if(isset($v['type']))
-							$infos[] = 'type: '.$v['type'];
-						if(isset($v['conf']['userFunc']))
-							$infos[] = 'userFunc: '.$v['conf']['userFunc'];
-						if(isset($v['conf']['includeLibs']))
-							$infos[] = 'includeLibs: '.$v['conf']['includeLibs'];
-						if(isset($v['conf']['extensionName']))
-							$infos[] = 'extensionName: '.$v['conf']['extensionName'];
-						if(isset($v['conf']['pluginName']))
-							$infos[] = 'pluginName: '.$v['conf']['pluginName'];
+						if (isset($v['type'])) {
+							$infos[] = 'type: ' . $v['type'];
+						}
+						if (isset($v['conf']['userFunc'])) {
+							$infos[] = 'userFunc: ' . $v['conf']['userFunc'];
+						}
+						if (isset($v['conf']['includeLibs'])) {
+							$infos[] = 'includeLibs: ' . $v['conf']['includeLibs'];
+						}
+						if (isset($v['conf']['extensionName'])) {
+							$infos[] = 'extensionName: ' . $v['conf']['extensionName'];
+						}
+						if (isset($v['conf']['pluginName'])) {
+							$infos[] = 'pluginName: ' . $v['conf']['pluginName'];
+						}
 
 						$INTincScripts[] = implode(',', $infos);
 					}
-					$explanation = 'page has INTincScript: <ul><li>'.implode('</li><li>', $INTincScripts).'</li></ul>';
+					$explanation = 'page has INTincScript: <ul><li>' . implode('</li><li>', $INTincScripts) . '</li></ul>';
 					unset($INTincScripts);
 
 				}
@@ -530,20 +525,20 @@ class tx_ncstaticfilecache {
 				}
 
 
-				$this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, 0, $explanation );
+				$this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, 0, $explanation);
 				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
 			}
 		}
 
-			// Hook: Post process (no matter whether content was cached statically)
-			// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['insertPageIncache_postProcess']
+		// Hook: Post process (no matter whether content was cached statically)
+		// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['insertPageIncache_postProcess']
 		$postProcessHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['insertPageIncache_postProcess'];
 		if (is_array($postProcessHooks)) {
 			foreach ($postProcessHooks as $hookFunction) {
 				$hookParameters = array(
-					'TSFE' => $pObj,
-					'host' => $host,
-					'uri' => $uri,
+					'TSFE'           => $pObj,
+					'host'           => $host,
+					'uri'            => $uri,
 					'isStaticCached' => $isStaticCached,
 				);
 				$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
@@ -554,13 +549,14 @@ class tx_ncstaticfilecache {
 	/**
 	 * Log cache miss if no_cache is true
 	 *
-	 * @param	array		$params: Parameters delivered by the calling object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
-	 * @param	object		$parent: The calling parent object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
-	 * @return	void
+	 * @param    array  $params : Parameters delivered by the calling object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
+	 * @param    object $parent : The calling parent object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
+	 *
+	 * @return    void
 	 */
 	public function logNoCache(&$params, $parent) {
-		if($params['pObj']) {
-			if($params['pObj']->no_cache) {
+		if ($params['pObj']) {
+			if ($params['pObj']->no_cache) {
 				$timeOutTime = 0;
 				$this->insertPageInCache($params['pObj'], $timeOutTime);
 			}
@@ -570,17 +566,14 @@ class tx_ncstaticfilecache {
 	/**
 	 * Remove expired pages. Call from cli script.
 	 *
-	 * @param	TYPO3\CMS\Core\Controller\CommandLineController		$parent: The calling parent object
-	 * @return	void
+	 * @param    TYPO3\CMS\Core\Controller\CommandLineController $parent : The calling parent object
+	 *
+	 * @return    void
 	 */
 	public function removeExpiredPages(CommandLineController $parent = NULL) {
 		$clearedPages = array();
 
-		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'file, host, pid, (' . $GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
-			$this->fileTable,
-			'(cache_timeout + crdate) <= '.$GLOBALS['EXEC_TIME'] . ' AND crdate > 0'
-		);
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('file, host, pid, (' . $GLOBALS['EXEC_TIME'] . ' - crdate - cache_timeout) as seconds', $this->fileTable, '(cache_timeout + crdate) <= ' . $GLOBALS['EXEC_TIME'] . ' AND crdate > 0');
 
 		if ($rows) {
 			/* @var $tce TYPO3\CMS\Core\DataHandling\DataHandler */
@@ -590,10 +583,10 @@ class tx_ncstaticfilecache {
 			foreach ($rows as $row) {
 				$pageId = $row['pid'];
 
-					// Marks an expired page as dirty without removing it:
+				// Marks an expired page as dirty without removing it:
 				if ($this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
 					if (isset($parent)) {
-						$parent->cli_echo("Marked pid as dirty: " . $pageId . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
+						$parent->cli_echo("Marked pid as dirty: " . $pageId . "\t" . $row['host'] . $row['file'] . ", expired by " . $row['seconds'] . " seconds.\n");
 					}
 
 					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'pid=' . $pageId, array('isdirty' => 1));
@@ -601,7 +594,7 @@ class tx_ncstaticfilecache {
 					// Really removes an expired page:
 				} else {
 					if (isset($parent)) {
-						$parent->cli_echo("Removed pid: " . $pageId . "\t" . $row['host'] . $row['file'].", expired by " . $row['seconds'] . " seconds.\n");
+						$parent->cli_echo("Removed pid: " . $pageId . "\t" . $row['host'] . $row['file'] . ", expired by " . $row['seconds'] . " seconds.\n");
 					}
 
 					// Check whether page was already cleared:
@@ -619,8 +612,9 @@ class tx_ncstaticfilecache {
 	/**
 	 * Processes elements that have been marked as dirty.
 	 *
-	 * @param	TYPO3\CMS\Core\Controller\CommandLineController		$parent: The calling parent object
-	 * @return	void
+	 * @param    TYPO3\CMS\Core\Controller\CommandLineController $parent : The calling parent object
+	 *
+	 * @return    void
 	 */
 	public function processDirtyPages(CommandLineController $parent = NULL, $limit = 0) {
 		foreach ($this->getDirtyElements($limit) as $dirtyElement) {
@@ -631,9 +625,10 @@ class tx_ncstaticfilecache {
 	/**
 	 * Processes one single dirty element - removes data from file system and database.
 	 *
-	 * @param	array		$dirtyElement: The dirty element record
-	 * @param	TYPO3\CMS\Core\Controller\CommandLineController	$parent: (optional) The calling parent object
-	 * @return	void
+	 * @param    array                                           $dirtyElement : The dirty element record
+	 * @param    TYPO3\CMS\Core\Controller\CommandLineController $parent       : (optional) The calling parent object
+	 *
+	 * @return    void
 	 */
 	public function processDirtyPagesElement(array $dirtyElement, CommandLineController $parent = NULL) {
 		$cancelExecution = FALSE;
@@ -643,14 +638,14 @@ class tx_ncstaticfilecache {
 		if (is_array($processDirtyPagesHooks)) {
 			foreach ($processDirtyPagesHooks as $hookFunction) {
 				$hookParameters = array(
-					'dirtyElement' => $dirtyElement,
-					'cacheDirectory' => &$cacheDirectory,
+					'dirtyElement'    => $dirtyElement,
+					'cacheDirectory'  => &$cacheDirectory,
 					'cancelExecution' => &$cancelExecution,
 				);
 				if (isset($parent)) {
 					$hookParameters['cliDispatcher'] = $parent;
 				}
-                GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
+				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 			}
 		}
 
@@ -681,18 +676,19 @@ class tx_ncstaticfilecache {
 	 *
 	 * Checking code taken from class.t3lib_userauth.php
 	 *
-	 * @param	object		$params: parameter array
-	 * @param	object		$pObj: partent object
-	 * @return	void
+	 * @param    object $params : parameter array
+	 * @param    object $pObj   : partent object
+	 *
+	 * @return    void
 	 */
 	public function setFeUserCookie(&$params, &$pObj) {
 		$cookieDomain = NULL;
-			// Setting cookies
+		// Setting cookies
 		if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']) {
-			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']{0} == '/')	{
+			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']{0} == '/') {
 				$matchCnt = @preg_match($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain'], GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY'), $match);
-				if ($matchCnt === FALSE)	{
-                    GeneralUtility::sysLog('The regular expression of $TYPO3_CONF_VARS[SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
+				if ($matchCnt === FALSE) {
+					GeneralUtility::sysLog('The regular expression of $TYPO3_CONF_VARS[SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
 				} elseif ($matchCnt) {
 					$cookieDomain = $match[0];
 				}
@@ -701,10 +697,10 @@ class tx_ncstaticfilecache {
 			}
 		}
 
-			// If new session and the cookie is a sessioncookie, we need to set it only once!
+		// If new session and the cookie is a sessioncookie, we need to set it only once!
 		if (($pObj->fe_user->loginSessionStarted || $pObj->fe_user->forceSetCookie) && $pObj->fe_user->lifetime == 0) { // isSetSessionCookie()
-			if (!$pObj->fe_user->dontSetCookie)	{
-				if ($cookieDomain)	{
+			if (!$pObj->fe_user->dontSetCookie) {
+				if ($cookieDomain) {
 					SetCookie($this->extKey, 'fe_typo_user_logged_in', 0, '/', $cookieDomain);
 				} else {
 					SetCookie($this->extKey, 'fe_typo_user_logged_in', 0, '/');
@@ -712,11 +708,11 @@ class tx_ncstaticfilecache {
 			}
 		}
 
-			// If it is NOT a session-cookie, we need to refresh it.
+		// If it is NOT a session-cookie, we need to refresh it.
 		if ($pObj->fe_user->lifetime > 0) { // isRefreshTimeBasedCookie()
 			if ($pObj->fe_user->loginSessionStarted || isset($_COOKIE[$this->extKey])) {
-				if (!$pObj->fe_user->dontSetCookie)	{
-					if ($cookieDomain)	{
+				if (!$pObj->fe_user->dontSetCookie) {
+					if ($cookieDomain) {
 						SetCookie($this->extKey, 'fe_typo_user_logged_in', time() + $pObj->fe_user->lifetime, '/', $cookieDomain);
 					} else {
 						SetCookie($this->extKey, 'fe_typo_user_logged_in', time() + $pObj->fe_user->lifetime, '/');
@@ -751,12 +747,7 @@ class tx_ncstaticfilecache {
 				LOG_DEBUG   => 0,
 			);
 
-            GeneralUtility::devlog(
-				trim($message),
-				$this->extKey,
-				isset($arMapping[$severity]) ? $arMapping[$severity] : 1,
-				$additionalData
-			);
+			GeneralUtility::devlog(trim($message), $this->extKey, isset($arMapping[$severity]) ? $arMapping[$severity] : 1, $additionalData);
 		}
 	}
 
@@ -767,13 +758,14 @@ class tx_ncstaticfilecache {
 	 * and static file caching would store the wrong URI that was used in the first request to
 	 * the website (e.g. "TheGoodURI.13.0.html" is as well accepted as "TheFakeURI.13.0.html")
 	 *
-	 * @return	string		The recreated URI of the current request
+	 * @return    string        The recreated URI of the current request
 	 */
 	protected function recreateURI() {
 		$typoLinkConfiguration = array(
 			'parameter' => $GLOBALS['TSFE']->id . ' ' . $GLOBALS['TSFE']->type,
 		);
-		$uri = GeneralUtility::getIndpEnv('TYPO3_SITE_PATH') . $this->getContentObject()->typoLink_URL($typoLinkConfiguration);
+		$uri = GeneralUtility::getIndpEnv('TYPO3_SITE_PATH') . $this->getContentObject()
+				->typoLink_URL($typoLinkConfiguration);
 
 		return $uri;
 	}
@@ -781,7 +773,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Gets the content object (cObj) of TSFE.
 	 *
-	 * @return	tslib_cObj		The content object (cObj) of TSFE
+	 * @return    tslib_cObj        The content object (cObj) of TSFE
 	 */
 	protected function getContentObject() {
 		if (!isset($GLOBALS['TSFE']->cObj)) {
@@ -795,10 +787,11 @@ class tx_ncstaticfilecache {
 	 * If the extension configuration 'markDirtyInsteadOfDeletion' is set,
 	 * the database elements only get tagged a "dirty".
 	 *
-	 * @param	integer		$pid: (optional) Id of the page perform this action
-	 * @param	string		$directory: (optional) The directory to use on deletion
-	 *						below the static file directory
-	 * @return	void
+	 * @param    integer $pid       : (optional) Id of the page perform this action
+	 * @param    string  $directory : (optional) The directory to use on deletion
+	 *                              below the static file directory
+	 *
+	 * @return    void
 	 */
 	protected function deleteStaticCache($pid = 0, $directory = '') {
 		$pid = intval($pid);
@@ -838,12 +831,12 @@ class tx_ncstaticfilecache {
 		}
 	}
 
-
 	/**
 	 * Deletes contents of a static cache directory in filesystem, but omit the subfolders
 	 *
-	 * @param	string		$directory: The directory to use on deletion below the static cache directory
-	 * @return	mixed		Whether the action was successful (if directory was not found, NULL is returned)
+	 * @param    string $directory : The directory to use on deletion below the static cache directory
+	 *
+	 * @return    mixed        Whether the action was successful (if directory was not found, NULL is returned)
 	 */
 	public function deleteStaticCacheDirectory($directory) {
 		$directory = trim($directory);
@@ -883,20 +876,14 @@ class tx_ncstaticfilecache {
 	/**
 	 * Gets all dirty elements from database.
 	 *
-	 * @param	integer		$limit: (optional) Defines a limit for results to look up
-	 * @return	array		All dirty elements from database
+	 * @param    integer $limit : (optional) Defines a limit for results to look up
+	 *
+	 * @return    array        All dirty elements from database
 	 */
 	protected function getDirtyElements($limit = 0) {
 		$limit = intval($limit);
-		$elements = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'*',
-			$this->fileTable,
-			'isdirty=1',
-			'',
-			'uri ASC',
-			($limit ? $limit : '')
-		);
-		if(is_array($elements) === FALSE) {
+		$elements = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, 'isdirty=1', '', 'uri ASC', ($limit ? $limit : ''));
+		if (is_array($elements) === FALSE) {
 			$elements = array();
 		}
 		return $elements;
@@ -906,7 +893,8 @@ class tx_ncstaticfilecache {
 	 * Writes compressed content to the file system.
 	 *
 	 * @param string $filePath Name and path to the file containing the original content
-	 * @param string $content Content data to be compressed
+	 * @param string $content  Content data to be compressed
+	 *
 	 * @return void
 	 */
 	protected function writeCompressedContent($filePath, $content) {
@@ -914,7 +902,7 @@ class tx_ncstaticfilecache {
 			$level = is_int($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
 			$contentGzip = gzencode($content, $level);
 			if ($contentGzip) {
-                GeneralUtility::writeFile($filePath . '.gz', $contentGzip);
+				GeneralUtility::writeFile($filePath . '.gz', $contentGzip);
 			}
 		}
 	}
@@ -922,7 +910,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Gets the name of the database table holding all cached files.
 	 *
-	 * @return	string		Name of the database holding all cached files
+	 * @return    string        Name of the database holding all cached files
 	 */
 	public function getFileTable() {
 		return $this->fileTable;
@@ -933,11 +921,12 @@ class tx_ncstaticfilecache {
 	 *
 	 * @param string $destination
 	 * @param string $deepDir
+	 *
 	 * @return boolean
 	 */
-	protected function mkdirDeep($destination,$deepDir) {
-		$result = GeneralUtility::mkdir_deep($destination,$deepDir);
-		if(stristr($result, 'error')) {
+	protected function mkdirDeep($destination, $deepDir) {
+		$result = GeneralUtility::mkdir_deep($destination, $deepDir);
+		if (stristr($result, 'error')) {
 			$this->debug($result, LOG_CRIT);
 			return FALSE;
 		}
@@ -965,8 +954,8 @@ class tx_ncstaticfilecache {
 	ExpiresByType text/html ' . $timeOutMode . $timeOutSeconds . '
 </IfModule>
 ';
-			if($this->getConfigurationProperty('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
-				$invalidTime = date("YmdHis", time()+(int)$timeOutSeconds);
+			if ($this->getConfigurationProperty('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
+				$invalidTime = date("YmdHis", time() + (int)$timeOutSeconds);
 				$htaccessContent .= '
 				<IfModule mod_rewrite.c>
 RewriteEngine On
@@ -975,32 +964,26 @@ RewriteRule ^.*$ /index.php
 </IfModule>';
 			}
 
-            GeneralUtility::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
+			GeneralUtility::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
 		}
 	}
 
 	/**
-	 * 	Check for existing entries with the same uid and file, if a record exists, update timestamp, otherwise create a new record.
+	 *    Check for existing entries with the same uid and file, if a record exists, update timestamp, otherwise create a new record.
 	 *
-	 * @param object $pObj
-	 * @param array $fieldValues
-	 * @param string $host
-	 * @param string $uri
-	 * @param string $file
-	 * @param string $additionalHash
+	 * @param object  $pObj
+	 * @param array   $fieldValues
+	 * @param string  $host
+	 * @param string  $uri
+	 * @param string  $file
+	 * @param string  $additionalHash
 	 * @param integer $timeOutSeconds
-	 * @param string $explanation
+	 * @param string  $explanation
+	 *
 	 * @return boolean
 	 */
-	private function writeStaticCacheRecord($pObj, array $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, $explanation ) {
-		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'uid',
-			$this->fileTable,
-			'pid=' . $pObj->page['uid'] .
-			' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
-			' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
-			' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable)
-		);
+	private function writeStaticCacheRecord($pObj, array $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, $explanation) {
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid', $this->fileTable, 'pid=' . $pObj->page['uid'] . ' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) . ' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) . ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable));
 
 		// update DB-record
 		if (is_array($rows) === TRUE && count($rows) > 0) {
@@ -1010,29 +993,27 @@ RewriteRule ^.*$ /index.php
 			$fieldValues['isdirty'] = 0;
 			$fieldValues['ismarkedtodelete'] = 0;
 			$result = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
-			if($result === TRUE) {
+			if ($result === TRUE) {
 				return TRUE;
 			}
 		}
 
 		// create DB-record
-		$fieldValues = array_merge(
-			$fieldValues,
-			array(
-				'crdate' => $GLOBALS['EXEC_TIME'],
-				'tstamp' => $GLOBALS['EXEC_TIME'],
-				'cache_timeout' => $timeOutSeconds,
-				'explanation' => $explanation,
-				'file' => $file,
-				'pid' => $pObj->page['uid'],
-				'reg1' => $pObj->page_cache_reg1,
-				'host' => $host,
-				'uri' => $uri,
-				'additionalhash' => $additionalHash,
-			)
-		);
+		$fieldValues = array_merge($fieldValues, array(
+			'crdate'         => $GLOBALS['EXEC_TIME'],
+			'tstamp'         => $GLOBALS['EXEC_TIME'],
+			'cache_timeout'  => $timeOutSeconds,
+			'explanation'    => $explanation,
+			'file'           => $file,
+			'pid'            => $pObj->page['uid'],
+			'reg1'           => $pObj->page_cache_reg1,
+			'host'           => $host,
+			'uri'            => $uri,
+			'additionalhash' => $additionalHash,
+		));
 		return $GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
 	}
+
 	/**
 	 * write static-cache-file
 	 *
@@ -1041,55 +1022,54 @@ RewriteRule ^.*$ /index.php
 	 * @param string $file
 	 * @param string $timeOutSeconds
 	 * @param string $content
+	 *
 	 * @return boolean
 	 */
 	private function writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content) {
-		if($this->mkdirDeep(PATH_site, $cacheDir . $uri) === FALSE) {
+		if ($this->mkdirDeep(PATH_site, $cacheDir . $uri) === FALSE) {
 			return FALSE;
 		}
 
 		$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
-        GeneralUtility::writeFile(PATH_site . $cacheDir . $file, $content);
+		GeneralUtility::writeFile(PATH_site . $cacheDir . $file, $content);
 		$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
 		return TRUE;
 	}
+
 	/**
 	 *  move directory and delete it after movement (if directory exists)
-	 *  @param string $directory
-	 *  @throws Exception
+	 *
+	 * @param string $directory
+	 *
+	 * @throws Exception
 	 */
-	private function removeCacheDirectory($directory){
-		try{
+	private function removeCacheDirectory($directory) {
+		try {
 			$srcDir = PATH_site . $this->cacheDir . $directory;
-			if(substr($srcDir, strlen($srcDir)-1, 1) === '/') {
-				$tmpDir = substr($srcDir, 0, strlen($srcDir)-1).'_ismarkedtodelete/';
+			if (substr($srcDir, strlen($srcDir) - 1, 1) === '/') {
+				$tmpDir = substr($srcDir, 0, strlen($srcDir) - 1) . '_ismarkedtodelete/';
 			} else {
-				$tmpDir = PATH_site . $this->cacheDir . $directory.'_ismarkedtodelete/';
+				$tmpDir = PATH_site . $this->cacheDir . $directory . '_ismarkedtodelete/';
 			}
-			if(is_dir($srcDir) === TRUE) {
+			if (is_dir($srcDir) === TRUE) {
 				if (is_dir($tmpDir)) {
 					$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
-					if(FALSE === GeneralUtility::rmdir($tmpDir, true)) {
+					if (FALSE === GeneralUtility::rmdir($tmpDir, TRUE)) {
 						throw new Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
 					}
 				}
 
-				if(FALSE === rename($srcDir, $tmpDir)) {
+				if (FALSE === rename($srcDir, $tmpDir)) {
 					throw new Exception('Could not rename static cache directory "' . $srcDir . '"');
 				}
 				// delete moved directory
-				if(FALSE === GeneralUtility::rmdir($tmpDir, true)) {
+				if (FALSE === GeneralUtility::rmdir($tmpDir, TRUE)) {
 					throw new RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
 				}
 			}
-		}catch(RuntimeException $e){
+		} catch (RuntimeException $e) {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
 
 	}
 }
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/class.tx_ncstaticfilecache.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/nc_staticfilecache/class.tx_ncstaticfilecache.php']);
-}
-?>

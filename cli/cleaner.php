@@ -26,7 +26,9 @@
  *
  */
 
-if (!defined('TYPO3_cliMode'))  die('You cannot run this script directly!');
+if (!defined('TYPO3_cliMode')) {
+	die('You cannot run this script directly!');
+}
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -43,16 +45,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  */
 class tx_ncstaticfilecache_cli extends \TYPO3\CMS\Core\Controller\CommandLineController {
-	public function __construct () {
-		// Running parent class constructor
+
+	/**
+	 * Setting help texts
+	 */
+	public function __construct() {
 		parent::__construct();
 
-		// Setting help texts:
 		$this->cli_help['name'] = 'static file cache cleaner -- Removes expired pages from static file cache.';
 		$this->cli_help['synopsis'] = 'removeExpiredPages|processDirtyPages ###OPTIONS###';
-		$this->cli_help['description'] =
-			'removeExpiredPages: Remove expired pages from the static file cache.' . PHP_EOL .
-			'processDirtyPages:  Recaches pages that are marked as dirty.';
+		$this->cli_help['description'] = 'removeExpiredPages: Remove expired pages from the static file cache.' . PHP_EOL . 'processDirtyPages:  Recaches pages that are marked as dirty.';
 		$this->cli_help['examples'] = "/.../cli_dispatch.phpsh nc_staticfilecache removeExpiredPages\nThis will remove expired pages from the static file cache.";
 		$this->cli_help['author'] = "Michiel Roos, (c) 2007";
 	}
@@ -60,12 +62,12 @@ class tx_ncstaticfilecache_cli extends \TYPO3\CMS\Core\Controller\CommandLineCon
 	/**
 	 * CLI engine
 	 *
-	 * @return	string
+	 * @return    string
 	 */
-    public function cli_main() {
+	public function cli_main() {
 		// Print help
 		$task = (string)$this->cli_args['_DEFAULT'][1];
-		if (!$task)	{
+		if (!$task) {
 			$this->cli_validateArgs();
 			$this->cli_help();
 			exit;
@@ -88,4 +90,3 @@ class tx_ncstaticfilecache_cli extends \TYPO3\CMS\Core\Controller\CommandLineCon
 // Call the functionality
 $cleanerObj = GeneralUtility::makeInstance('tx_ncstaticfilecache_cli');
 $cleanerObj->cli_main();
-?>

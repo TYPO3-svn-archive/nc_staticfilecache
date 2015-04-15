@@ -27,16 +27,15 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * {@inheritdoc}
  *
- * @author Michael Klapper <michael.klapper@aoe.com>
- * @copyright Copyright (c) 2009, AOE media GmbH <dev@aoemedia.de>
- * @version $Id$
- * @date $Date$
- * @since 08.01.2010 - 11:00:44
- * @package TYPO3
+ * @author     Michael Klapper <michael.klapper@aoe.com>
+ * @copyright  Copyright (c) 2009, AOE media GmbH <dev@aoemedia.de>
+ * @since      08.01.2010 - 11:00:44
+ * @package    TYPO3
  * @subpackage tx_ncstaticfilecache
- * @access public
+ * @access     public
  */
 class tx_ncstaticfilecache_tasks_processDirtyPages extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
+
 	/**
 	 * @var integer
 	 */
@@ -50,7 +49,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages extends \TYPO3\CMS\Scheduler\
 	 * Should return true on successful execution, false on error.
 	 *
 	 * @access public
-	 * @return boolean	Returns true on successful execution, false on error
+	 * @return boolean    Returns true on successful execution, false on error
 	 *
 	 * @author Michael Klapper <michael.klapper@aoemedia.de>
 	 */
@@ -59,7 +58,6 @@ class tx_ncstaticfilecache_tasks_processDirtyPages extends \TYPO3\CMS\Scheduler\
 		$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 		$cleaner->processDirtyPages(NULL, $this->itemLimit);
 
-		return true;
+		return TRUE;
 	}
 }
-?>
