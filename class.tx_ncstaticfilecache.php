@@ -35,7 +35,7 @@
  *   71:     function clearCachePostProc (&$params, &$pObj)
  *  165:     function clearStaticFile (&$_params)
  *  216:     function getRecordForPageID($pid)
- *  234:     function headerNoCache (&$params, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
+ *  234:     function headerNoCache (&$params, TypoScriptFrontendController)
  *  250:     function insertPageIncache (&$pObj, &$timeOutTime)
  *  385:     function logNoCache (&$params)
  *  405:     function mkdir_deep($destination,$deepDir)
@@ -50,10 +50,13 @@
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Controller\CommandLineController;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Static file cache extension
@@ -182,14 +185,14 @@ class tx_ncstaticfilecache {
 
 	/**
 	 * Clear cache post processor.
-	 * The same structure as \TYPO3\CMS\Core\DataHandling\DataHandler::clear_cache
+	 * The same structure as DataHandler::clear_cache
 	 *
-	 * @param    array                                    $_params : parameter array
-	 * @param    \TYPO3\CMS\Core\DataHandling\DataHandler $pObj    : partent object
+	 * @param    array       $params : parameter array
+	 * @param    DataHandler $pObj   : partent object
 	 *
 	 * @return    void
 	 */
-	public function clearCachePostProc(array &$params, \TYPO3\CMS\Core\DataHandling\DataHandler &$pObj) {
+	public function clearCachePostProc(array &$params, DataHandler &$pObj) {
 		if ($this->isClearCacheProcessingEnabled === FALSE) {
 			return;
 		}
@@ -222,34 +225,44 @@ class tx_ncstaticfilecache {
 				if ($table == 'pages') {
 
 					// Builds list of pages on the SAME level as this page (siblings)
-					$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery('A.pid AS pid, B.uid AS uid', 'pages A, pages B', 'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0');
+					$res_tmp = $this->getDatabaseConnection()
+						->exec_SELECTquery('A.pid AS pid, B.uid AS uid', 'pages A, pages B', 'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0');
 
 					$pid_tmp = 0;
-					while ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
+					while ($row_tmp = $this->getDatabaseConnection()
+						->sql_fetch_assoc($res_tmp)) {
 						$list_cache[] = $row_tmp['uid'];
 						$pid_tmp = $row_tmp['pid'];
 
 						// Add children as well:
 						if ($TSConfig['clearCache_pageSiblingChildren']) {
-							$res_tmp2 = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'pages', 'pid=' . intval($row_tmp['uid']) . ' AND deleted=0');
-							while ($row_tmp2 = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp2)) {
+							$res_tmp2 = $this->getDatabaseConnection()
+								->exec_SELECTquery('uid', 'pages', 'pid=' . intval($row_tmp['uid']) . ' AND deleted=0');
+							while ($row_tmp2 = $this->getDatabaseConnection()
+								->sql_fetch_assoc($res_tmp2)) {
 								$list_cache[] = $row_tmp2['uid'];
 							}
-							$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp2);
+							$this->getDatabaseConnection()
+								->sql_free_result($res_tmp2);
 						}
 					}
-					$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp);
+					$this->getDatabaseConnection()
+						->sql_free_result($res_tmp);
 
 					// Finally, add the parent page as well:
 					$list_cache[] = $pid_tmp;
 
 					// Add grand-parent as well:
 					if ($TSConfig['clearCache_pageGrandParent']) {
-						$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pid', 'pages', 'uid=' . intval($pid_tmp));
-						if ($row_tmp = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
+						$res_tmp = $this->getDatabaseConnection()
+							->exec_SELECTquery('pid', 'pages', 'uid=' . intval($pid_tmp));
+						if ($row_tmp = $this->getDatabaseConnection()
+							->sql_fetch_assoc($res_tmp)
+						) {
 							$list_cache[] = $row_tmp['pid'];
 						}
-						$GLOBALS['TYPO3_DB']->sql_free_result($res_tmp);
+						$this->getDatabaseConnection()
+							->sql_free_result($res_tmp);
 					}
 				} else {
 					// For other tables than "pages", delete cache for the records "parent page".
@@ -258,7 +271,8 @@ class tx_ncstaticfilecache {
 
 				// Delete cache for selected pages:
 				if (is_array($list_cache)) {
-					$ids = $GLOBALS['TYPO3_DB']->cleanIntArray($list_cache);
+					$ids = $this->getDatabaseConnection()
+						->cleanIntArray($list_cache);
 					foreach ($ids as $id) {
 						$cmd = array('cacheCmd' => $id);
 						$this->clearStaticFile($cmd);
@@ -328,7 +342,8 @@ class tx_ncstaticfilecache {
 	 * @return    array        Array of records
 	 */
 	public function getRecordForPageID($pid) {
-		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . intval($pid));
+		return $this->getDatabaseConnection()
+			->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . intval($pid));
 	}
 
 	/**
@@ -337,12 +352,12 @@ class tx_ncstaticfilecache {
 	 * is not in cache yet!) Also, a backend user MUST be logged in for the
 	 * shift-reload to be detected due to DoS-attack-security reasons.
 	 *
-	 * @param    array                                                       $_params : array containing pObj among other things
-	 * @param    \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parent  : The calling parent object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
+	 * @param    array                        $params : array containing pObj among other things
+	 * @param    TypoScriptFrontendController $parent : The calling parent object
 	 *
 	 * @return    void
 	 */
-	public function headerNoCache(array &$params, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $parent) {
+	public function headerNoCache(array &$params, TypoScriptFrontendController $parent) {
 		if (strtolower($_SERVER['HTTP_CACHE_CONTROL']) === 'no-cache' || strtolower($_SERVER['HTTP_PRAGMA']) === 'no-cache') {
 			if ($parent->beUserLogin) {
 				$this->debug('no-cache header found', LOG_INFO);
@@ -355,12 +370,12 @@ class tx_ncstaticfilecache {
 	/**
 	 * Write the static file and .htaccess
 	 *
-	 * @param    \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $pObj        : The parent object
-	 * @param    string                                                      $timeOutTime : The timestamp when the page times out
+	 * @param    TypoScriptFrontendController $pObj        : The parent object
+	 * @param    string                       $timeOutTime : The timestamp when the page times out
 	 *
 	 * @return    void
 	 */
-	public function insertPageIncache(\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController &$pObj, &$timeOutTime) {
+	public function insertPageIncache(TypoScriptFrontendController &$pObj, &$timeOutTime) {
 		$isStaticCached = FALSE;
 		$this->debug('insertPageIncache');
 
@@ -378,7 +393,6 @@ class tx_ncstaticfilecache {
 		$additionalHash = '';
 
 		// Hook: Initialize variables before starting the processing.
-		// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables']
 		$initializeVariablesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables'];
 		if (is_array($initializeVariablesHooks)) {
 			foreach ($initializeVariablesHooks as $hookFunction) {
@@ -434,7 +448,6 @@ class tx_ncstaticfilecache {
 				$this->debug('writing cache for pid: ' . $pObj->id);
 
 				// Hook: Process content before writing to static cached file:
-				// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent']
 				$processContentHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent'];
 				if (is_array($processContentHooks)) {
 					foreach ($processContentHooks as $hookFunction) {
@@ -469,6 +482,7 @@ class tx_ncstaticfilecache {
 					$isStaticCached = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
 				}
 			} else {
+				$explanation = 'No reason found?';
 				// This is an 'explode' of the function isStaticCacheable()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
@@ -531,7 +545,6 @@ class tx_ncstaticfilecache {
 		}
 
 		// Hook: Post process (no matter whether content was cached statically)
-		// $TYPO3_CONF_VARS['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['insertPageIncache_postProcess']
 		$postProcessHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['insertPageIncache_postProcess'];
 		if (is_array($postProcessHooks)) {
 			foreach ($postProcessHooks as $hookFunction) {
@@ -549,8 +562,8 @@ class tx_ncstaticfilecache {
 	/**
 	 * Log cache miss if no_cache is true
 	 *
-	 * @param    array  $params : Parameters delivered by the calling object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
-	 * @param    object $parent : The calling parent object (\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController)
+	 * @param    array  $params : Parameters delivered by the calling object
+	 * @param    object $parent : The calling parent object
 	 *
 	 * @return    void
 	 */
@@ -573,7 +586,8 @@ class tx_ncstaticfilecache {
 	public function removeExpiredPages(CommandLineController $parent = NULL) {
 		$clearedPages = array();
 
-		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('file, host, pid, (' . $GLOBALS['EXEC_TIME'] . ' - crdate - cache_timeout) as seconds', $this->fileTable, '(cache_timeout + crdate) <= ' . $GLOBALS['EXEC_TIME'] . ' AND crdate > 0');
+		$rows = $this->getDatabaseConnection()
+			->exec_SELECTgetRows('file, host, pid, (' . $GLOBALS['EXEC_TIME'] . ' - crdate - cache_timeout) as seconds', $this->fileTable, '(cache_timeout + crdate) <= ' . $GLOBALS['EXEC_TIME'] . ' AND crdate > 0');
 
 		if ($rows) {
 			/* @var $tce TYPO3\CMS\Core\DataHandling\DataHandler */
@@ -589,7 +603,8 @@ class tx_ncstaticfilecache {
 						$parent->cli_echo("Marked pid as dirty: " . $pageId . "\t" . $row['host'] . $row['file'] . ", expired by " . $row['seconds'] . " seconds.\n");
 					}
 
-					$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'pid=' . $pageId, array('isdirty' => 1));
+					$this->getDatabaseConnection()
+						->exec_UPDATEquery($this->fileTable, 'pid=' . $pageId, array('isdirty' => 1));
 
 					// Really removes an expired page:
 				} else {
@@ -612,9 +627,8 @@ class tx_ncstaticfilecache {
 	/**
 	 * Processes elements that have been marked as dirty.
 	 *
-	 * @param    TYPO3\CMS\Core\Controller\CommandLineController $parent : The calling parent object
-	 *
-	 * @return    void
+	 * @param CommandLineController $parent : The calling parent object
+	 * @param int                   $limit
 	 */
 	public function processDirtyPages(CommandLineController $parent = NULL, $limit = 0) {
 		foreach ($this->getDirtyElements($limit) as $dirtyElement) {
@@ -625,8 +639,8 @@ class tx_ncstaticfilecache {
 	/**
 	 * Processes one single dirty element - removes data from file system and database.
 	 *
-	 * @param    array                                           $dirtyElement : The dirty element record
-	 * @param    TYPO3\CMS\Core\Controller\CommandLineController $parent       : (optional) The calling parent object
+	 * @param array                 $dirtyElement : The dirty element record
+	 * @param CommandLineController $parent       : (optional) The calling parent object
 	 *
 	 * @return    void
 	 */
@@ -654,7 +668,8 @@ class tx_ncstaticfilecache {
 		}
 
 		if (TRUE === $this->deleteStaticCacheDirectory($cacheDirectory)) {
-			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
+			$this->getDatabaseConnection()
+				->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
 			if (isset($parent)) {
 				$parent->cli_echo('Removing directory ' . $cacheDirectory . '... OK' . PHP_EOL);
 			}
@@ -688,7 +703,7 @@ class tx_ncstaticfilecache {
 			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']{0} == '/') {
 				$matchCnt = @preg_match($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain'], GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY'), $match);
 				if ($matchCnt === FALSE) {
-					GeneralUtility::sysLog('The regular expression of $TYPO3_CONF_VARS[SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
+					GeneralUtility::sysLog('The regular expression of $GLOBALS[TYPO3_CONF_VARS][SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
 				} elseif ($matchCnt) {
 					$cookieDomain = $match[0];
 				}
@@ -799,18 +814,21 @@ class tx_ncstaticfilecache {
 
 		if ($pid > 0 && $this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
 			// Mark specific page as dirty
-			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'pid=' . $pid, array('isdirty' => 1));
+			$this->getDatabaseConnection()
+				->exec_UPDATEquery($this->fileTable, 'pid=' . $pid, array('isdirty' => 1));
 			return;
 		}
 
 
 		if ($pid > 0) {
 			// Cache of a single page shall be removed
-			$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . $pid);
+			$rows = $this->getDatabaseConnection()
+				->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . $pid);
 			foreach ($rows as $row) {
 				$cacheDirectory = $row['host'] . dirname($row['file']);
 				if (TRUE === $this->deleteStaticCacheDirectory($cacheDirectory)) {
-					$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
+					$this->getDatabaseConnection()
+						->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
 				} else {
 					$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
 				}
@@ -822,10 +840,12 @@ class tx_ncstaticfilecache {
 		// Cache of all pages shall be removed (clearCacheCmd "all" or "pages")
 		try {
 			// 1. marked DB-records which should be deleted
-			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, '', array('ismarkedtodelete' => 1));
+			$this->getDatabaseConnection()
+				->exec_UPDATEquery($this->fileTable, '', array('ismarkedtodelete' => 1));
 			$this->removeCacheDirectory($directory);
 			// 3. delete marked DB-records
-			$GLOBALS['TYPO3_DB']->exec_DELETEquery($this->fileTable, 'ismarkedtodelete=1');
+			$this->getDatabaseConnection()
+				->exec_DELETEquery($this->fileTable, 'ismarkedtodelete=1');
 		} catch (Exception $e) {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
@@ -882,7 +902,8 @@ class tx_ncstaticfilecache {
 	 */
 	protected function getDirtyElements($limit = 0) {
 		$limit = intval($limit);
-		$elements = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $this->fileTable, 'isdirty=1', '', 'uri ASC', ($limit ? $limit : ''));
+		$elements = $this->getDatabaseConnection()
+			->exec_SELECTgetRows('*', $this->fileTable, 'isdirty=1', '', 'uri ASC', ($limit ? $limit : ''));
 		if (is_array($elements) === FALSE) {
 			$elements = array();
 		}
@@ -925,12 +946,12 @@ class tx_ncstaticfilecache {
 	 * @return boolean
 	 */
 	protected function mkdirDeep($destination, $deepDir) {
-		$result = GeneralUtility::mkdir_deep($destination, $deepDir);
-		if (stristr($result, 'error')) {
-			$this->debug($result, LOG_CRIT);
+		try {
+			GeneralUtility::mkdir_deep($destination, $deepDir);
+			return TRUE;
+		} catch (\Exception $ex) {
 			return FALSE;
 		}
-		return TRUE;
 	}
 
 	/**
@@ -983,7 +1004,8 @@ RewriteRule ^.*$ /index.php
 	 * @return boolean
 	 */
 	private function writeStaticCacheRecord($pObj, array $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, $explanation) {
-		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid', $this->fileTable, 'pid=' . $pObj->page['uid'] . ' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) . ' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) . ' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable));
+		$databaseConnection = $this->getDatabaseConnection();
+		$rows = $databaseConnection->exec_SELECTgetRows('uid', $this->fileTable, 'pid=' . $pObj->page['uid'] . ' AND host = ' . $databaseConnection->fullQuoteStr($host, $this->fileTable) . ' AND file=' . $databaseConnection->fullQuoteStr($file, $this->fileTable) . ' AND additionalhash=' . $databaseConnection->fullQuoteStr($additionalHash, $this->fileTable));
 
 		// update DB-record
 		if (is_array($rows) === TRUE && count($rows) > 0) {
@@ -992,7 +1014,7 @@ RewriteRule ^.*$ /index.php
 			$fieldValues['explanation'] = $explanation;
 			$fieldValues['isdirty'] = 0;
 			$fieldValues['ismarkedtodelete'] = 0;
-			$result = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
+			$result = $databaseConnection->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 			if ($result === TRUE) {
 				return TRUE;
 			}
@@ -1011,7 +1033,7 @@ RewriteRule ^.*$ /index.php
 			'uri'            => $uri,
 			'additionalhash' => $additionalHash,
 		));
-		return $GLOBALS['TYPO3_DB']->exec_INSERTquery($this->fileTable, $fieldValues);
+		return $databaseConnection->exec_INSERTquery($this->fileTable, $fieldValues);
 	}
 
 	/**
@@ -1071,5 +1093,14 @@ RewriteRule ^.*$ /index.php
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
 
+	}
+
+	/**
+	 * Get database connection
+	 *
+	 * @return DatabaseConnection
+	 */
+	protected function getDatabaseConnection() {
+		return $GLOBALS['TYPO3_DB'];
 	}
 }

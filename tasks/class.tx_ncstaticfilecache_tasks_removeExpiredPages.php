@@ -23,6 +23,7 @@
  ***************************************************************/
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
 /**
  * {@inheritdoc}
@@ -34,7 +35,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @subpackage tx_ncstaticfilecache
  * @access     public
  */
-class tx_ncstaticfilecache_tasks_removeExpiredPages extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
+class tx_ncstaticfilecache_tasks_removeExpiredPages extends AbstractTask {
 
 	/**
 	 * This is the main method that is called when a task is executed

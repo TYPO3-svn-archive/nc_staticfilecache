@@ -3,6 +3,11 @@
 	* Remove closing PHP Tags (CGL)
 	* Format the PHP classes (CGL)
 	* Remove old XCLASS code lines in the footer of the classes
+	* Remove $GLOBALS['TYPO3_DB'] to helper method
+	* Fix PhpDoc
+	* import namespace classes
+	* handle GeneralUtility::mkdir_deep in the right way
+	* fix undefined variable notice
 
 2015-01-12  Jürgen Kußmann <juergen.kussmann@aoe.com>
 

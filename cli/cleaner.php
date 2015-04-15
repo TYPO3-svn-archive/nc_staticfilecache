@@ -30,6 +30,7 @@ if (!defined('TYPO3_cliMode')) {
 	die('You cannot run this script directly!');
 }
 
+use TYPO3\CMS\Core\Controller\CommandLineController;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -37,14 +38,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  *
  *
- *   46: class tx_ncstaticfilecache_cli extends \TYPO3\CMS\Core\Controller\CommandLineController
+ *   46: class tx_ncstaticfilecache_cli extends CommandLineController
  *   66:     function cli_main($argv)
  *
  * TOTAL FUNCTIONS: 1
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
-class tx_ncstaticfilecache_cli extends \TYPO3\CMS\Core\Controller\CommandLineController {
+class tx_ncstaticfilecache_cli extends CommandLineController {
 
 	/**
 	 * Setting help texts

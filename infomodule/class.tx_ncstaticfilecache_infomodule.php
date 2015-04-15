@@ -30,15 +30,17 @@
  *
  *
  *
- *   53: class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\AbstractFunctionModule
+ *   53: class tx_ncstaticfilecache_infomodule extends AbstractFunctionModule
  *   60:     function main()
- *  101:     function renderModule(\TYPO3\CMS\Backend\Tree\View\BrowseTreeView $tree)
+ *  101:     function renderModule(BrowseTreeView $tree)
  *
  * TOTAL FUNCTIONS: 2
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
+use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
+use TYPO3\CMS\Backend\Tree\View\BrowseTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -50,7 +52,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @package    TYPO3
  * @subpackage tx_ncstaticfilecache
  */
-class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\AbstractFunctionModule {
+class tx_ncstaticfilecache_infomodule extends AbstractFunctionModule {
 
 	/**
 	 * @var    tx_ncstaticfilecache
@@ -61,6 +63,13 @@ class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\Abstract
 	 * @var    integer
 	 */
 	protected $pageId = 0;
+
+	/**
+	 * Back path
+	 *
+	 * @var string
+	 */
+	protected $backPath = '';
 
 	/**
 	 * MAIN function for static publishing information
@@ -78,7 +87,7 @@ class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\Abstract
 		$this->pageId = intval($this->pObj->id);
 
 		// Initialize tree object:
-		/* @var $tree \TYPO3\CMS\Backend\Tree\View\BrowseTreeView */
+		/* @var $tree BrowseTreeView */
 		$tree = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Tree\\View\\BrowseTreeView');
 		// Also store tree prefix markup:
 		$tree->makeHTML = 2;
@@ -104,11 +113,11 @@ class tx_ncstaticfilecache_infomodule extends \TYPO3\CMS\Backend\Module\Abstract
 	/**
 	 * Rendering the information
 	 *
-	 * @param    \TYPO3\CMS\Backend\Tree\View\BrowseTreeView $tree The Page tree data
+	 * @param    BrowseTreeView $tree The Page tree data
 	 *
 	 * @return    string        HTML for the information table.
 	 */
-	protected function renderModule(\TYPO3\CMS\Backend\Tree\View\BrowseTreeView $tree) {
+	protected function renderModule(BrowseTreeView $tree) {
 		$pubDir = $this->getStaticFileCacheInstance()
 			->getCacheDirectory();
 

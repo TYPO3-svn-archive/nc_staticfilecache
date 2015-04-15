@@ -22,6 +22,10 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
+use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
+use TYPO3\CMS\Scheduler\Task\AbstractTask;
+
 /**
  * {@inheritdoc}
  *
@@ -34,15 +38,15 @@
  * @subpackage tx_ncstaticfilecache
  * @access     public
  */
-class tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider implements \TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface {
+class tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider implements AdditionalFieldProviderInterface {
 
 	/**
 	 * This method is used to define new fields for adding or editing a task
 	 * In this case, it adds an email field
 	 *
-	 * @param    array               $taskInfo     : reference to the array containing the info used in the add/edit form
-	 * @param    object              $task         : when editing, reference to the current task object. Null when adding.
-	 * @param    tx_scheduler_Module $parentObject : reference to the calling object (Scheduler's BE module)
+	 * @param    array                     $taskInfo        : reference to the array containing the info used in the add/edit form
+	 * @param    object                    $task            : when editing, reference to the current task object. Null when adding.
+	 * @param    SchedulerModuleController $schedulerModule : reference to the calling object (Scheduler's BE module)
 	 *
 	 * @return    array                    Array containg all the information pertaining to the additional fields
 	 *                                    The array is multidimensional, keyed to the task class name and each field's id
@@ -52,31 +56,31 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider impl
 	 *                                        ['cshKey']        => The CSH key for the field
 	 *                                        ['cshLabel']    => The code of the CSH label
 	 */
-	public function getAdditionalFields(array &$taskInfo, $task, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
+	public function getAdditionalFields(array &$taskInfo, $task, SchedulerModuleController $schedulerModule) {
 		return array();
 	}
 
 	/**
 	 * Validates the additional fields' values
 	 *
-	 * @param                                                              array                    An array containing the data submitted by the add/edit task form
-	 * @param    \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController Reference                to the scheduler backend module
+	 * @param array                     $submittedData   An array containing the data submitted by the add/edit task form
+	 * @param SchedulerModuleController $schedulerModule to the scheduler backend module
 	 *
 	 * @return    boolean                    True if validation was ok (or selected class is not relevant), false otherwise
 	 */
-	public function validateAdditionalFields(array &$submittedData, \TYPO3\CMS\Scheduler\Controller\SchedulerModuleController $schedulerModule) {
+	public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $schedulerModule) {
 		return TRUE;
 	}
 
 	/**
 	 * Takes care of saving the additional fields' values in the task's object
 	 *
-	 * @param    array                      An array containing the data submitted by the add/edit task form
-	 * @param    tx_scheduler_Module        Reference to the scheduler backend module
+	 * @param    array        $submittedData An array containing the data submitted by the add/edit task form
+	 * @param    AbstractTask $task          Reference to the scheduler backend module
 	 *
 	 * @return    void
 	 */
-	public function saveAdditionalFields(array $submittedData, \TYPO3\CMS\Scheduler\Task\AbstractTask $task) {
+	public function saveAdditionalFields(array $submittedData, AbstractTask $task) {
 		return NULL;
 	}
 }

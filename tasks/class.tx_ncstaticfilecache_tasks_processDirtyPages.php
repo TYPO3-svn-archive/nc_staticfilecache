@@ -23,6 +23,7 @@
  ***************************************************************/
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
 /**
  * {@inheritdoc}
@@ -34,7 +35,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @subpackage tx_ncstaticfilecache
  * @access     public
  */
-class tx_ncstaticfilecache_tasks_processDirtyPages extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
+class tx_ncstaticfilecache_tasks_processDirtyPages extends AbstractTask {
 
 	/**
 	 * @var integer

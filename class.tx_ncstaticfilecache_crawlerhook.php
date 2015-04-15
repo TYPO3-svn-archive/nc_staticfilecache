@@ -23,6 +23,7 @@
 
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Static file cache extension crawlerhook
@@ -46,12 +47,12 @@ class tx_ncstaticfilecache_crawlerhook {
 	 * Invoked by crawler this method should mark the cache as dirty
 	 * (Hook-function called from TSFE, see ext_localconf.php for configuration)
 	 *
-	 * @param    array                                                       $parameters : Parameters delived by TSFE
-	 * @param    \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $pObj       : The calling parent object (TSFE)
+	 * @param    array                        $parameters : Parameters delived by TSFE
+	 * @param    TypoScriptFrontendController $pObj       : The calling parent object (TSFE)
 	 *
 	 * @return    void
 	 */
-	public function clearStaticFile(array $parameters, \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $pObj) {
+	public function clearStaticFile(array $parameters, TypoScriptFrontendController $pObj) {
 		// Look for "crawler" extension activity:
 		// Requirements are that the crawler is loaded, a crawler session is running and tx_ncstaticfilecache_markdirty requested as processing instruction:
 		if (ExtensionManagementUtility::isLoaded('crawler') && $pObj->applicationData['tx_crawler']['running'] && in_array('tx_ncstaticfilecache_clearstaticfile', $pObj->applicationData['tx_crawler']['parameters']['procInstructions'])) {
