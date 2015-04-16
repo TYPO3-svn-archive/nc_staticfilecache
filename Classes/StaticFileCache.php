@@ -46,9 +46,20 @@ class StaticFileCache {
 	protected $isClearCacheProcessingEnabled = TRUE;
 
 	/**
+	 * Cache
+	 *
+	 * @var \TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
+	 */
+	protected $cache;
+
+	/**
 	 * Constructs this object.
 	 */
 	public function __construct() {
+		/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
+		#$cacheManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager');
+		#$this->cache = $cacheManager->getCache('static_file_cache');
+
 		if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey])) {
 			$this->setConfiguration(unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]));
 		}
@@ -394,6 +405,9 @@ class StaticFileCache {
 
 			$file = preg_replace('#//#', '/', $file);
 
+			#$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
+			#$this->cache->has($cacheUri);
+
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
 			if ($pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->getSetupProperty('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
@@ -429,6 +443,12 @@ class StaticFileCache {
 
 				// write DB-record and staticCache-files, after DB-record was successful updated or created
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
+
+				// new cache
+				#$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
+				#$tags = array();
+				#$this->cache->set($cacheUri, $file, $tags, $timeOutSeconds);
+
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '');
 				if ($recordIsWritten === TRUE) {
 					/**
