@@ -17,15 +17,12 @@ $EM_CONF[$_EXTKEY] = array(
 	'version'            => '2.6.4',
 	'state'              => 'stable',
 	'modify_tables'      => 'pages',
-	'clearcacheonload'   => 0,
 	'author'             => 'Static File Cache team',
 	'author_email'       => 'extensions@netcreators.com',
 	'author_company'     => 'Netcreators',
-	'CGLcompliance'      => NULL,
-	'CGLcompliance_note' => NULL,
 	'constraints'        => array(
 		'depends' => array(
-			'typo3' => '6.2.0-6.2.99',
+			'typo3' => '6.2.0-7.1.99',
 		),
 	),
 );

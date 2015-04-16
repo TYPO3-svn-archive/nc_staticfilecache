@@ -13,6 +13,8 @@ ChangeLog
 - Move ChangeLog to new ReSt documentation
 - Move Readme to new ReSt documentation
 - Fix #58178 Handling of non-ASCII URIs
+- Fix #65700 Static File Cache module not working correctly on latest TYPO3 7.1
+- Increase compatibility to 6.2.x - 7.1.x
 
 2015-04-15  Tim Lochmüller <tim@fruit-lab.de>
 

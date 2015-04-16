@@ -67,7 +67,7 @@ class CacheModule extends AbstractFunctionModule {
 		}
 		$tree->ext_IconMode = TRUE;
 		$tree->showDefaultTitleAttribute = TRUE;
-		$tree->thisScript = 'index.php';
+		$tree->thisScript = BackendUtility::getModuleUrl(GeneralUtility::_GP('M'));
 		$tree->setTreeName('staticfilecache');
 
 		// Creating top icon; the current page
@@ -272,10 +272,9 @@ class CacheModule extends AbstractFunctionModule {
 	 * @return    string        The processed and modified content
 	 */
 	protected function processExpandCollapseLinks($content) {
-		if (strpos($content, '?PM=') !== FALSE && $this->pageId > 0) {
-			$content = preg_replace('/(href=")([^"]+\?PM=[^"#]+)(#[^"]+)?(")/', '${1}${2}&id=' . $this->pageId . '${3}${4}', $content);
+		if (strpos($content, 'PM=') !== FALSE && $this->pageId > 0) {
+			$content = preg_replace('/(href=")([^"]+PM=[^"#]+)(#[^"]+)?(")/', '${1}${2}&id=' . $this->pageId . '${3}${4}', $content);
 		}
-
 		return $content;
 	}
 }
