@@ -43,12 +43,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * TOTAL FUNCTIONS: 1
  * (This index is automatically created/updated by the extension "extdeveval")
+ *
  * @deprecated Remove in Version 3.0.0
  */
 class tx_ncstaticfilecache_cli extends CommandLineController {
 
 	/**
 	 * Setting help texts
+	 *
 	 * @deprecated Remove in Version 3.0.0
 	 */
 	public function __construct() {
@@ -77,15 +79,14 @@ class tx_ncstaticfilecache_cli extends CommandLineController {
 			exit;
 		}
 
+		/* @var $cleaner \SFC\NcStaticfilecache\StaticFileCache */
+		$cleaner = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
+
 		if ($task == 'removeExpiredPages') {
 			$this->cli_echo("Looking for expired pages.\n");
-			/* @var $cleaner tx_ncstaticfilecache */
-			$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 			$cleaner->removeExpiredPages($this);
 		} elseif ($task == 'processDirtyPages') {
 			$this->cli_echo('Looking for dirty pages.' . PHP_EOL);
-			/* @var $cleaner tx_ncstaticfilecache */
-			$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 			$cleaner->processDirtyPages($this);
 		}
 	}

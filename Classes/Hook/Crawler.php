@@ -8,6 +8,7 @@
 
 namespace SFC\NcStaticfilecache\Hook;
 
+use SFC\NcStaticfilecache\StaticFileCache;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -50,9 +51,9 @@ class Crawler {
 	/**
 	 * Get the static file cache object
 	 *
-	 * @return \tx_ncstaticfilecache
+	 * @return StaticFileCache
 	 */
 	protected function getStaticFileCache() {
-		return GeneralUtility::makeInstance('tx_ncstaticfilecache');
+		return GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
 	}
 }

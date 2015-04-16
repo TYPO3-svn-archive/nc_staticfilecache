@@ -8,6 +8,7 @@
 
 namespace SFC\NcStaticfilecache\Command;
 
+use SFC\NcStaticfilecache\StaticFileCache;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 
@@ -39,9 +40,9 @@ class CacheCommandController extends CommandController {
 	/**
 	 * Get the static file cache object
 	 *
-	 * @return \tx_ncstaticfilecache
+	 * @return StaticFileCache
 	 */
 	protected function getStaticFileCache() {
-		return GeneralUtility::makeInstance('tx_ncstaticfilecache');
+		return GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
 	}
 }

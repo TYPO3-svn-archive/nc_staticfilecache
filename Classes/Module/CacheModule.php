@@ -8,6 +8,7 @@
 
 namespace SFC\NcStaticfilecache\Module;
 
+use SFC\NcStaticfilecache\StaticFileCache;
 use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
 use TYPO3\CMS\Backend\Tree\View\BrowseTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -23,7 +24,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class CacheModule extends AbstractFunctionModule {
 
 	/**
-	 * @var    \tx_ncstaticfilecache
+	 * @var StaticFileCache
 	 */
 	protected $pubObj;
 
@@ -241,11 +242,11 @@ class CacheModule extends AbstractFunctionModule {
 	/**
 	 * Gets the instance of the static file cache object to modify the cached information.
 	 *
-	 * @return    \tx_ncstaticfilecache
+	 * @return StaticFileCache
 	 */
 	protected function getStaticFileCacheInstance() {
 		if (!isset($this->pubObj)) {
-			$this->pubObj = GeneralUtility::makeInstance('tx_ncstaticfilecache');
+			$this->pubObj = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
 		}
 		return $this->pubObj;
 	}

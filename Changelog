@@ -5,6 +5,7 @@
 	* Move the Info module to the new (namespace based) location
 	* Migrate the L10N file in the root folder to the new L10N file in Resources/Private/Language/locallang.xml
 	* Change extension icon from gif to png
+	* Move the main class to the new (namespace based) location
 
 2015-04-15  Tim Lochmüller <tim@fruit-lab.de
 

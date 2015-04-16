@@ -1,52 +1,12 @@
 <?php
-/***************************************************************
- *  Copyright notice
- *
- *  (c) 2006 Tim Lochmueller (tim@fruit-lab.de)
- *  All rights reserved
- *
- *  This script is part of the Typo3 project. The Typo3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
 /**
- * class 'tx_ncstaticfilecache' for the 'nc_staticfilecache' extension.
+ * Static File Cache
  *
+ * @package Hdnet
+ * @author  Tim Lochmüller
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   58: class tx_ncstaticfilecache
- *   71:     function clearCachePostProc (&$params, &$pObj)
- *  165:     function clearStaticFile (&$_params)
- *  216:     function getRecordForPageID($pid)
- *  234:     function headerNoCache (&$params, TypoScriptFrontendController)
- *  250:     function insertPageIncache (&$pObj, &$timeOutTime)
- *  385:     function logNoCache (&$params)
- *  405:     function mkdir_deep($destination,$deepDir)
- *  425:     function removeExpiredPages (&$pObj)
- *  459:     function setFeUserCookie (&$params, &$pObj)
- *  507:     function rm ($dir)
- *
- * TOTAL FUNCTIONS: 10
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
+namespace SFC\NcStaticfilecache;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Controller\CommandLineController;
@@ -59,13 +19,12 @@ use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
- * Static file cache extension
+ * Static File Cache
  *
- * @author     Michiel Roos <extensions@netcreators.com>
- * @package    TYPO3
- * @subpackage tx_ncstaticfilecache
+ * @author Michiel Roos
+ * @author Tim Lochmüller
  */
-class tx_ncstaticfilecache {
+class StaticFileCache {
 
 	protected $extKey = 'nc_staticfilecache';
 
@@ -421,7 +380,6 @@ class tx_ncstaticfilecache {
 			$version = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
 			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
 
-
 			// check the allowed file types
 			$basename = basename($uri);
 			$fileExtension = pathinfo($basename, PATHINFO_EXTENSION);
@@ -522,7 +480,6 @@ class tx_ncstaticfilecache {
 					}
 					$explanation = 'page has INTincScript: <ul><li>' . implode('</li><li>', $INTincScripts) . '</li></ul>';
 					unset($INTincScripts);
-
 				}
 				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
 					$this->debug('insertPageIncache: page has user or group set', LOG_INFO);
@@ -537,7 +494,6 @@ class tx_ncstaticfilecache {
 					$this->debug('insertPageIncache: loginsDeniedCfg is true', LOG_INFO);
 					$explanation = 'loginsDeniedCfg is true';
 				}
-
 
 				$this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, 0, $explanation);
 				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
@@ -579,7 +535,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Remove expired pages. Call from cli script.
 	 *
-	 * @param    TYPO3\CMS\Core\Controller\CommandLineController $parent : The calling parent object
+	 * @param CommandLineController $parent : The calling parent object
 	 *
 	 * @return    void
 	 */
@@ -590,7 +546,7 @@ class tx_ncstaticfilecache {
 			->exec_SELECTgetRows('file, host, pid, (' . $GLOBALS['EXEC_TIME'] . ' - crdate - cache_timeout) as seconds', $this->fileTable, '(cache_timeout + crdate) <= ' . $GLOBALS['EXEC_TIME'] . ' AND crdate > 0');
 
 		if ($rows) {
-			/* @var $tce TYPO3\CMS\Core\DataHandling\DataHandler */
+			/* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
 			$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
 			$tce->start(array(), array());
 
@@ -605,7 +561,6 @@ class tx_ncstaticfilecache {
 
 					$this->getDatabaseConnection()
 						->exec_UPDATEquery($this->fileTable, 'pid=' . $pageId, array('isdirty' => 1));
-
 					// Really removes an expired page:
 				} else {
 					if (isset($parent)) {
@@ -788,7 +743,7 @@ class tx_ncstaticfilecache {
 	/**
 	 * Gets the content object (cObj) of TSFE.
 	 *
-	 * @return    tslib_cObj        The content object (cObj) of TSFE
+	 * @return    \tslib_cObj        The content object (cObj) of TSFE
 	 */
 	protected function getContentObject() {
 		if (!isset($GLOBALS['TSFE']->cObj)) {
@@ -811,14 +766,12 @@ class tx_ncstaticfilecache {
 	protected function deleteStaticCache($pid = 0, $directory = '') {
 		$pid = intval($pid);
 
-
 		if ($pid > 0 && $this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
 			// Mark specific page as dirty
 			$this->getDatabaseConnection()
 				->exec_UPDATEquery($this->fileTable, 'pid=' . $pid, array('isdirty' => 1));
 			return;
 		}
-
 
 		if ($pid > 0) {
 			// Cache of a single page shall be removed
@@ -836,7 +789,6 @@ class tx_ncstaticfilecache {
 			return;
 		}
 
-
 		// Cache of all pages shall be removed (clearCacheCmd "all" or "pages")
 		try {
 			// 1. marked DB-records which should be deleted
@@ -846,7 +798,7 @@ class tx_ncstaticfilecache {
 			// 3. delete marked DB-records
 			$this->getDatabaseConnection()
 				->exec_DELETEquery($this->fileTable, 'ismarkedtodelete=1');
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
 	}
@@ -868,13 +820,11 @@ class tx_ncstaticfilecache {
 			return TRUE;
 		}
 
-
 		$directoryHandle = @opendir($cacheDirectory);
 		if ($directoryHandle === FALSE) {
 			// we have no handle to delete the directory
 			return FALSE;
 		}
-
 
 		$result = TRUE;
 		while (($element = readdir($directoryHandle))) {
@@ -1063,7 +1013,7 @@ RewriteRule ^.*$ /index.php
 	 *
 	 * @param string $directory
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	private function removeCacheDirectory($directory) {
 		try {
@@ -1077,22 +1027,21 @@ RewriteRule ^.*$ /index.php
 				if (is_dir($tmpDir)) {
 					$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
 					if (FALSE === GeneralUtility::rmdir($tmpDir, TRUE)) {
-						throw new Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
+						throw new \Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
 					}
 				}
 
 				if (FALSE === rename($srcDir, $tmpDir)) {
-					throw new Exception('Could not rename static cache directory "' . $srcDir . '"');
+					throw new \Exception('Could not rename static cache directory "' . $srcDir . '"');
 				}
 				// delete moved directory
 				if (FALSE === GeneralUtility::rmdir($tmpDir, TRUE)) {
-					throw new RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
+					throw new \RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
 				}
 			}
-		} catch (RuntimeException $e) {
+		} catch (\RuntimeException $e) {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
-
 	}
 
 	/**

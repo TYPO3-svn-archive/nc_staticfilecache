@@ -50,16 +50,16 @@ class tx_ncstaticfilecache_tasks_processDirtyPages extends AbstractTask {
 	 * to be handled and logged by the client implementations.
 	 * Should return true on successful execution, false on error.
 	 *
-	 * @access public
+	 * @access     public
 	 * @return boolean    Returns true on successful execution, false on error
 	 *
-	 * @author Michael Klapper <michael.klapper@aoemedia.de>
+	 * @author     Michael Klapper <michael.klapper@aoemedia.de>
 	 * @deprecated Remove in Version 3.0.0
 	 */
 	public function execute() {
 		GeneralUtility::logDeprecatedFunction();
-		/* @var $cleaner tx_ncstaticfilecache */
-		$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
+		/* @var $cleaner \SFC\NcStaticfilecache\StaticFileCache */
+		$cleaner = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
 		$cleaner->processDirtyPages(NULL, $this->itemLimit);
 
 		return TRUE;

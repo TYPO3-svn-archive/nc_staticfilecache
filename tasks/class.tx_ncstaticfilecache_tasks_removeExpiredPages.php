@@ -52,8 +52,8 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages extends AbstractTask {
 	 */
 	public function execute() {
 		GeneralUtility::logDeprecatedFunction();
-		/* @var $cleaner tx_ncstaticfilecache */
-		$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
+		/* @var $cleaner \SFC\NcStaticfilecache\StaticFileCache */
+		$cleaner = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
 		$cleaner->removeExpiredPages();
 
 		return TRUE;
