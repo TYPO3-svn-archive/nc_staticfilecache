@@ -7,6 +7,7 @@ ChangeLog
 - Fix #42734 recreateURI() should keep realurl encoded parameter
 - Migration first documentation blocks
 - Use the caching framework for creating the cache files
+- Fix the backend module for the new Configuration class
 
 2015-04-16 Klaus Bitto <klaus@netcreators.nl>
 

@@ -8,6 +8,7 @@
 
 namespace SFC\NcStaticfilecache\Module;
 
+use SFC\NcStaticfilecache\Configuration;
 use SFC\NcStaticfilecache\StaticFileCache;
 use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
 use TYPO3\CMS\Backend\Tree\View\BrowseTreeView;
@@ -257,8 +258,9 @@ class CacheModule extends AbstractFunctionModule {
 	 * @return    boolean        Whether the extension configuration property 'markDirtyInsteadOfDeletion' is enabled
 	 */
 	protected function isMarkDirtyInsteadOfDeletionDefined() {
-		return (bool)$this->getStaticFileCacheInstance()
-			->getConfigurationProperty('markDirtyInsteadOfDeletion');
+		/** @var Configuration $configuration */
+		$configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
+		return (bool)$configuration->get('markDirtyInsteadOfDeletion');
 	}
 
 	/**
