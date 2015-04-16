@@ -393,13 +393,15 @@ class StaticFileCache {
 					 * config.tx_staticfilecache.htaccessTimeout = 900
 					 */
 
-					// new cache
-					#$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
-					#$tags = array();
-					#$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
 
 					$this->timeOutAccess = intval($pObj->config['config']['tx_staticfilecache.']['htaccessTimeout']);
-					$isStaticCached = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
+
+					// new cache
+					$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
+					$tags = array();
+					$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
+
+					$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
 				}
 			} else {
 				$explanation = '';
@@ -822,47 +824,12 @@ class StaticFileCache {
 	}
 
 	/**
-	 * Writes compressed content to the file system.
-	 *
-	 * @param string $filePath Name and path to the file containing the original content
-	 * @param string $content  Content data to be compressed
-	 *
-	 * @return void
-	 */
-	protected function writeCompressedContent($filePath, $content) {
-		if ($this->configuration->get('enableStaticFileCompression')) {
-			$level = is_int($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
-			$contentGzip = gzencode($content, $level);
-			if ($contentGzip) {
-				GeneralUtility::writeFile($filePath . '.gz', $contentGzip);
-			}
-		}
-	}
-
-	/**
 	 * Gets the name of the database table holding all cached files.
 	 *
 	 * @return    string        Name of the database holding all cached files
 	 */
 	public function getFileTable() {
 		return $this->fileTable;
-	}
-
-	/**
-	 * create directory and return boolean, if directory could be created
-	 *
-	 * @param string $destination
-	 * @param string $deepDir
-	 *
-	 * @return boolean
-	 */
-	protected function mkdirDeep($destination, $deepDir) {
-		try {
-			GeneralUtility::mkdir_deep($destination, $deepDir);
-			return TRUE;
-		} catch (\Exception $ex) {
-			return FALSE;
-		}
 	}
 
 	/**
@@ -945,28 +912,6 @@ RewriteRule ^.*$ /index.php
 			'additionalhash' => $additionalHash,
 		));
 		return $databaseConnection->exec_INSERTquery($this->fileTable, $fieldValues);
-	}
-
-	/**
-	 * write static-cache-file
-	 *
-	 * @param string $cacheDir
-	 * @param string $uri
-	 * @param string $file
-	 * @param string $timeOutSeconds
-	 * @param string $content
-	 *
-	 * @return boolean
-	 */
-	private function writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content) {
-		if ($this->mkdirDeep(PATH_site, $cacheDir . $uri) === FALSE) {
-			return FALSE;
-		}
-
-		$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
-		GeneralUtility::writeFile(PATH_site . $cacheDir . $file, $content);
-		$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
-		return TRUE;
 	}
 
 	/**

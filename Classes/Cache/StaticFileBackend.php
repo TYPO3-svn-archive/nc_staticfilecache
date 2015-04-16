@@ -10,12 +10,16 @@ namespace SFC\NcStaticfilecache\Cache;
 
 use TYPO3\CMS\Core\Cache\Backend\AbstractBackend;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Cache backend for static file cache
  *
+ * At the moment the backend write files only
+ * - CacheFileName
+ * - CacheFileName.gz
+ *
  * @author Tim Lochmüller
- * @todo   finish implementation
  */
 class StaticFileBackend extends AbstractBackend {
 
@@ -34,6 +38,13 @@ class StaticFileBackend extends AbstractBackend {
 	protected $configuration;
 
 	/**
+	 * Build up the object
+	 */
+	public function __construct() {
+		$this->configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
+	}
+
+	/**
 	 * Saves data in the cache.
 	 *
 	 * @param string  $entryIdentifier An identifier for this specific cache entry
@@ -44,25 +55,25 @@ class StaticFileBackend extends AbstractBackend {
 	 * @return void
 	 * @throws \TYPO3\CMS\Core\Cache\Exception if no cache frontend has been set.
 	 * @throws \TYPO3\CMS\Core\Cache\Exception\InvalidDataException if the data is not a string
-	 * @api
 	 */
 	public function set($entryIdentifier, $data, array $tags = array(), $lifetime = NULL) {
-		$cacheFolder = $this->getCacheFolder($entryIdentifier);
-		if (!is_dir($cacheFolder)) {
-			GeneralUtility::mkdir_deep($cacheFolder);
+		$fileName = $this->getCacheFilename($entryIdentifier);
+		$cacheDir = pathinfo($fileName, PATHINFO_DIRNAME);
+		if (!is_dir($cacheDir)) {
+			GeneralUtility::mkdir_deep($cacheDir);
 		}
-		#DebuggerUtility::var_dump($cacheFolder);
-		#die();
 
-		#
-		#		$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
-		#		GeneralUtility::writeFile(PATH_site . $cacheDir . $file, $content);
-		#		$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
-		#		return TRUE;
-		#
-		#		DebuggerUtility::var_dump($entryIdentifier);
-		#		DebuggerUtility::var_dump($data);
-		#		die();
+		// normal
+		GeneralUtility::writeFile($fileName, $data);
+
+		// gz
+		if ($this->configuration->get('enableStaticFileCompression')) {
+			$level = MathUtility::canBeInterpretedAsInteger($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? (int)$GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
+			$contentGzip = gzencode($data, $level);
+			if ($contentGzip) {
+				GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
+			}
+		}
 	}
 
 	/**
@@ -72,9 +83,14 @@ class StaticFileBackend extends AbstractBackend {
 	 *
 	 * @return string
 	 */
-	protected function getCacheFolder($entryIdentifier) {
+	protected function getCacheFilename($entryIdentifier) {
 		$urlParts = parse_url($entryIdentifier);
-		return GeneralUtility::getFileAbsFileName($this->cacheDirectory . $urlParts['host'] . '/' . trim($urlParts['path'], '/') . '/');
+		$cacheFilename = GeneralUtility::getFileAbsFileName($this->cacheDirectory . $urlParts['host'] . '/' . trim($urlParts['path'], '/'));
+		$fileExtension = pathinfo(basename($cacheFilename), PATHINFO_EXTENSION);
+		if (empty($fileExtension) || !GeneralUtility::inList($this->configuration->get('fileTypes'), $fileExtension)) {
+			$cacheFilename .= '/index.html';
+		}
+		return $cacheFilename;
 	}
 
 	/**
@@ -83,10 +99,12 @@ class StaticFileBackend extends AbstractBackend {
 	 * @param string $entryIdentifier An identifier which describes the cache entry to load
 	 *
 	 * @return mixed The cache entry's content as a string or FALSE if the cache entry could not be loaded
-	 * @api
 	 */
 	public function get($entryIdentifier) {
-		// TODO: Implement get() method.
+		if (!$this->has($entryIdentifier)) {
+			return NULL;
+		}
+		return GeneralUtility::getUrl($this->getCacheFilename($entryIdentifier));
 	}
 
 	/**
@@ -95,11 +113,9 @@ class StaticFileBackend extends AbstractBackend {
 	 * @param string $entryIdentifier An identifier specifying the cache entry
 	 *
 	 * @return boolean TRUE if such an entry exists, FALSE if not
-	 * @api
 	 */
 	public function has($entryIdentifier) {
-		$cacheFolder = $this->getCacheFolder($entryIdentifier);
-		// TODO: Implement has() method.
+		return is_file($this->getCacheFilename($entryIdentifier));
 	}
 
 	/**
@@ -110,29 +126,34 @@ class StaticFileBackend extends AbstractBackend {
 	 * @param string $entryIdentifier Specifies the cache entry to remove
 	 *
 	 * @return boolean TRUE if (at least) an entry could be removed or FALSE if no entry was found
-	 * @api
 	 */
 	public function remove($entryIdentifier) {
-		// TODO: Implement remove() method.
+		if (!$this->has($entryIdentifier)) {
+			return FALSE;
+		}
+		$fileName = $this->getCacheFilename($entryIdentifier);
+		unlink($fileName);
+		if (is_file($fileName . '.gz')) {
+			unlink($fileName . '.gz');
+		}
+		return TRUE;
 	}
 
 	/**
 	 * Removes all cache entries of this cache.
 	 *
 	 * @return void
-	 * @api
 	 */
 	public function flush() {
-		// TODO: Implement flush() method.
+		GeneralUtility::rmdir(GeneralUtility::getFileAbsFileName($this->cacheDirectory), TRUE);
 	}
 
 	/**
 	 * Does garbage collection
 	 *
 	 * @return void
-	 * @api
 	 */
 	public function collectGarbage() {
-		// TODO: Implement collectGarbage() method.
+
 	}
 }
