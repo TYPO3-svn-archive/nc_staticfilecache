@@ -1,5 +1,7 @@
-Undocumented configuration
+Configuration
+^^^^^^^^^^^^
 
+Undocumented configuration
 
 1) Frontend TypoScript
 
