@@ -1,43 +1,12 @@
 <?php
-/***************************************************************
- *  Copyright notice
- *
- *  (c) 2007 Michiel Roos <extensions@netcreators.com>
- *  All rights reserved
- *
- *  This script is part of the Typo3 project. The Typo3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
 /**
- * class 'tx_ncstaticfilecache_infomodule' for the 'nc_staticfilecache' extension.
+ * Static file cache info module
  *
+ * @package Hdnet
+ * @author  Tim Lochmüller
  */
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   53: class tx_ncstaticfilecache_infomodule extends AbstractFunctionModule
- *   60:     function main()
- *  101:     function renderModule(BrowseTreeView $tree)
- *
- * TOTAL FUNCTIONS: 2
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
+
+namespace SFC\NcStaticfilecache\Module;
 
 use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
 use TYPO3\CMS\Backend\Tree\View\BrowseTreeView;
@@ -46,16 +15,15 @@ use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Static file cache extension
+ * Static file cache info module
  *
- * @author     Michiel Roos <extensions@netcreators.com>
- * @package    TYPO3
- * @subpackage tx_ncstaticfilecache
+ * @author Tim Lochmüller
+ * @author Michiel Roos
  */
-class tx_ncstaticfilecache_infomodule extends AbstractFunctionModule {
+class CacheModule extends AbstractFunctionModule {
 
 	/**
-	 * @var    tx_ncstaticfilecache
+	 * @var    \tx_ncstaticfilecache
 	 */
 	protected $pubObj;
 
@@ -273,7 +241,7 @@ class tx_ncstaticfilecache_infomodule extends AbstractFunctionModule {
 	/**
 	 * Gets the instance of the static file cache object to modify the cached information.
 	 *
-	 * @return    tx_ncstaticfilecache
+	 * @return    \tx_ncstaticfilecache
 	 */
 	protected function getStaticFileCacheInstance() {
 		if (!isset($this->pubObj)) {

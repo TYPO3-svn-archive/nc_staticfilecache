@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<description>mod labels</description>
+		<type>module</type>
+		<csh_table></csh_table>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="module.title">Static File Cache</label>
+		</languageKey>
+	</data>
+</T3locallang>

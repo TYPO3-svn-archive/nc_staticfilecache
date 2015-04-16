@@ -26,5 +26,5 @@ $tmp = Array(
 
 if (TYPO3_MODE == 'BE') {
 	// Add Web>Info module:
-	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::insertModuleFunction('web_info', 'tx_ncstaticfilecache_infomodule', NULL, 'LLL:EXT:nc_staticfilecache/locallang_db.php:moduleFunction.tx_ncstaticfilecache_infomodule');
+	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::insertModuleFunction('web_info', 'SFC\\NcStaticfilecache\\Module\\CacheModule', NULL, 'LLL:EXT:nc_staticfilecache/Resources/Private/Language/locallang.xml:module.title');
 }

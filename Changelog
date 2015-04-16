@@ -2,6 +2,7 @@
 
 	* [!!!] Create a command controller and mark the CLI and Tasks class as deprecated. The classes are removed in a few versions
 	* Move the crawler hook to the new (namespace based) location
+	* Move the Info module to the new (namespace based) location
 
 2015-04-15  Tim Lochmüller <tim@fruit-lab.de
 
