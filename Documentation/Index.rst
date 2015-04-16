@@ -12,7 +12,7 @@ Static File Cache: Speed up TYPO3 CMS FE
       forEditors, forAdmins, forBeginners, forIntermediates
 
 :Author:
-      Static File Cache Team
+      Static File Cache Team - Michiel Roos, Oliver Hader, Daniel Poetzinger, Sonja Scholz, Tim Lochmüller
 
 :Email:
       none@nonenonenone.de
@@ -22,4 +22,6 @@ Static File Cache: Speed up TYPO3 CMS FE
 
 .. toctree::
 
+   KnownProblems/Index
+   ToDo/Index
    ChangeLog/Index
