@@ -34,14 +34,11 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['initFEuse
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = 'SFC\\NcStaticfilecache\\Command\\CacheCommandController';
 
 // new Cache for Static file caches
-#$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['static_file_cache'] = array(
-#	'frontend' => 'SFC\\NcStaticfilecache\\Cache\\UriFrontend',
-#	'backend'  => 'SFC\\NcStaticfilecache\\Cache\\StaticFileBackend',
-#	'groups'   => array(
-#		'pages',
-#		'all'
-#	),
-#	'options'  => array(
-#		'defaultLifetime' => 60 * 60 * 4,
-#	),
-#);
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['static_file_cache'] = array(
+	'frontend' => 'SFC\\NcStaticfilecache\\Cache\\UriFrontend',
+	'backend'  => 'SFC\\NcStaticfilecache\\Cache\\StaticFileBackend',
+	'groups'   => array(
+		'pages',
+		'all'
+	),
+);

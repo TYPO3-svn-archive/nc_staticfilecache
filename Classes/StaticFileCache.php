@@ -26,6 +26,13 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 class StaticFileCache {
 
+	/**
+	 * Configuration of the extension
+	 *
+	 * @var Configuration
+	 */
+	protected $configuration;
+
 	protected $extKey = 'nc_staticfilecache';
 
 	protected $fileTable = 'tx_ncstaticfilecache_file';
@@ -33,10 +40,6 @@ class StaticFileCache {
 	protected $cacheDir = 'typo3temp/tx_ncstaticfilecache/';
 
 	protected $isDebugEnabled = FALSE;
-
-	protected $configuration = array();
-
-	protected $setup = array();
 
 	protected $timeOutAccess = 0;
 
@@ -57,71 +60,10 @@ class StaticFileCache {
 	 */
 	public function __construct() {
 		/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
-		#$cacheManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager');
-		#$this->cache = $cacheManager->getCache('static_file_cache');
+		$cacheManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager');
+		$this->cache = $cacheManager->getCache('static_file_cache');
 
-		if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey])) {
-			$this->setConfiguration(unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]));
-		}
-		if (isset($GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.'])) {
-			$this->setSetup($GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.']);
-		}
-	}
-
-	/**
-	 * Sets the extension configuration (can be modified by admins in extension manager).
-	 *
-	 * @param    array $configuration : The extension configuration
-	 *
-	 * @return    void
-	 */
-	public function setConfiguration(array $configuration) {
-		$this->configuration = $configuration;
-	}
-
-	/**
-	 * Sets the TypoScript setup.
-	 *
-	 * @param    array $setup : The TypoScript setup
-	 *
-	 * @return    void
-	 */
-	public function setSetup(array $setup) {
-		$this->setup = $setup;
-	}
-
-	/**
-	 * Gets a specific property of the extension configuration.
-	 *
-	 * @param    string $property : Property to get configuration from
-	 *
-	 * @return    mixed        The configuration of a property
-	 */
-	public function getConfigurationProperty($property) {
-		$result = NULL;
-
-		if (isset($this->configuration[$property])) {
-			$result = $this->configuration[$property];
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Gets a specific property of the setup.
-	 *
-	 * @param    string $property : Property to get setup from
-	 *
-	 * @return    mixed        The setup of a property
-	 */
-	public function getSetupProperty($property) {
-		$result = NULL;
-
-		if (isset($this->setup[$property])) {
-			$result = $this->setup[$property];
-		}
-
-		return $result;
+		$this->configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
 	}
 
 	/**
@@ -276,7 +218,7 @@ class StaticFileCache {
 				case 'all':
 				case 'pages':
 					$directory = '';
-					if ((boolean)$this->getConfigurationProperty('clearCacheForAllDomains') === FALSE) {
+					if ((boolean)$this->configuration->get('clearCacheForAllDomains') === FALSE) {
 						if (isset($_params['host']) && $_params['host']) {
 							$directory = $_params['host'];
 						} else {
@@ -382,8 +324,8 @@ class StaticFileCache {
 		}
 
 		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
-		if (strpos($uri, '?') === FALSE && $pObj->page['doktype'] != 3 && ($isHttp || $this->getConfigurationProperty('enableHttpsCaching'))) {
-			if ($this->getConfigurationProperty('recreateURI')) {
+		if (strpos($uri, '?') === FALSE && $pObj->page['doktype'] != 3 && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
+			if ($this->configuration->get('recreateURI')) {
 				$uri = $this->recreateURI();
 			}
 
@@ -394,7 +336,7 @@ class StaticFileCache {
 			// check the allowed file types
 			$basename = basename($uri);
 			$fileExtension = pathinfo($basename, PATHINFO_EXTENSION);
-			$fileTypes = explode(',', $this->configuration['fileTypes']);
+			$fileTypes = explode(',', $this->configuration->get('fileTypes'));
 
 			$file = $uri;
 			if (empty($fileExtension) || !in_array($fileExtension, $fileTypes)) {
@@ -405,16 +347,13 @@ class StaticFileCache {
 
 			$file = preg_replace('#//#', '/', $file);
 
-			#$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
-			#$this->cache->has($cacheUri);
-
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
-			if ($pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->getSetupProperty('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
+			if ($pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
 
 				$content = $pObj->content;
-				if ($this->getConfigurationProperty('showGenerationSignature')) {
-					$content .= "\n<!-- " . strftime($this->configuration['strftime'], $GLOBALS['EXEC_TIME']) . ' -->';
+				if ($this->configuration->get('showGenerationSignature')) {
+					$content .= "\n<!-- " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME']) . ' -->';
 				}
 
 				$this->debug('writing cache for pid: ' . $pObj->id);
@@ -444,11 +383,6 @@ class StaticFileCache {
 				// write DB-record and staticCache-files, after DB-record was successful updated or created
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 
-				// new cache
-				#$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
-				#$tags = array();
-				#$this->cache->set($cacheUri, $file, $tags, $timeOutSeconds);
-
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '');
 				if ($recordIsWritten === TRUE) {
 					/**
@@ -456,6 +390,12 @@ class StaticFileCache {
 					 * Use to enable:
 					 * config.tx_staticfilecache.htaccessTimeout = 900
 					 */
+
+					// new cache
+					#$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
+					#$tags = array();
+					#$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
+
 					$this->timeOutAccess = intval($pObj->config['config']['tx_staticfilecache.']['htaccessTimeout']);
 					$isStaticCached = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
 				}
@@ -466,7 +406,7 @@ class StaticFileCache {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
 					$explanation = 'static cache disabled on page';
 				}
-				if ((boolean)$this->getSetupProperty('disableCache') === TRUE) {
+				if ((boolean)$this->configuration->get('disableCache') === TRUE) {
 					$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"', LOG_INFO);
 					$explanation = 'static cache disabled by TypoScript';
 				}
@@ -574,7 +514,7 @@ class StaticFileCache {
 				$pageId = $row['pid'];
 
 				// Marks an expired page as dirty without removing it:
-				if ($this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
+				if ($this->configuration->get('markDirtyInsteadOfDeletion')) {
 					if (isset($parent)) {
 						$parent->cli_echo("Marked pid as dirty: " . $pageId . "\t" . $row['host'] . $row['file'] . ", expired by " . $row['seconds'] . " seconds.\n");
 					}
@@ -722,7 +662,7 @@ class StaticFileCache {
 	 * @return    void
 	 */
 	protected function debug($message, $severity = LOG_NOTICE, $additionalData = FALSE) {
-		if ($this->getConfigurationProperty('debug') || $severity <= LOG_CRIT) {
+		if ($this->configuration->get('debug') || $severity <= LOG_CRIT) {
 
 			// map PHP or nc_staticfilecache error levels to
 			// GeneralUtility::devLog() severity level
@@ -786,7 +726,7 @@ class StaticFileCache {
 	protected function deleteStaticCache($pid = 0, $directory = '') {
 		$pid = intval($pid);
 
-		if ($pid > 0 && $this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
+		if ($pid > 0 && $this->configuration->get('markDirtyInsteadOfDeletion')) {
 			// Mark specific page as dirty
 			$this->getDatabaseConnection()
 				->exec_UPDATEquery($this->fileTable, 'pid=' . $pid, array('isdirty' => 1));
@@ -889,7 +829,7 @@ class StaticFileCache {
 	 * @return void
 	 */
 	protected function writeCompressedContent($filePath, $content) {
-		if ($this->getConfigurationProperty('enableStaticFileCompression')) {
+		if ($this->configuration->get('enableStaticFileCompression')) {
 			$level = is_int($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? $GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
 			$contentGzip = gzencode($content, $level);
 			if ($contentGzip) {
@@ -930,7 +870,7 @@ class StaticFileCache {
 	 * @param string $timeOutSeconds
 	 */
 	protected function writeHtAccessFile($cacheDir, $uri, $timeOutSeconds) {
-		if ($this->getConfigurationProperty('sendCacheControlHeader')) {
+		if ($this->configuration->get('sendCacheControlHeader')) {
 			$timeOutMode = 'M';
 			if ($this->timeOutAccess) {
 				$timeOutSeconds = $this->timeOutAccess;
@@ -945,7 +885,7 @@ class StaticFileCache {
 	ExpiresByType text/html ' . $timeOutMode . $timeOutSeconds . '
 </IfModule>
 ';
-			if ($this->getConfigurationProperty('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
+			if ($this->configuration->get('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
 				$invalidTime = date("YmdHis", time() + (int)$timeOutSeconds);
 				$htaccessContent .= '
 				<IfModule mod_rewrite.c>

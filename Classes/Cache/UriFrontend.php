@@ -8,6 +8,7 @@
 
 namespace SFC\NcStaticfilecache\Cache;
 
+use TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\AbstractFrontend;
 
 /**
@@ -65,6 +66,9 @@ class UriFrontend extends AbstractFrontend {
 	 * @return array An array with the content of all matching entries. An empty array if no entries matched
 	 */
 	public function getByTag($tag) {
+		if (!($this->backend instanceof TaggableBackendInterface)) {
+			return array();
+		}
 		$identifiers = $this->backend->findIdentifiersByTag($tag);
 		$return = array();
 		foreach ($identifiers as $identifier) {

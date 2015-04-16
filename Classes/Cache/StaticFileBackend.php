@@ -9,7 +9,7 @@
 namespace SFC\NcStaticfilecache\Cache;
 
 use TYPO3\CMS\Core\Cache\Backend\AbstractBackend;
-use TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Cache backend for static file cache
@@ -17,7 +17,21 @@ use TYPO3\CMS\Core\Cache\Backend\TaggableBackendInterface;
  * @author Tim Lochmüller
  * @todo   finish implementation
  */
-class StaticFileBackend extends AbstractBackend implements TaggableBackendInterface {
+class StaticFileBackend extends AbstractBackend {
+
+	/**
+	 * Cache directory
+	 *
+	 * @var string
+	 */
+	protected $cacheDirectory = 'typo3temp/tx_ncstaticfilecache/';
+
+	/**
+	 * Configuration
+	 *
+	 * @var \SFC\NcStaticfilecache\Configuration
+	 */
+	protected $configuration;
 
 	/**
 	 * Saves data in the cache.
@@ -33,7 +47,34 @@ class StaticFileBackend extends AbstractBackend implements TaggableBackendInterf
 	 * @api
 	 */
 	public function set($entryIdentifier, $data, array $tags = array(), $lifetime = NULL) {
-		// TODO: Implement set() method.
+		$cacheFolder = $this->getCacheFolder($entryIdentifier);
+		if (!is_dir($cacheFolder)) {
+			GeneralUtility::mkdir_deep($cacheFolder);
+		}
+		#DebuggerUtility::var_dump($cacheFolder);
+		#die();
+
+		#
+		#		$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
+		#		GeneralUtility::writeFile(PATH_site . $cacheDir . $file, $content);
+		#		$this->writeCompressedContent(PATH_site . $cacheDir . $file, $content);
+		#		return TRUE;
+		#
+		#		DebuggerUtility::var_dump($entryIdentifier);
+		#		DebuggerUtility::var_dump($data);
+		#		die();
+	}
+
+	/**
+	 * Get the cache folder for the given entry
+	 *
+	 * @param $entryIdentifier
+	 *
+	 * @return string
+	 */
+	protected function getCacheFolder($entryIdentifier) {
+		$urlParts = parse_url($entryIdentifier);
+		return GeneralUtility::getFileAbsFileName($this->cacheDirectory . $urlParts['host'] . '/' . trim($urlParts['path'], '/') . '/');
 	}
 
 	/**
@@ -92,30 +133,5 @@ class StaticFileBackend extends AbstractBackend implements TaggableBackendInterf
 	 */
 	public function collectGarbage() {
 		// TODO: Implement collectGarbage() method.
-	}
-
-	/**
-	 * Removes all cache entries of this cache which are tagged by the specified tag.
-	 *
-	 * @param string $tag The tag the entries must have
-	 *
-	 * @return void
-	 * @api
-	 */
-	public function flushByTag($tag) {
-		// TODO: Implement flushByTag() method.
-	}
-
-	/**
-	 * Finds and returns all cache entry identifiers which are tagged by the
-	 * specified tag
-	 *
-	 * @param string $tag The tag to search for
-	 *
-	 * @return array An array with identifiers of all matching entries. An empty array if no entries matched
-	 * @api
-	 */
-	public function findIdentifiersByTag($tag) {
-		// TODO: Implement findIdentifiersByTag() method.
 	}
 }
