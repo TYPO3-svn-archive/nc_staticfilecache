@@ -5,6 +5,7 @@ ChangeLog
 
 - Fix #6648 The explanation database table field should be emptied while an update
 - Fix #42734 recreateURI() should keep realurl encoded parameter
+- Migration first documentation blocks
 
 2015-04-16 Klaus Bitto <klaus@netcreators.nl>
 
