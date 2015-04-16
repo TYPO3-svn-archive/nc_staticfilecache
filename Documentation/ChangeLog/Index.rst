@@ -9,6 +9,7 @@ ChangeLog
 - Use the caching framework for creating the cache files
 - Fix the backend module for the new Configuration class
 - Feature #9510 Add the expiration date to the html footer comment (configuration strftime should just the date format. "strftime" is used for both dates now)
+- Fix ##56519 Gzipped output broken when compressionLevel is set to 0
 
 2015-04-16 Klaus Bitto <klaus@netcreators.nl>
 

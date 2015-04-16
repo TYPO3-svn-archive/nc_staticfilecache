@@ -24,6 +24,11 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 class StaticFileBackend extends AbstractBackend {
 
 	/**
+	 * The default compression level
+	 */
+	const DEFAULT_COMPRESSION_LEVEL = 3;
+
+	/**
 	 * Cache directory
 	 *
 	 * @var string
@@ -68,7 +73,10 @@ class StaticFileBackend extends AbstractBackend {
 
 		// gz
 		if ($this->configuration->get('enableStaticFileCompression')) {
-			$level = MathUtility::canBeInterpretedAsInteger($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? (int)$GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : 3;
+			$level = isset($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? (int)$GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : self::DEFAULT_COMPRESSION_LEVEL;
+			if (!MathUtility::isIntegerInRange($level, 1, 9)) {
+				$level = self::DEFAULT_COMPRESSION_LEVEL;
+			}
 			$contentGzip = gzencode($data, $level);
 			if ($contentGzip) {
 				GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
