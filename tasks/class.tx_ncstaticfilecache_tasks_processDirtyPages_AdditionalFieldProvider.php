@@ -37,6 +37,7 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * @package    TYPO3
  * @subpackage tx_ncstaticfilecache
  * @access     public
+ * @deprecated Remove in Version 3.0.0
  */
 class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider implements AdditionalFieldProviderInterface {
 

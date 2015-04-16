@@ -34,6 +34,7 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * @package    TYPO3
  * @subpackage tx_ncstaticfilecache
  * @access     public
+ * @deprecated Remove in Version 3.0.0
  */
 class tx_ncstaticfilecache_tasks_processDirtyPages extends AbstractTask {
 
@@ -53,8 +54,10 @@ class tx_ncstaticfilecache_tasks_processDirtyPages extends AbstractTask {
 	 * @return boolean    Returns true on successful execution, false on error
 	 *
 	 * @author Michael Klapper <michael.klapper@aoemedia.de>
+	 * @deprecated Remove in Version 3.0.0
 	 */
 	public function execute() {
+		GeneralUtility::logDeprecatedFunction();
 		/* @var $cleaner tx_ncstaticfilecache */
 		$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 		$cleaner->processDirtyPages(NULL, $this->itemLimit);

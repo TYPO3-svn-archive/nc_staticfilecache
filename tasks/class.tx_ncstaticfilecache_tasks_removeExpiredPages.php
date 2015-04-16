@@ -34,6 +34,7 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  * @package    TYPO3
  * @subpackage tx_ncstaticfilecache
  * @access     public
+ * @deprecated Remove in Version 3.0.0
  */
 class tx_ncstaticfilecache_tasks_removeExpiredPages extends AbstractTask {
 
@@ -50,6 +51,7 @@ class tx_ncstaticfilecache_tasks_removeExpiredPages extends AbstractTask {
 	 * @author Michael Klapper <michael.klapper@aoemedia.de>
 	 */
 	public function execute() {
+		GeneralUtility::logDeprecatedFunction();
 		/* @var $cleaner tx_ncstaticfilecache */
 		$cleaner = GeneralUtility::makeInstance('tx_ncstaticfilecache');
 		$cleaner->removeExpiredPages();

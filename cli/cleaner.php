@@ -43,15 +43,17 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * TOTAL FUNCTIONS: 1
  * (This index is automatically created/updated by the extension "extdeveval")
- *
+ * @deprecated Remove in Version 3.0.0
  */
 class tx_ncstaticfilecache_cli extends CommandLineController {
 
 	/**
 	 * Setting help texts
+	 * @deprecated Remove in Version 3.0.0
 	 */
 	public function __construct() {
 		parent::__construct();
+		GeneralUtility::logDeprecatedFunction();
 
 		$this->cli_help['name'] = 'static file cache cleaner -- Removes expired pages from static file cache.';
 		$this->cli_help['synopsis'] = 'removeExpiredPages|processDirtyPages ###OPTIONS###';
@@ -64,6 +66,7 @@ class tx_ncstaticfilecache_cli extends CommandLineController {
 	 * CLI engine
 	 *
 	 * @return    string
+	 * @deprecated Remove in Version 3.0.0
 	 */
 	public function cli_main() {
 		// Print help
