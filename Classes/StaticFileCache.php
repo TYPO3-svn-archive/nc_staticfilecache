@@ -340,7 +340,7 @@ class StaticFileCache {
 
 		// Find host-name / IP, always in lowercase:
 		$host = strtolower(GeneralUtility::getIndpEnv('HTTP_HOST'));
-		$uri = GeneralUtility::getIndpEnv('REQUEST_URI');
+		$uri = urldecode(GeneralUtility::getIndpEnv('REQUEST_URI'));
 
 		$cacheDir = $this->cacheDir . $host;
 

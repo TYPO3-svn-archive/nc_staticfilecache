@@ -12,6 +12,7 @@ ChangeLog
 - Remove the old CLI and the old tasks, because the scheduler do not break directly. Please create the tasks as extbase command controller tasks and change your env
 - Move ChangeLog to new ReSt documentation
 - Move Readme to new ReSt documentation
+- Fix #58178 Handling of non-ASCII URIs
 
 2015-04-15  Tim Lochmüller <tim@fruit-lab.de>
 
