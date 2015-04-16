@@ -1,5 +1,5 @@
 Known problems
-^^^^^^^^^^^^^^
+--------------
 
 mnoGoSearch extension uses content post processing hook to modify the content when indexer fetches pages. This is necessary to respect TYPO3SEARCH_xxx markers. Static file cache bypasses the hook and always returns original content. Thus mnogosearch does not work properly.
 

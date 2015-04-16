@@ -1,5 +1,5 @@
 ToDo
-^^^^
+----
 
 - Implement crawler extension just like Kaspers staticpub extension has. The big question here is how to support crawling multiple domains. If you have any suggestions, please contact me.
 - Implement backend 'context menu' item to 'cache this branch now'.

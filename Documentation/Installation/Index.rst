@@ -1,5 +1,5 @@
 Installation
-^^^^^^^^^^^^
+------------
 
 - 1. Install the extension in the extension manager
 - 2. Change your .htaccess, vhost or NginX configuration so it supports rewriting to static files.

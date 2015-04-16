@@ -1,5 +1,5 @@
 ChangeLog
-^^^^^^^^^
+---------
 
 2015-04-17 Tim Lochmüller <tim@fruit-lab.de>
 
