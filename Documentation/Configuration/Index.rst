@@ -1,5 +1,5 @@
 Configuration
-^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 Undocumented configuration
 

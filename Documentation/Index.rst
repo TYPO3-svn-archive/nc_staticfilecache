@@ -23,6 +23,7 @@ Static File Cache: Speed up TYPO3 CMS FE
 .. toctree::
 
    Introduction/Index
+   Installation/Index
    KnownProblems/Index
    ToDo/Index
    ChangeLog/Index
