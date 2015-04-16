@@ -11,7 +11,7 @@ if (!defined('TYPO3_MODE')) {
 $tmp = Array(
 	'tx_ncstaticfilecache_cache' => Array(
 		'exclude' => 0,
-		'label'   => 'LLL:EXT:nc_staticfilecache/locallang_db.xml:nc_staticfilecache.field',
+		'label'   => 'LLL:EXT:nc_staticfilecache/Resources/Private/Language/locallang.xml:nc_staticfilecache.field',
 		'config'  => Array(
 			'type'    => 'check',
 			'default' => '1',

@@ -42,14 +42,14 @@ if (TYPO3_MODE == 'BE') {
 	// Setup for the scheduler
 	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_ncstaticfilecache_tasks_removeExpiredPages'] = array(
 		'extension'        => $_EXTKEY,
-		'title'            => 'LLL:EXT:' . $_EXTKEY . '/locallang_db.xml:nc_staticfilecache_task_removeExpiredPages.name',
-		'description'      => 'LLL:EXT:' . $_EXTKEY . '/locallang_db.xml:nc_staticfilecache_task_removeExpiredPages.description',
+		'title'            => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_removeExpiredPages.name',
+		'description'      => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_removeExpiredPages.description',
 		'additionalFields' => 'tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider'
 	);
 	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_ncstaticfilecache_tasks_processDirtyPages'] = array(
 		'extension'        => $_EXTKEY,
-		'title'            => 'LLL:EXT:' . $_EXTKEY . '/locallang_db.xml:nc_staticfilecache_task_processDirtyPages.name',
-		'description'      => 'LLL:EXT:' . $_EXTKEY . '/locallang_db.xml:nc_staticfilecache_task_processDirtyPages.description',
+		'title'            => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_processDirtyPages.name',
+		'description'      => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_processDirtyPages.description',
 		'additionalFields' => 'tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider'
 	);
 }

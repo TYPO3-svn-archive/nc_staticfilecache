@@ -71,7 +71,7 @@ class tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider imple
 		$fieldCode = '<input type="text" name="tx_scheduler[itemLimit]" id="' . $fieldID . '" value="' . $taskInfo['itemLimit'] . '" />';
 		$additionalFields[$fieldID] = array(
 			'code'  => $fieldCode,
-			'label' => 'LLL:EXT:nc_staticfilecache/locallang_db.xml:nc_staticfilecache_task_processDirtyPages.itemLimit'
+			'label' => 'LLL:EXT:nc_staticfilecache/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_processDirtyPages.itemLimit'
 		);
 		return $additionalFields;
 	}
