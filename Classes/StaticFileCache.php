@@ -353,9 +353,19 @@ class StaticFileCache {
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
 			if ($pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
 
+
+				// If page has a endtime before the current timeOutTime, use it instead:
+				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
+					$timeOutTime = $pObj->page['endtime'];
+				}
+
+				// write DB-record and staticCache-files, after DB-record was successful updated or created
+				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
+
 				$content = $pObj->content;
 				if ($this->configuration->get('showGenerationSignature')) {
-					$content .= "\n<!-- " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME']) . ' -->';
+					$content .= "\n<!-- cached statically on: " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME']) . ' -->';
+					$content .= "\n<!-- expires on: " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME'] + $timeOutSeconds) . ' -->';
 				}
 
 				$this->debug('writing cache for pid: ' . $pObj->id);
@@ -376,14 +386,6 @@ class StaticFileCache {
 						$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 					}
 				}
-
-				// If page has a endtime before the current timeOutTime, use it instead:
-				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
-					$timeOutTime = $pObj->page['endtime'];
-				}
-
-				// write DB-record and staticCache-files, after DB-record was successful updated or created
-				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '');
 				if ($recordIsWritten === TRUE) {

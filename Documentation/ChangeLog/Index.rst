@@ -8,6 +8,7 @@ ChangeLog
 - Migration first documentation blocks
 - Use the caching framework for creating the cache files
 - Fix the backend module for the new Configuration class
+- Feature #9510 Add the expiration date to the html footer comment (configuration strftime should just the date format. "strftime" is used for both dates now)
 
 2015-04-16 Klaus Bitto <klaus@netcreators.nl>
 
