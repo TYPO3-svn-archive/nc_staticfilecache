@@ -1,6 +1,10 @@
 ChangeLog
 ^^^^^^^^^
 
+2015-04-17 Tim Lochmüller <tim@fruit-lab.de>
+
+- Fix #6648 The explanation database table field should be emptied while an update
+
 2015-04-16  Tim Lochmüller <tim@fruit-lab.de>
 
 - [!!!] Create a command controller and mark the CLI and Tasks class as deprecated. The classes are removed in a few versions
@@ -16,6 +20,7 @@ ChangeLog
 - Fix #65700 Static File Cache module not working correctly on latest TYPO3 7.1
 - Increase compatibility to 6.2.x - 7.1.x
 - Fix #64769 Enable HTTPS caching impossible
+- Release of v3.0.0 to TER
 
 2015-04-15  Tim Lochmüller <tim@fruit-lab.de>
 

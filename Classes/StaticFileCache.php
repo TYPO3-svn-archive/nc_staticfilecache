@@ -400,7 +400,7 @@ class StaticFileCache {
 					$isStaticCached = $this->writeStaticCacheFile($cacheDir, $uri, $file, $timeOutSeconds, $content);
 				}
 			} else {
-				$explanation = 'No reason found?';
+				$explanation = '';
 				// This is an 'explode' of the function isStaticCacheable()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
