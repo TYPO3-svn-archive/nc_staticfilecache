@@ -30,26 +30,5 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clea
 // Set cookie when User logs in
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['initFEuser'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache->setFeUserCookie';
 
+// register command controller
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = 'SFC\\NcStaticfilecache\\Command\\CacheCommandController';
-
-if (TYPO3_MODE == 'BE') {
-	// Setting up scripts that can be run from the cli_dispatch.phpsh script.
-	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['cliKeys'][$_EXTKEY] = array(
-		'EXT:nc_staticfilecache/cli/cleaner.php',
-		'_CLI_ncstaticfilecache'
-	);
-
-	// Setup for the scheduler
-	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_ncstaticfilecache_tasks_removeExpiredPages'] = array(
-		'extension'        => $_EXTKEY,
-		'title'            => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_removeExpiredPages.name',
-		'description'      => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_removeExpiredPages.description',
-		'additionalFields' => 'tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider'
-	);
-	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_ncstaticfilecache_tasks_processDirtyPages'] = array(
-		'extension'        => $_EXTKEY,
-		'title'            => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_processDirtyPages.name',
-		'description'      => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xml:nc_staticfilecache_task_processDirtyPages.description',
-		'additionalFields' => 'tx_ncstaticfilecache_tasks_processDirtyPages_AdditionalFieldProvider'
-	);
-}
