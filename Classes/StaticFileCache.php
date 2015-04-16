@@ -16,6 +16,8 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
+use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -293,7 +295,11 @@ class StaticFileCache {
 
 		// Find host-name / IP, always in lowercase:
 		$host = strtolower(GeneralUtility::getIndpEnv('HTTP_HOST'));
-		$uri = urldecode(GeneralUtility::getIndpEnv('REQUEST_URI'));
+		$uri = GeneralUtility::getIndpEnv('REQUEST_URI');
+		if ($this->configuration->get('recreateURI')) {
+			$uri = $this->recreateURI();
+		}
+		$uri = urldecode($uri);
 
 		$cacheDir = $this->cacheDir . $host;
 
@@ -325,10 +331,6 @@ class StaticFileCache {
 
 		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
 		if (strpos($uri, '?') === FALSE && $pObj->page['doktype'] != 3 && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
-			if ($this->configuration->get('recreateURI')) {
-				$uri = $this->recreateURI();
-			}
-
 			// Workspaces have been introduced with TYPO3 4.0.0:
 			$version = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
 			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
@@ -691,13 +693,12 @@ class StaticFileCache {
 	 * @return    string        The recreated URI of the current request
 	 */
 	protected function recreateURI() {
-		$typoLinkConfiguration = array(
-			'parameter' => $GLOBALS['TSFE']->id . ' ' . $GLOBALS['TSFE']->type,
-		);
-		$uri = GeneralUtility::getIndpEnv('TYPO3_SITE_PATH') . $this->getContentObject()
-				->typoLink_URL($typoLinkConfiguration);
-
-		return $uri;
+		$objectManager = new ObjectManager();
+		/** @var UriBuilder $uriBuilder */
+		$uriBuilder = $objectManager->get('TYPO3\\CMS\\Extbase\\Mvc\\Web\\Routing\\UriBuilder');
+		return $uriBuilder->reset()
+			->setAddQueryString(TRUE)
+			->build();
 	}
 
 	/**

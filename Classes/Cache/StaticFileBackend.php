@@ -98,6 +98,7 @@ class StaticFileBackend extends AbstractBackend {
 	 * @api
 	 */
 	public function has($entryIdentifier) {
+		$cacheFolder = $this->getCacheFolder($entryIdentifier);
 		// TODO: Implement has() method.
 	}
 

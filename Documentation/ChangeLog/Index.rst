@@ -4,6 +4,11 @@ ChangeLog
 2015-04-17 Tim Lochmüller <tim@fruit-lab.de>
 
 - Fix #6648 The explanation database table field should be emptied while an update
+- Fix #42734 recreateURI() should keep realurl encoded parameter
+
+2015-04-16 Klaus Bitto <klaus@netcreators.nl>
+
+- Release of v3.0.0 for TYPO3 6.2.x - 7.1.x to TER. Thanks to the contributors Tim Lochmüller and Jürgen Kußmann!
 
 2015-04-16  Tim Lochmüller <tim@fruit-lab.de>
 
