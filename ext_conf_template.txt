@@ -27,3 +27,6 @@ recreateURI = 0
 
 # cat=basic; type=boolean; label=Mark dirty instead of deletion: Mark a specific cached element as dirty instead of delete it directly (does not apply to clear all or pages cache).
 markDirtyInsteadOfDeletion = 0
+
+# cat=basic; type=boolean; label=Enable HTTPS Caching (Use with care!): If your site runs mixed, you will not want https traffic to be cached in the same typo3temp folder where it can be requested over http. Also check that HTTPS caching is enabled in your .htaccess file.
+enableHttpsCaching = 0

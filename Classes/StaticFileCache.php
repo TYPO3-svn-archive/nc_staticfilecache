@@ -371,7 +371,7 @@ class StaticFileCache {
 		}
 
 		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
-		if (strpos($uri, '?') === FALSE && $pObj->page['doktype'] != 3 && $isHttp) {
+		if (strpos($uri, '?') === FALSE && $pObj->page['doktype'] != 3 && ($isHttp || $this->getConfigurationProperty('enableHttpsCaching'))) {
 			if ($this->getConfigurationProperty('recreateURI')) {
 				$uri = $this->recreateURI();
 			}
