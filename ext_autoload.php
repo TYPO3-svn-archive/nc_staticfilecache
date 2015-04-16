@@ -7,5 +7,4 @@ return array(
 	'tx_ncstaticfilecache_tasks_removeexpiredpages_additionalfieldprovider' => $extensionPath . 'tasks/class.tx_ncstaticfilecache_tasks_removeExpiredPages_AdditionalFieldProvider.php',
 	'tx_ncstaticfilecache_infomodule'                                       => $extensionPath . 'infomodule/class.tx_ncstaticfilecache_infomodule.php',
 	'tx_ncstaticfilecache'                                                  => $extensionPath . 'class.tx_ncstaticfilecache.php',
-	'tx_ncstaticfilecache_crawlerhook'                                      => $extensionPath . 'class.tx_ncstaticfilecache_crawlerhook.php',
 );

@@ -11,7 +11,7 @@ if (!defined('TYPO3_MODE')) {
 // Register with "crawler" extension:
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['crawler']['procInstructions']['tx_ncstaticfilecache_clearstaticfile'] = 'clear static cache file';
 // Hook to process clearing static cached files if "crawler" extension is active:
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache'][$_EXTKEY] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache_crawlerhook.php:&tx_ncstaticfilecache_crawlerhook->clearStaticFile';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\Hook\\Crawler->clearStaticFile';
 
 // Create cache
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPageIncache'][$_EXTKEY] = 'EXT:nc_staticfilecache/class.tx_ncstaticfilecache.php:&tx_ncstaticfilecache';
