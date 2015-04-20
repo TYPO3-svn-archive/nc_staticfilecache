@@ -1,6 +1,10 @@
 ChangeLog
 ---------
 
+2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
+
+- Migration of the documentation to basic RestructuredText
+
 2015-04-17 Tim Lochmüller <tim@fruit-lab.de>
 
 - Fix #6648 The explanation database table field should be emptied while an update
@@ -9,7 +13,7 @@ ChangeLog
 - Use the caching framework for creating the cache files
 - Fix the backend module for the new Configuration class
 - Feature #9510 Add the expiration date to the html footer comment (configuration strftime should just the date format. "strftime" is used for both dates now)
-- Fix ##56519 Gzipped output broken when compressionLevel is set to 0
+- Fix #56519 Gzipped output broken when compressionLevel is set to 0
 
 2015-04-16 Klaus Bitto <klaus@netcreators.nl>
 
@@ -251,7 +255,7 @@ ChangeLog
 
 2009-05-08  Oliver Hader  <oliver@typo3.org>
 
-!!!- Added feature: Changed database table to use InnoDB engine
+- Added feature: Changed database table to use InnoDB engine
 - Follow-up to feature #2598: Added missing 'isdirty' field to SQL definitions
 - Follow-up to feature #2598: Added new CLI task 'processDirtyPages' to process elements marked as dirty
 - Follow-up to feature #2598: Set 'isdirty' flag zero when database element gets updated

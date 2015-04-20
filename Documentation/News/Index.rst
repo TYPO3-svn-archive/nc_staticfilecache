@@ -45,4 +45,4 @@ If set, then children of all siblings of a page being edited will have the page 
 
 *clearCache_pageGrandParent / boolean*
 
-If set, then the grand parent of a page being edited will have the page cache cleared. 
+If set, then the grand parent of a page being edited will have the page cache cleared.
