@@ -29,6 +29,7 @@ Static File Cache: Speed up TYPO3 CMS FE
    StaticDynamic/Index
    Faq/Index
    NeedSpeed/Index
+   News/Index
    KnownProblems/Index
    ToDo/Index
    ChangeLog/Index
