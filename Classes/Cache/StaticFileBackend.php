@@ -62,28 +62,32 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 	 * @throws \TYPO3\CMS\Core\Cache\Exception\InvalidDataException if the data is not a string
 	 */
 	public function set($entryIdentifier, $data, array $tags = array(), $lifetime = NULL) {
-		$fileName = $this->getCacheFilename($entryIdentifier);
-		$cacheDir = pathinfo($fileName, PATHINFO_DIRNAME);
-		if (!is_dir($cacheDir)) {
-			GeneralUtility::mkdir_deep($cacheDir);
+		if (!in_array('explanation', $tags)) {
+			$fileName = $this->getCacheFilename($entryIdentifier);
+			$cacheDir = pathinfo($fileName, PATHINFO_DIRNAME);
+			if (!is_dir($cacheDir)) {
+				GeneralUtility::mkdir_deep($cacheDir);
+			}
+
+			// normal
+			GeneralUtility::writeFile($fileName, $data);
+
+			// gz
+			if ($this->configuration->get('enableStaticFileCompression')) {
+				$level = isset($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? (int)$GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : self::DEFAULT_COMPRESSION_LEVEL;
+				if (!MathUtility::isIntegerInRange($level, 1, 9)) {
+					$level = self::DEFAULT_COMPRESSION_LEVEL;
+				}
+				$contentGzip = gzencode($data, $level);
+				if ($contentGzip) {
+					GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
+				}
+			}
+
+			$data = 'SFC';
 		}
 
-		// normal
-		GeneralUtility::writeFile($fileName, $data);
-
-		// gz
-		if ($this->configuration->get('enableStaticFileCompression')) {
-			$level = isset($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? (int)$GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : self::DEFAULT_COMPRESSION_LEVEL;
-			if (!MathUtility::isIntegerInRange($level, 1, 9)) {
-				$level = self::DEFAULT_COMPRESSION_LEVEL;
-			}
-			$contentGzip = gzencode($data, $level);
-			if ($contentGzip) {
-				GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
-			}
-		}
-
-		parent::set($entryIdentifier, 'SFC', $tags, $lifetime);
+		parent::set($entryIdentifier, $data, $tags, $lifetime);
 	}
 
 	/**
@@ -125,7 +129,7 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 	 * @return boolean TRUE if such an entry exists, FALSE if not
 	 */
 	public function has($entryIdentifier) {
-		return is_file($this->getCacheFilename($entryIdentifier)) || parent::has($entryIdentifier);
+		return is_file($this->getCacheFilename($entryIdentifier));
 	}
 
 	/**

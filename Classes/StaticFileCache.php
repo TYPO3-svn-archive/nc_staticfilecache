@@ -466,6 +466,15 @@ class StaticFileCache {
 					$explanation = 'loginsDeniedCfg is true';
 				}
 
+				// new cache
+				$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
+				$tags = array(
+					'page_' . $pObj->page['uid'],
+					'explanation'
+				);
+				$this->cache->set($cacheUri, $explanation, $tags, 0);
+
+
 				$this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, 0, $explanation);
 				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
 			}
