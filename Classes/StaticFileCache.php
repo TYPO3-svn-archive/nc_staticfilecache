@@ -8,6 +8,7 @@
 
 namespace SFC\NcStaticfilecache;
 
+use SFC\NcStaticfilecache\Cache\UriFrontend;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Controller\CommandLineController;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
@@ -18,6 +19,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -53,7 +55,7 @@ class StaticFileCache {
 	/**
 	 * Cache
 	 *
-	 * @var \TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
+	 * @var UriFrontend
 	 */
 	protected $cache;
 
@@ -256,6 +258,10 @@ class StaticFileCache {
 	 * @return    array        Array of records
 	 */
 	public function getRecordForPageID($pid) {
+
+		#DebuggerUtility::var_dump($this->cache->getByTag('page_' . intval($pid)));
+		#die();
+
 		return $this->getDatabaseConnection()
 			->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . intval($pid));
 	}
@@ -353,7 +359,6 @@ class StaticFileCache {
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
 			if ($pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
 
-
 				// If page has a endtime before the current timeOutTime, use it instead:
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
 					$timeOutTime = $pObj->page['endtime'];
@@ -394,7 +399,6 @@ class StaticFileCache {
 					 * Use to enable:
 					 * config.tx_staticfilecache.htaccessTimeout = 900
 					 */
-
 
 					$this->timeOutAccess = intval($pObj->config['config']['tx_staticfilecache.']['htaccessTimeout']);
 
@@ -476,7 +480,7 @@ class StaticFileCache {
 					'uri'            => $uri,
 					'isStaticCached' => $isStaticCached,
 				);
-				$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
+				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 			}
 		}
 	}

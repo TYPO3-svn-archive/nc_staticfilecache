@@ -8,20 +8,19 @@
 
 namespace SFC\NcStaticfilecache\Cache;
 
-use TYPO3\CMS\Core\Cache\Backend\AbstractBackend;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Cache backend for static file cache
  *
- * At the moment the backend write files only
+ * This cache handle the file representation of the cache and handle
  * - CacheFileName
  * - CacheFileName.gz
  *
  * @author Tim Lochmüller
  */
-class StaticFileBackend extends AbstractBackend {
+class StaticFileBackend extends AbstractStaticDbBackend {
 
 	/**
 	 * The default compression level
@@ -82,6 +81,8 @@ class StaticFileBackend extends AbstractBackend {
 				GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
 			}
 		}
+
+		parent::set($entryIdentifier, $data, $tags, $lifetime);
 	}
 
 	/**
@@ -123,7 +124,7 @@ class StaticFileBackend extends AbstractBackend {
 	 * @return boolean TRUE if such an entry exists, FALSE if not
 	 */
 	public function has($entryIdentifier) {
-		return is_file($this->getCacheFilename($entryIdentifier));
+		return is_file($this->getCacheFilename($entryIdentifier)) || parent::has($entryIdentifier);
 	}
 
 	/**
@@ -144,7 +145,7 @@ class StaticFileBackend extends AbstractBackend {
 		if (is_file($fileName . '.gz')) {
 			unlink($fileName . '.gz');
 		}
-		return TRUE;
+		return parent::remove($entryIdentifier);
 	}
 
 	/**
@@ -153,7 +154,11 @@ class StaticFileBackend extends AbstractBackend {
 	 * @return void
 	 */
 	public function flush() {
-		GeneralUtility::rmdir(GeneralUtility::getFileAbsFileName($this->cacheDirectory), TRUE);
+		$absoluteCacheDir = GeneralUtility::getFileAbsFileName($this->cacheDirectory);
+		$tempAbsoluteCacheDir = rtrim($absoluteCacheDir, '/') . '_' . GeneralUtility::milliseconds(TRUE) . '/';
+		rename($absoluteCacheDir, $tempAbsoluteCacheDir);
+		parent::flush();
+		GeneralUtility::rmdir($tempAbsoluteCacheDir, TRUE);
 	}
 
 	/**
@@ -162,6 +167,28 @@ class StaticFileBackend extends AbstractBackend {
 	 * @return void
 	 */
 	public function collectGarbage() {
+	}
 
+	/**
+	 * Removes all cache entries of this cache which are tagged by the specified tag.
+	 *
+	 * @param string $tag The tag the entries must have
+	 *
+	 * @return void
+	 * @api
+	 */
+	public function flushByTag($tag) {
+	}
+
+	/**
+	 * Finds and returns all cache entry identifiers which are tagged by the
+	 * specified tag
+	 *
+	 * @param string $tag The tag to search for
+	 *
+	 * @return array An array with identifiers of all matching entries. An empty array if no entries matched
+	 * @api
+	 */
+	public function findIdentifiersByTag($tag) {
 	}
 }
