@@ -132,24 +132,18 @@ class CacheModule extends AbstractFunctionModule {
 
 		// Create header:
 		$tCells = array();
-		$tCells[] = '<td>Page:</td>';
-		$tCells[] = '<td>Last modified:</td>';
-		$tCells[] = '<td>Cache Timeout:</td>';
-		$tCells[] = '<td>is Dirty:</td>';
-		$tCells[] = '<td>Explanation:</td>';
+		$tCells[] = '<th>Page</th>';
+		$tCells[] = '<th>Last modified</th>';
+		$tCells[] = '<th>Cache Timeout</th>';
+		$tCells[] = '<th>is Dirty</th>';
+		$tCells[] = '<th>Explanation</th>';
 
-		$output = $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . $output;
+		$output = $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . '<tbody>' . $output . '</tbody>';
 
 		// Compile final table and return:
 		$output = $this->renderHeader() . '
-			<table border="0" cellspacing="1" cellpadding="0" class="lrPadding">' . $output . '
+			<table border="0" cellspacing="1" cellpadding="0" class="t3-table">' . $output . '
 			</table>';
-
-		// Outputting refresh-link
-		$output .= '
-			<p class="c-refresh">
-				<a href="' . htmlspecialchars(GeneralUtility::getIndpEnv('REQUEST_URI')) . '">' . '<img' . IconUtility::skinImg($this->backPath, 'gfx/refresh_n.gif', 'width="14" height="14"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1) . '" alt="" />' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1) . '</a>
-			</p>';
 
 		// Set the current page Id:
 		if ($this->pageId > 0) {
@@ -181,7 +175,7 @@ class CacheModule extends AbstractFunctionModule {
 	 * @return    string        The HTML representation of the table row
 	 */
 	protected function renderTableHeaderRow(array $elements, $attributes = '') {
-		return '<tr' . ($attributes ? ' ' : '') . $attributes . '>' . implode('', $elements) . '</tr>';
+		return '<thead><tr' . ($attributes ? ' ' : '') . $attributes . '>' . implode('', $elements) . '</tr></thead>';
 	}
 
 	/**
@@ -207,7 +201,10 @@ class CacheModule extends AbstractFunctionModule {
 	 * @return    string        The HTML code of the header section
 	 */
 	protected function renderHeader() {
-		return $this->pObj->doc->section('Static File Cache', implode('', $this->getHeaderActionButtons()), FALSE, TRUE);
+
+		return '<h1>Static file cache</h1>' . implode('', $this->getHeaderActionButtons()) . '<p class="c-refresh">
+				<a href="' . htmlspecialchars(GeneralUtility::getIndpEnv('REQUEST_URI')) . '">' . '<img' . IconUtility::skinImg($this->backPath, 'gfx/refresh_n.gif', 'width="14" height="14"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1) . '" alt="" />' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1) . '</a>
+			</p>';
 	}
 
 	/**
