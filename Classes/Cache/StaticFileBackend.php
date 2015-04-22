@@ -8,6 +8,7 @@
 
 namespace SFC\NcStaticfilecache\Cache;
 
+use TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -20,7 +21,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
  *
  * @author Tim Lochmüller
  */
-class StaticFileBackend extends AbstractStaticDbBackend {
+class StaticFileBackend extends Typo3DatabaseBackend {
 
 	/**
 	 * The default compression level
@@ -82,7 +83,7 @@ class StaticFileBackend extends AbstractStaticDbBackend {
 			}
 		}
 
-		parent::set($entryIdentifier, $data, $tags, $lifetime);
+		parent::set($entryIdentifier, 'SFC', $tags, $lifetime);
 	}
 
 	/**
@@ -140,12 +141,23 @@ class StaticFileBackend extends AbstractStaticDbBackend {
 		if (!$this->has($entryIdentifier)) {
 			return FALSE;
 		}
+		$this->removeStaticFiles($entryIdentifier);
+		return parent::remove($entryIdentifier);
+	}
+
+	/**
+	 * Remove the static files of the given identifier
+	 *
+	 * @param $entryIdentifier
+	 */
+	protected function removeStaticFiles($entryIdentifier) {
 		$fileName = $this->getCacheFilename($entryIdentifier);
-		unlink($fileName);
+		if (is_file($fileName)) {
+			unlink($fileName);
+		}
 		if (is_file($fileName . '.gz')) {
 			unlink($fileName . '.gz');
 		}
-		return parent::remove($entryIdentifier);
 	}
 
 	/**
@@ -167,6 +179,11 @@ class StaticFileBackend extends AbstractStaticDbBackend {
 	 * @return void
 	 */
 	public function collectGarbage() {
+		$cacheEntryIdentifierRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('DISTINCT identifier', $this->cacheTable, $this->expiredStatement);
+		parent::collectGarbage();
+		foreach ($cacheEntryIdentifierRows as $row) {
+			$this->removeStaticFiles($row['identifier']);
+		}
 	}
 
 	/**
@@ -175,9 +192,10 @@ class StaticFileBackend extends AbstractStaticDbBackend {
 	 * @param string $tag The tag the entries must have
 	 *
 	 * @return void
-	 * @api
+	 * @todo check with DB backend
 	 */
 	public function flushByTag($tag) {
+		// $identifiers = parent::findIdentifiersByTag($tag);
 	}
 
 	/**
@@ -187,7 +205,7 @@ class StaticFileBackend extends AbstractStaticDbBackend {
 	 * @param string $tag The tag to search for
 	 *
 	 * @return array An array with identifiers of all matching entries. An empty array if no entries matched
-	 * @api
+	 * @todo check with DB backend
 	 */
 	public function findIdentifiersByTag($tag) {
 	}

@@ -19,7 +19,6 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -404,7 +403,9 @@ class StaticFileCache {
 
 					// new cache
 					$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
-					$tags = array();
+					$tags = array(
+						'page_' . $pObj->page['uid'],
+					);
 					$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
 
 					$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
