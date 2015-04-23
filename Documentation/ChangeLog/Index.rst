@@ -13,6 +13,7 @@ ChangeLog
 - Fix flush cache
 - Delete cache via caching framework
 - Move the creation of the htaccess to the StaticFileBackend
+- Move the .htaccess content to a separate template file
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 

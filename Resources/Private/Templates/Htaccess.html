@@ -1,0 +1,12 @@
+<IfModule mod_expires.c>
+	ExpiresActive on
+	ExpiresByType text/html {mode}{lifetime}
+</IfModule>
+
+<f:if condition="{sendCacheControlHeaderRedirectAfterCacheTimeout}">
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteCond %{TIME} > <f:format.date format="YmdHis">@{expires}</f:format.date>
+	RewriteRule ^.*$ /index.php
+</IfModule>
+</f:if>

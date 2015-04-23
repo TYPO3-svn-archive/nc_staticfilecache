@@ -11,6 +11,7 @@ namespace SFC\NcStaticfilecache\Cache;
 use TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Fluid\View\StandaloneView;
 
 /**
  * Cache backend for static file cache
@@ -118,44 +119,24 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 	 *
 	 * @param string $originalFileName
 	 * @param string $lifetime
-	 *
-	 * @todo move content to templates
 	 */
 	protected function writeHtAccessFile($originalFileName, $lifetime) {
 		if ($this->configuration->get('sendCacheControlHeader')) {
-			$htaccess = pathinfo($originalFileName, PATHINFO_DIRNAME) . '/.htaccess';
-			$mode = 'M';
-			if ($this->configuration->get('htaccessTimeout')) {
-				$mode = 'A';
-				$lifetime = $this->configuration->get('htaccessTimeout');
-			} else {
-				$lifetime = $this->getRealLifetime($lifetime);
-			}
+			$fileName = pathinfo($originalFileName, PATHINFO_DIRNAME) . '/.htaccess';
+			$accessTimeout = $this->configuration->get('htaccessTimeout');
+			$lifetime = $accessTimeout ? $accessTimeout : $this->getRealLifetime($lifetime);
 
-			/**
-			 * The htaccess should allow a browser to cache the content for not more than an hour
-			 * Use to enable:
-			 * config.tx_staticfilecache.htaccessTimeout = 900
-			 *
-			 * @todo test and move to documentation
-			 */
+			/** @var StandaloneView $renderer */
+			$renderer = GeneralUtility::makeInstance('TYPO3\\CMS\\Fluid\\View\\StandaloneView');
+			$renderer->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:nc_staticfilecache/Resources/Private/Templates/Htaccess.html'));
+			$renderer->assignMultiple(array(
+				'mode'                                            => $accessTimeout ? 'A' : 'M',
+				'lifetime'                                        => $lifetime,
+				'expires'                                         => time() + $lifetime,
+				'sendCacheControlHeaderRedirectAfterCacheTimeout' => (bool)$this->configuration->get('sendCacheControlHeaderRedirectAfterCacheTimeout'),
+			));
 
-			$htaccessContent = '<IfModule mod_expires.c>
-	ExpiresActive on
-	ExpiresByType text/html ' . $mode . $lifetime . '
-</IfModule>
-';
-			if ($this->configuration->get('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
-				$invalidTime = date("YmdHis", time() + (int)$lifetime);
-				$htaccessContent .= '
-				<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteCond %{TIME} >' . $invalidTime . '
-RewriteRule ^.*$ /index.php
-</IfModule>';
-			}
-
-			GeneralUtility::writeFile($htaccess, $htaccessContent);
+			GeneralUtility::writeFile($fileName, $renderer->render());
 		}
 	}
 
