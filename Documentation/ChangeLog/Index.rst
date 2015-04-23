@@ -8,6 +8,7 @@ ChangeLog
 - Remove "removeCacheDirectory" - files are deleted via CF now
 - Migrate one deleteStaticCacheDirectory to CF
 - Reduce the load of the CF frontend
+- Fix the order of the CF calls
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 

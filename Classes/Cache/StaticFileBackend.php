@@ -63,6 +63,11 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 	 */
 	public function set($entryIdentifier, $data, array $tags = array(), $lifetime = NULL) {
 		if (!in_array('explanation', $tags)) {
+
+			// call set in front of the generation, because the set method
+			// of the DB backend also call remove
+			parent::set($entryIdentifier, 'SFC', $tags, $lifetime);
+
 			$fileName = $this->getCacheFilename($entryIdentifier);
 			$cacheDir = pathinfo($fileName, PATHINFO_DIRNAME);
 			if (!is_dir($cacheDir)) {
@@ -83,11 +88,10 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 					GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
 				}
 			}
-
-			$data = 'SFC';
+		} else {
+			parent::set($entryIdentifier, $data, $tags, $lifetime);
 		}
 
-		parent::set($entryIdentifier, $data, $tags, $lifetime);
 	}
 
 	/**
