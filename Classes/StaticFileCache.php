@@ -675,14 +675,16 @@ class StaticFileCache {
 		$pid = intval($pid);
 
 		if ($pid > 0) {
-			// Cache of a single page shall be removed
+
+			$cacheEntries = array_keys($this->cache->getByTag('page_' . $pid));
+			foreach ($cacheEntries as $cacheEntry) {
+				$this->cache->remove($cacheEntry);
+			}
+
+			// @deprecated Cache of a single page shall be removed
 			$rows = $this->getDatabaseConnection()
 				->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . $pid);
 			foreach ($rows as $row) {
-				$cacheEntries = array_keys($this->cache->getByTag('page_' . $pid));
-				foreach ($cacheEntries as $cacheEntry) {
-					$this->cache->remove($cacheEntry);
-				}
 				$this->getDatabaseConnection()
 					->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
 			}

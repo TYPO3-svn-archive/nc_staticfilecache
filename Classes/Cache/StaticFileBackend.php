@@ -91,7 +91,6 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 		} else {
 			parent::set($entryIdentifier, $data, $tags, $lifetime);
 		}
-
 	}
 
 	/**
@@ -175,10 +174,14 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 	 */
 	public function flush() {
 		$absoluteCacheDir = GeneralUtility::getFileAbsFileName($this->cacheDirectory);
-		$tempAbsoluteCacheDir = rtrim($absoluteCacheDir, '/') . '_' . GeneralUtility::milliseconds(TRUE) . '/';
-		rename($absoluteCacheDir, $tempAbsoluteCacheDir);
+		if (is_dir($absoluteCacheDir)) {
+			$tempAbsoluteCacheDir = rtrim($absoluteCacheDir, '/') . '_' . GeneralUtility::milliseconds(TRUE) . '/';
+			rename($absoluteCacheDir, $tempAbsoluteCacheDir);
+		}
 		parent::flush();
-		GeneralUtility::rmdir($tempAbsoluteCacheDir, TRUE);
+		if (isset($tempAbsoluteCacheDir)) {
+			GeneralUtility::rmdir($tempAbsoluteCacheDir, TRUE);
+		}
 	}
 
 	/**
