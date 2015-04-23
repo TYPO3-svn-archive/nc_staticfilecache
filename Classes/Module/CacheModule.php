@@ -13,8 +13,8 @@ use SFC\NcStaticfilecache\StaticFileCache;
 use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
 use TYPO3\CMS\Backend\Tree\View\BrowseTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\View\StandaloneView;
 
 /**
  * Static file cache info module
@@ -50,22 +50,20 @@ class CacheModule extends AbstractFunctionModule {
 		// Handle actions:
 		$this->handleActions();
 
-		$output = '';
-
 		$this->backPath = $GLOBALS['BACK_PATH'];
-
 		$this->pageId = intval($this->pObj->id);
 
 		// Initialize tree object:
 		/* @var $tree BrowseTreeView */
 		$tree = GeneralUtility::makeInstance('TYPO3\\CMS\\Backend\\Tree\\View\\BrowseTreeView');
-		// Also store tree prefix markup:
 		$tree->makeHTML = 2;
 		$tree->init();
+
 		// Set starting page Id of tree (overrides webmounts):
 		if ($this->pageId > 0) {
 			$tree->MOUNTS = array(0 => $this->pageId);
 		}
+
 		$tree->ext_IconMode = TRUE;
 		$tree->showDefaultTitleAttribute = TRUE;
 		$tree->thisScript = BackendUtility::getModuleUrl(GeneralUtility::_GP('M'));
@@ -75,9 +73,7 @@ class CacheModule extends AbstractFunctionModule {
 		$tree->getBrowsableTree();
 
 		// Render information table:
-		$output .= $this->processExpandCollapseLinks($this->renderModule($tree));
-
-		return $output;
+		return $this->processExpandCollapseLinks($this->renderModule($tree));
 	}
 
 	/**
@@ -88,10 +84,6 @@ class CacheModule extends AbstractFunctionModule {
 	 * @return    string        HTML for the information table.
 	 */
 	protected function renderModule(BrowseTreeView $tree) {
-		$pubDir = $this->getStaticFileCacheInstance()
-			->getCacheDirectory();
-
-		// Traverse tree:
 		$output = '';
 		foreach ($tree->tree as $row) {
 
@@ -129,26 +121,18 @@ class CacheModule extends AbstractFunctionModule {
 			}
 		}
 
-		// Create header:
-		$tCells = array();
-		$tCells[] = '<th>Page</th>';
-		$tCells[] = '<th>Last modified</th>';
-		$tCells[] = '<th>Cache Timeout</th>';
-		$tCells[] = '<th>Explanation</th>';
+		/** @var StandaloneView $renderer */
+		$renderer = GeneralUtility::makeInstance('TYPO3\\CMS\\Fluid\\View\\StandaloneView');
+		$renderer->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:nc_staticfilecache/Resources/Private/Templates/Module.html'));
+		$renderer->assignMultiple(array(
+			'headerActionButtons' => implode('', $this->getHeaderActionButtons()),
+			'requestUri'          => GeneralUtility::getIndpEnv('REQUEST_URI'),
+			'refreshLabel'        => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1),
+			'table'               => '<tbody>' . $output . '</tbody>',
+			'pageId'              => $this->pageId
+		));
 
-		$output = $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . '<tbody>' . $output . '</tbody>';
-
-		// Compile final table and return:
-		$output = $this->renderHeader() . '
-			<table border="0" cellspacing="1" cellpadding="0" class="t3-table">' . $output . '
-			</table>';
-
-		// Set the current page Id:
-		if ($this->pageId > 0) {
-			$output .= '<input type="hidden" name="id" value="' . $this->pageId . '" />';
-		}
-
-		return $output;
+		return $renderer->render();
 	}
 
 	/**
@@ -165,18 +149,6 @@ class CacheModule extends AbstractFunctionModule {
 	}
 
 	/**
-	 * Renders a table header row.
-	 *
-	 * @param    array  $elements   : The row elements to be rendered
-	 * @param    string $attributes : (optional) The attributes to be used on the table row
-	 *
-	 * @return    string        The HTML representation of the table row
-	 */
-	protected function renderTableHeaderRow(array $elements, $attributes = '') {
-		return '<thead><tr' . ($attributes ? ' ' : '') . $attributes . '>' . implode('', $elements) . '</tr></thead>';
-	}
-
-	/**
 	 * Handles incoming actions (e.g. removing all expired pages).
 	 *
 	 * @return    void
@@ -188,18 +160,6 @@ class CacheModule extends AbstractFunctionModule {
 			$this->getStaticFileCacheInstance()
 				->removeExpiredPages();
 		}
-	}
-
-	/**
-	 * Renders the header of the modile ("Static File Cache") and the accordant actions.
-	 *
-	 * @return    string        The HTML code of the header section
-	 */
-	protected function renderHeader() {
-
-		return '<h1>Static file cache</h1>' . implode('', $this->getHeaderActionButtons()) . '<p class="c-refresh">
-				<a href="' . htmlspecialchars(GeneralUtility::getIndpEnv('REQUEST_URI')) . '">' . '<img' . IconUtility::skinImg($this->backPath, 'gfx/refresh_n.gif', 'width="14" height="14"') . ' title="' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1) . '" alt="" />' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1) . '</a>
-			</p>';
 	}
 
 	/**

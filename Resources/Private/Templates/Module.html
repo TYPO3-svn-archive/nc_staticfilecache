@@ -1,0 +1,21 @@
+<h1>Static file cache</h1>
+<f:format.raw>{headerActionButtons}</f:format.raw>
+<p class="c-refresh">
+	<a href="{requestUri}">
+		<f:be.buttons.icon icon="actions-system-refresh" title="{refreshLabel}" />
+		{refreshLabel} </a>
+</p>
+<table border="0" cellspacing="1" cellpadding="0" class="t3-table">
+	<thead>
+		<tr class="bgColor5 tableheader">
+			<th>Page</th>
+			<th>Last modified</th>
+			<th>Cache Timeout</th>
+			<th>Explanation</th>
+		</tr>
+	</thead>
+	<f:format.raw>{table}</f:format.raw>
+</table>
+<f:if condition="{pageId} > 0">
+	<input type="hidden" name="id" value="{pageId}" />
+</f:if>
