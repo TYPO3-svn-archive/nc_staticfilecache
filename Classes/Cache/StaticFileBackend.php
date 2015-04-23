@@ -108,7 +108,7 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 	}
 
 	/**
-	 * Loads data from the cache.
+	 * Loads data from the cache (DB).
 	 *
 	 * @param string $entryIdentifier An identifier which describes the cache entry to load
 	 *
@@ -118,7 +118,7 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 		if (!$this->has($entryIdentifier)) {
 			return NULL;
 		}
-		return GeneralUtility::getUrl($this->getCacheFilename($entryIdentifier));
+		return parent::get($entryIdentifier);
 	}
 
 	/**

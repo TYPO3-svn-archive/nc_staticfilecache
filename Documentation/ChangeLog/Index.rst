@@ -6,6 +6,7 @@ ChangeLog
 - Start to migrate the DB structure to the TYPO3 Caching framework
 - Add collectGarbage to CommandController
 - Remove "removeCacheDirectory" - files are deleted via CF now
+- Migrate one deleteStaticCacheDirectory to CF
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 

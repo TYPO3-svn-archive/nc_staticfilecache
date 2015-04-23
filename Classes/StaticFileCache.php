@@ -756,13 +756,12 @@ class StaticFileCache {
 			$rows = $this->getDatabaseConnection()
 				->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . $pid);
 			foreach ($rows as $row) {
-				$cacheDirectory = $row['host'] . dirname($row['file']);
-				if (TRUE === $this->deleteStaticCacheDirectory($cacheDirectory)) {
-					$this->getDatabaseConnection()
-						->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
-				} else {
-					$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
+				$cacheEntries = array_keys($this->cache->getByTag('page_' . $pid));
+				foreach ($cacheEntries as $cacheEntry) {
+					$this->cache->remove($cacheEntry);
 				}
+				$this->getDatabaseConnection()
+					->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
 			}
 			return;
 		}
