@@ -33,16 +33,6 @@ class CacheCommandController extends CommandController {
 	}
 
 	/**
-	 * Process dirty pages
-	 *
-	 * @param int $itemLimit
-	 */
-	public function processDirtyPagesCommand($itemLimit = 0) {
-		$this->getStaticFileCache()
-			->processDirtyPages(NULL, $itemLimit);
-	}
-
-	/**
 	 * Get the static file cache object
 	 *
 	 * @return StaticFileCache

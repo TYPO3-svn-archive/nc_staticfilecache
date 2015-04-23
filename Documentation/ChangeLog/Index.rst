@@ -9,6 +9,7 @@ ChangeLog
 - Migrate one deleteStaticCacheDirectory to CF
 - Reduce the load of the CF frontend
 - Fix the order of the CF calls
+- [!!!] Remove the handling of 'dirty' cache entries. We switch to the CF and dirty entries are expired ones.
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 

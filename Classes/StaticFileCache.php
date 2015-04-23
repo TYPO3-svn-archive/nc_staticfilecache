@@ -532,86 +532,18 @@ class StaticFileCache {
 			foreach ($rows as $row) {
 				$pageId = $row['pid'];
 
-				// Marks an expired page as dirty without removing it:
-				if ($this->configuration->get('markDirtyInsteadOfDeletion')) {
-					if (isset($parent)) {
-						$parent->cli_echo("Marked pid as dirty: " . $pageId . "\t" . $row['host'] . $row['file'] . ", expired by " . $row['seconds'] . " seconds.\n");
-					}
+				if (isset($parent)) {
+					$parent->cli_echo("Removed pid: " . $pageId . "\t" . $row['host'] . $row['file'] . ", expired by " . $row['seconds'] . " seconds.\n");
+				}
 
-					$this->getDatabaseConnection()
-						->exec_UPDATEquery($this->fileTable, 'pid=' . $pageId, array('isdirty' => 1));
-					// Really removes an expired page:
-				} else {
-					if (isset($parent)) {
-						$parent->cli_echo("Removed pid: " . $pageId . "\t" . $row['host'] . $row['file'] . ", expired by " . $row['seconds'] . " seconds.\n");
-					}
-
-					// Check whether page was already cleared:
-					if (!isset($clearedPages[$pageId])) {
-						$tce->clear_cacheCmd($pageId);
-						$clearedPages[$pageId] = TRUE;
-					}
+				// Check whether page was already cleared:
+				if (!isset($clearedPages[$pageId])) {
+					$tce->clear_cacheCmd($pageId);
+					$clearedPages[$pageId] = TRUE;
 				}
 			}
 		} elseif (isset($parent)) {
 			$parent->cli_echo("No expired pages found.\n");
-		}
-	}
-
-	/**
-	 * Processes elements that have been marked as dirty.
-	 *
-	 * @param CommandLineController $parent : The calling parent object
-	 * @param int                   $limit
-	 */
-	public function processDirtyPages(CommandLineController $parent = NULL, $limit = 0) {
-		foreach ($this->getDirtyElements($limit) as $dirtyElement) {
-			$this->processDirtyPagesElement($dirtyElement, $parent);
-		}
-	}
-
-	/**
-	 * Processes one single dirty element - removes data from file system and database.
-	 *
-	 * @param array                 $dirtyElement : The dirty element record
-	 * @param CommandLineController $parent       : (optional) The calling parent object
-	 *
-	 * @return    void
-	 */
-	public function processDirtyPagesElement(array $dirtyElement, CommandLineController $parent = NULL) {
-		$cancelExecution = FALSE;
-		$cacheDirectory = $dirtyElement['host'] . dirname($dirtyElement['file']);
-
-		$processDirtyPagesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['processDirtyPages'];
-		if (is_array($processDirtyPagesHooks)) {
-			foreach ($processDirtyPagesHooks as $hookFunction) {
-				$hookParameters = array(
-					'dirtyElement'    => $dirtyElement,
-					'cacheDirectory'  => &$cacheDirectory,
-					'cancelExecution' => &$cancelExecution,
-				);
-				if (isset($parent)) {
-					$hookParameters['cliDispatcher'] = $parent;
-				}
-				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
-			}
-		}
-
-		if ($cancelExecution === TRUE) {
-			return;
-		}
-
-		if (TRUE === $this->deleteStaticCacheDirectory($cacheDirectory)) {
-			$this->getDatabaseConnection()
-				->exec_DELETEquery($this->fileTable, 'uid=' . $dirtyElement['uid']);
-			if (isset($parent)) {
-				$parent->cli_echo('Removing directory ' . $cacheDirectory . '... OK' . PHP_EOL);
-			}
-		} else {
-			$this->debug('Could not delete static cache directory "' . $cacheDirectory . '"', LOG_CRIT);
-			if (isset($parent)) {
-				$parent->cli_echo('Removing directory ' . $cacheDirectory . '... FAILED' . PHP_EOL);
-			}
 		}
 	}
 
@@ -732,8 +664,6 @@ class StaticFileCache {
 
 	/**
 	 * Deletes the static cache in database and filesystem.
-	 * If the extension configuration 'markDirtyInsteadOfDeletion' is set,
-	 * the database elements only get tagged a "dirty".
 	 *
 	 * @param    integer $pid       : (optional) Id of the page perform this action
 	 * @param    string  $directory : (optional) The directory to use on deletion
@@ -743,13 +673,6 @@ class StaticFileCache {
 	 */
 	protected function deleteStaticCache($pid = 0, $directory = '') {
 		$pid = intval($pid);
-
-		if ($pid > 0 && $this->configuration->get('markDirtyInsteadOfDeletion')) {
-			// Mark specific page as dirty
-			$this->getDatabaseConnection()
-				->exec_UPDATEquery($this->fileTable, 'pid=' . $pid, array('isdirty' => 1));
-			return;
-		}
 
 		if ($pid > 0) {
 			// Cache of a single page shall be removed
@@ -777,63 +700,6 @@ class StaticFileCache {
 		} catch (\Exception $e) {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
-	}
-
-	/**
-	 * Deletes contents of a static cache directory in filesystem, but omit the subfolders
-	 *
-	 * @param    string $directory : The directory to use on deletion below the static cache directory
-	 *
-	 * @return    mixed        Whether the action was successful (if directory was not found, NULL is returned)
-	 */
-	public function deleteStaticCacheDirectory($directory) {
-		$directory = trim($directory);
-		$cacheDirectory = PATH_site . $this->cacheDir . $directory;
-
-		$this->debug('Removing files of directory "' . $cacheDirectory . '"', LOG_INFO);
-		if (empty($directory) === TRUE || is_dir($cacheDirectory) === FALSE) {
-			// directory is not existing, so we don't must delete anything
-			return TRUE;
-		}
-
-		$directoryHandle = @opendir($cacheDirectory);
-		if ($directoryHandle === FALSE) {
-			// we have no handle to delete the directory
-			return FALSE;
-		}
-
-		$result = TRUE;
-		while (($element = readdir($directoryHandle))) {
-			if ($element == '.' || $element == '..') {
-				continue;
-			}
-			if (is_file($cacheDirectory . '/' . $element)) {
-				// keep false if one file cannot be deleted -> entries marked dirty will not be deleted from DB
-				if (FALSE === unlink($cacheDirectory . '/' . $element)) {
-					$result = FALSE;
-				}
-			}
-		}
-		closedir($directoryHandle);
-		@rmdir($cacheDirectory);
-		return $result;
-	}
-
-	/**
-	 * Gets all dirty elements from database.
-	 *
-	 * @param    integer $limit : (optional) Defines a limit for results to look up
-	 *
-	 * @return    array        All dirty elements from database
-	 */
-	protected function getDirtyElements($limit = 0) {
-		$limit = intval($limit);
-		$elements = $this->getDatabaseConnection()
-			->exec_SELECTgetRows('*', $this->fileTable, 'isdirty=1', '', 'uri ASC', ($limit ? $limit : ''));
-		if (is_array($elements) === FALSE) {
-			$elements = array();
-		}
-		return $elements;
 	}
 
 	/**
@@ -903,7 +769,6 @@ RewriteRule ^.*$ /index.php
 			$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
 			$fieldValues['cache_timeout'] = $timeOutSeconds;
 			$fieldValues['explanation'] = $explanation;
-			$fieldValues['isdirty'] = 0;
 			$fieldValues['ismarkedtodelete'] = 0;
 			$result = $databaseConnection->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
 			if ($result === TRUE) {

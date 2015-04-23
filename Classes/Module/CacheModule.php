@@ -113,7 +113,6 @@ class CacheModule extends AbstractFunctionModule {
 					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">' . ($frec['tstamp'] ? BackendUtility::datetime($frec['tstamp']) : '') . '</span></td>';
 					$timeout = ($frec['tstamp'] > 0) ? BackendUtility::calcAge(($frec['cache_timeout']), $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')) : '';
 					$tCells[] = '<td nowrap="nowrap">' . $timeout . '</td>';
-					$tCells[] = '<td>' . ($frec['isdirty'] ? 'yes' : 'no') . '</td>';
 					$tCells[] = '<td nowrap="nowrap">' . ($frec['explanation'] ? $frec['explanation'] : '') . '</td>';
 
 					// Compile Row:
@@ -121,7 +120,7 @@ class CacheModule extends AbstractFunctionModule {
 				}
 			} else {
 				$tCells = array(
-					'<td nowrap="nowrap" colspan="4"' . $cellAttrib . '>' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
+					'<td nowrap="nowrap" colspan="3"' . $cellAttrib . '>' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
 					'<td><span class="typo3-dimmed">' . ($row['row']['uid'] == 0 ? '' : 'not hit') . '</span></td>',
 				);
 
@@ -135,7 +134,6 @@ class CacheModule extends AbstractFunctionModule {
 		$tCells[] = '<th>Page</th>';
 		$tCells[] = '<th>Last modified</th>';
 		$tCells[] = '<th>Cache Timeout</th>';
-		$tCells[] = '<th>is Dirty</th>';
 		$tCells[] = '<th>Explanation</th>';
 
 		$output = $this->renderTableHeaderRow($tCells, 'class="bgColor5 tableheader"') . '<tbody>' . $output . '</tbody>';
@@ -189,9 +187,6 @@ class CacheModule extends AbstractFunctionModule {
 		if (isset($action['removeExpiredPages'])) {
 			$this->getStaticFileCacheInstance()
 				->removeExpiredPages();
-		} elseif (isset($action['processDirtyPages'])) {
-			$this->getStaticFileCacheInstance()
-				->processDirtyPages();
 		}
 	}
 
@@ -216,10 +211,6 @@ class CacheModule extends AbstractFunctionModule {
 		$headerActionButtons = array(
 			'removeExpiredPages' => $this->renderActionButton('removeExpiredPages', 'Remove all expired pages', 'Are you sure?'),
 		);
-
-		if ($this->isMarkDirtyInsteadOfDeletionDefined()) {
-			$headerActionButtons['processDirtyPages'] = $this->renderActionButton('processDirtyPages', 'Process all dirty pages', 'Are you sure?');
-		}
 
 		return $headerActionButtons;
 	}
@@ -247,17 +238,6 @@ class CacheModule extends AbstractFunctionModule {
 			$this->pubObj = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
 		}
 		return $this->pubObj;
-	}
-
-	/**
-	 * Determines whether the extension configuration property 'markDirtyInsteadOfDeletion' is enabled.
-	 *
-	 * @return    boolean        Whether the extension configuration property 'markDirtyInsteadOfDeletion' is enabled
-	 */
-	protected function isMarkDirtyInsteadOfDeletionDefined() {
-		/** @var Configuration $configuration */
-		$configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
-		return (bool)$configuration->get('markDirtyInsteadOfDeletion');
 	}
 
 	/**

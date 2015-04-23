@@ -31,16 +31,7 @@ If enabled, logging info will be written to devlog. So make sure you have this i
 
 Recreate URI by typoLink to have a valid cached file name.
 
-*Mark dirty instead of deletion*
+*TS: tx_ncstaticfilecache.disableCache*
 
-Mark a cached element as dirty instead of delete it directly.
+By setting this to a true value, the current page and page branch will not be cached statically.
 
-
-- Undocumented configuration
-
-1) Frontend TypoScript
-
-	Property: tx_ncstaticfilecache.disableCache
-	Data type: boolean
-	Description: By setting this to a true value, the current page and page branch will not be cached statically.
-	Example: tx_ncstaticfilecache.disableCache = 1
