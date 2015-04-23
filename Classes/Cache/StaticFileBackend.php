@@ -88,8 +88,74 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 					GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
 				}
 			}
+
+			// htaccess
+			$this->writeHtAccessFile($fileName, $lifetime);
 		} else {
 			parent::set($entryIdentifier, $data, $tags, $lifetime);
+		}
+	}
+
+	/**
+	 * Get the real life time
+	 *
+	 * @param int $lifetime
+	 *
+	 * @return int
+	 */
+	protected function getRealLifetime($lifetime) {
+		if (is_null($lifetime)) {
+			$lifetime = $this->defaultLifetime;
+		}
+		if ($lifetime === 0 || $lifetime > $this->maximumLifetime) {
+			$lifetime = $this->maximumLifetime;
+		}
+		return $lifetime;
+	}
+
+	/**
+	 * Write htaccess file
+	 *
+	 * @param string $originalFileName
+	 * @param string $lifetime
+	 *
+	 * @todo move content to templates
+	 */
+	protected function writeHtAccessFile($originalFileName, $lifetime) {
+		if ($this->configuration->get('sendCacheControlHeader')) {
+			$htaccess = pathinfo($originalFileName, PATHINFO_DIRNAME) . '/.htaccess';
+			$mode = 'M';
+			if ($this->configuration->get('htaccessTimeout')) {
+				$mode = 'A';
+				$lifetime = $this->configuration->get('htaccessTimeout');
+			} else {
+				$lifetime = $this->getRealLifetime($lifetime);
+			}
+
+			/**
+			 * The htaccess should allow a browser to cache the content for not more than an hour
+			 * Use to enable:
+			 * config.tx_staticfilecache.htaccessTimeout = 900
+			 *
+			 * @todo test and move to documentation
+			 */
+
+			$htaccessContent = '<IfModule mod_expires.c>
+	ExpiresActive on
+	ExpiresByType text/html ' . $mode . $lifetime . '
+</IfModule>
+';
+			if ($this->configuration->get('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
+				$invalidTime = date("YmdHis", time() + (int)$lifetime);
+				$htaccessContent .= '
+				<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{TIME} >' . $invalidTime . '
+RewriteRule ^.*$ /index.php
+</IfModule>';
+			}
+
+			GeneralUtility::writeFile($htaccess, $htaccessContent);
 		}
 	}
 

@@ -7,12 +7,14 @@
 
 namespace SFC\NcStaticfilecache;
 
+use TYPO3\CMS\Core\SingletonInterface;
+
 /**
  * Handle extension and TS configuration
  *
  * @author Tim Lochmüller
  */
-class Configuration {
+class Configuration implements SingletonInterface {
 
 	/**
 	 * Current configuration
@@ -47,6 +49,8 @@ class Configuration {
 		$result = NULL;
 		if (isset($this->configuration[$key])) {
 			$result = $this->configuration[$key];
+		} elseif (isset($GLOBALS['TSFE']->config['config']['tx_staticfilecache.'][$key])) {
+			$result = $GLOBALS['TSFE']->config['config']['tx_staticfilecache.'][$key];
 		}
 		return $result;
 	}

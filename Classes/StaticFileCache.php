@@ -44,8 +44,6 @@ class StaticFileCache {
 
 	protected $isDebugEnabled = FALSE;
 
-	protected $timeOutAccess = 0;
-
 	/**
 	 * @var boolean
 	 */
@@ -287,7 +285,7 @@ class StaticFileCache {
 	}
 
 	/**
-	 * Write the static file and .htaccess
+	 * Check if the SFC should create the cache
 	 *
 	 * @param    TypoScriptFrontendController $pObj        : The parent object
 	 * @param    string                       $timeOutTime : The timestamp when the page times out
@@ -393,13 +391,6 @@ class StaticFileCache {
 
 				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '');
 				if ($recordIsWritten === TRUE) {
-					/**
-					 * The htaccess should allow a browser to cache the content for not more than an hour
-					 * Use to enable:
-					 * config.tx_staticfilecache.htaccessTimeout = 900
-					 */
-
-					$this->timeOutAccess = intval($pObj->config['config']['tx_staticfilecache.']['htaccessTimeout']);
 
 					// new cache
 					$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
@@ -407,8 +398,6 @@ class StaticFileCache {
 						'page_' . $pObj->page['uid'],
 					);
 					$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
-
-					$this->writeHtAccessFile($cacheDir, $uri, $timeOutSeconds);
 				}
 			} else {
 				$explanation = '';
@@ -711,41 +700,6 @@ class StaticFileCache {
 	 */
 	public function getFileTable() {
 		return $this->fileTable;
-	}
-
-	/**
-	 * @param string $cacheDir
-	 * @param string $uri
-	 * @param string $timeOutSeconds
-	 */
-	protected function writeHtAccessFile($cacheDir, $uri, $timeOutSeconds) {
-		if ($this->configuration->get('sendCacheControlHeader')) {
-			$timeOutMode = 'M';
-			if ($this->timeOutAccess) {
-				$timeOutSeconds = $this->timeOutAccess;
-				$timeOutMode = 'A';
-			}
-			$this->debug('writing .htaccess with timeout: ' . $timeOutSeconds, LOG_INFO);
-			$htaccess = $uri . '/.htaccess';
-
-			$htaccess = preg_replace('#//#', '/', $htaccess);
-			$htaccessContent = '<IfModule mod_expires.c>
-	ExpiresActive on
-	ExpiresByType text/html ' . $timeOutMode . $timeOutSeconds . '
-</IfModule>
-';
-			if ($this->configuration->get('sendCacheControlHeaderRedirectAfterCacheTimeout')) {
-				$invalidTime = date("YmdHis", time() + (int)$timeOutSeconds);
-				$htaccessContent .= '
-				<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteCond %{TIME} >' . $invalidTime . '
-RewriteRule ^.*$ /index.php
-</IfModule>';
-			}
-
-			GeneralUtility::writeFile(PATH_site . $cacheDir . $htaccess, $htaccessContent);
-		}
 	}
 
 	/**
