@@ -474,7 +474,6 @@ class StaticFileCache {
 				);
 				$this->cache->set($cacheUri, $explanation, $tags, 0);
 
-
 				$this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, 0, $explanation);
 				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
 			}
@@ -770,13 +769,12 @@ class StaticFileCache {
 
 		// Cache of all pages shall be removed (clearCacheCmd "all" or "pages")
 		try {
-			// 1. marked DB-records which should be deleted
+
+			$this->cache->flush();
+
+			// @deprecated (Remove old cache information table)
 			$this->getDatabaseConnection()
-				->exec_UPDATEquery($this->fileTable, '', array('ismarkedtodelete' => 1));
-			$this->removeCacheDirectory($directory);
-			// 3. delete marked DB-records
-			$this->getDatabaseConnection()
-				->exec_DELETEquery($this->fileTable, 'ismarkedtodelete=1');
+				->exec_TRUNCATEquery($this->fileTable);
 		} catch (\Exception $e) {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
@@ -928,42 +926,6 @@ RewriteRule ^.*$ /index.php
 			'additionalhash' => $additionalHash,
 		));
 		return $databaseConnection->exec_INSERTquery($this->fileTable, $fieldValues);
-	}
-
-	/**
-	 *  move directory and delete it after movement (if directory exists)
-	 *
-	 * @param string $directory
-	 *
-	 * @throws \Exception
-	 */
-	private function removeCacheDirectory($directory) {
-		try {
-			$srcDir = PATH_site . $this->cacheDir . $directory;
-			if (substr($srcDir, strlen($srcDir) - 1, 1) === '/') {
-				$tmpDir = substr($srcDir, 0, strlen($srcDir) - 1) . '_ismarkedtodelete/';
-			} else {
-				$tmpDir = PATH_site . $this->cacheDir . $directory . '_ismarkedtodelete/';
-			}
-			if (is_dir($srcDir) === TRUE) {
-				if (is_dir($tmpDir)) {
-					$this->debug('Temp Directory for Delete is allready present!', LOG_ERR);
-					if (FALSE === GeneralUtility::rmdir($tmpDir, TRUE)) {
-						throw new \Exception('Could not delete already existing temp static cache directory "' . $tmpDir . '"');
-					}
-				}
-
-				if (FALSE === rename($srcDir, $tmpDir)) {
-					throw new \Exception('Could not rename static cache directory "' . $srcDir . '"');
-				}
-				// delete moved directory
-				if (FALSE === GeneralUtility::rmdir($tmpDir, TRUE)) {
-					throw new \RuntimeException('Could not delete temp static cache directory "' . $tmpDir . '"');
-				}
-			}
-		} catch (\RuntimeException $e) {
-			$this->debug($e->getMessage(), LOG_CRIT);
-		}
 	}
 
 	/**
