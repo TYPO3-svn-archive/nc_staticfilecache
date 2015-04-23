@@ -225,11 +225,15 @@ RewriteRule ^.*$ /index.php
 	 */
 	protected function removeStaticFiles($entryIdentifier) {
 		$fileName = $this->getCacheFilename($entryIdentifier);
-		if (is_file($fileName)) {
-			unlink($fileName);
-		}
-		if (is_file($fileName . '.gz')) {
-			unlink($fileName . '.gz');
+		$files = array(
+			$fileName,
+			$fileName . '.gz',
+			pathinfo($fileName, PATHINFO_DIRNAME) . '/.htaccess'
+		);
+		foreach ($files as $file) {
+			if (is_file($file)) {
+				unlink($file);
+			}
 		}
 	}
 
