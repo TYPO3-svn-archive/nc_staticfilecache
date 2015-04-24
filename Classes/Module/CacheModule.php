@@ -109,11 +109,11 @@ class CacheModule extends AbstractFunctionModule {
 						$times = GeneralUtility::trimExplode('|', $info);
 						$tCells[] = '<td nowrap="nowrap">' . strftime('%d-%m-%y %H:%M', $times[0]) . '</td>';
 						$tCells[] = '<td nowrap="nowrap">' . strftime('%d-%m-%y %H:%M', $times[1]) . '</td>';
-						$tCells[] = '<td nowrap="nowrap">' . IconUtility::getSpriteIcon('status-status-permission-granted') . '</td>';
+						$tCells[] = '<td>' . IconUtility::getSpriteIcon('status-status-permission-granted') . '</td>';
 					} else {
 						$tCells[] = '<td nowrap="nowrap">' . IconUtility::getSpriteIcon('status-status-permission-denied') . '</td>';
 						$tCells[] = '<td nowrap="nowrap">' . IconUtility::getSpriteIcon('status-status-permission-denied') . '</td>';
-						$tCells[] = '<td nowrap="nowrap">' . $info . '</td>';
+						$tCells[] = '<td>' . $info . '</td>';
 					}
 
 					$rows[] = implode('', $tCells);
