@@ -13,7 +13,6 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
@@ -140,65 +139,47 @@ class StaticFileCache implements SingletonInterface {
 		$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 
 		if (!$TSConfig['clearCache_disable']) {
+			$list_cache = array();
+			$databaseConnection = $this->getDatabaseConnection();
+
 			// If table is "pages":
-			if (ExtensionManagementUtility::isLoaded('cms')) {
-				$list_cache = array();
-				if ($table == 'pages') {
+			if ($table == 'pages') {
+				// Builds list of pages on the SAME level as this page (siblings)
+				$rows_tmp = $databaseConnection->exec_SELECTgetRows('A.pid AS pid, B.uid AS uid', 'pages A, pages B', 'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0');
+				$pid_tmp = 0;
+				foreach ($rows_tmp as $row_tmp) {
+					$list_cache[] = $row_tmp['uid'];
+					$pid_tmp = $row_tmp['pid'];
 
-					// Builds list of pages on the SAME level as this page (siblings)
-					$res_tmp = $this->getDatabaseConnection()
-						->exec_SELECTquery('A.pid AS pid, B.uid AS uid', 'pages A, pages B', 'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0');
-
-					$pid_tmp = 0;
-					while ($row_tmp = $this->getDatabaseConnection()
-						->sql_fetch_assoc($res_tmp)) {
-						$list_cache[] = $row_tmp['uid'];
-						$pid_tmp = $row_tmp['pid'];
-
-						// Add children as well:
-						if ($TSConfig['clearCache_pageSiblingChildren']) {
-							$res_tmp2 = $this->getDatabaseConnection()
-								->exec_SELECTquery('uid', 'pages', 'pid=' . intval($row_tmp['uid']) . ' AND deleted=0');
-							while ($row_tmp2 = $this->getDatabaseConnection()
-								->sql_fetch_assoc($res_tmp2)) {
-								$list_cache[] = $row_tmp2['uid'];
-							}
-							$this->getDatabaseConnection()
-								->sql_free_result($res_tmp2);
+					// Add children as well:
+					if ($TSConfig['clearCache_pageSiblingChildren']) {
+						$rows_tmp2 = $databaseConnection->exec_SELECTgetRows('uid', 'pages', 'pid=' . intval($row_tmp['uid']) . ' AND deleted=0');
+						foreach ($rows_tmp2 as $row_tmp2) {
+							$list_cache[] = $row_tmp2['uid'];
 						}
 					}
-					$this->getDatabaseConnection()
-						->sql_free_result($res_tmp);
-
-					// Finally, add the parent page as well:
-					$list_cache[] = $pid_tmp;
-
-					// Add grand-parent as well:
-					if ($TSConfig['clearCache_pageGrandParent']) {
-						$res_tmp = $this->getDatabaseConnection()
-							->exec_SELECTquery('pid', 'pages', 'uid=' . intval($pid_tmp));
-						if ($row_tmp = $this->getDatabaseConnection()
-							->sql_fetch_assoc($res_tmp)
-						) {
-							$list_cache[] = $row_tmp['pid'];
-						}
-						$this->getDatabaseConnection()
-							->sql_free_result($res_tmp);
-					}
-				} else {
-					// For other tables than "pages", delete cache for the records "parent page".
-					$list_cache[] = $tscPID;
 				}
 
-				// Delete cache for selected pages:
-				if (is_array($list_cache)) {
-					$ids = $this->getDatabaseConnection()
-						->cleanIntArray($list_cache);
-					foreach ($ids as $id) {
-						$cmd = array('cacheCmd' => $id);
-						$this->clearStaticFile($cmd);
+				// Finally, add the parent page as well:
+				$list_cache[] = $pid_tmp;
+
+				// Add grand-parent as well:
+				if ($TSConfig['clearCache_pageGrandParent']) {
+					$rows_tmp = $databaseConnection->exec_SELECTgetRows('pid', 'pages', 'uid=' . intval($pid_tmp));
+					foreach ($rows_tmp as $row_tmp) {
+						$list_cache[] = $row_tmp['pid'];
 					}
 				}
+			} else {
+				// For other tables than "pages", delete cache for the records "parent page".
+				$list_cache[] = $tscPID;
+			}
+
+			// Delete cache for selected pages:
+			$ids = $databaseConnection->cleanIntArray($list_cache);
+			foreach ($ids as $id) {
+				$cmd = array('cacheCmd' => $id);
+				$this->clearStaticFile($cmd);
 			}
 		}
 

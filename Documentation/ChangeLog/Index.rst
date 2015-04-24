@@ -26,6 +26,7 @@ ChangeLog
 - Migrate one manually clear cache to the core mechanism, by tagging the pages with the right pageId_X tag
 - Remove old functions (more migration to CF)
 - Move LogNoCache to separate class
+- Cleanup the clearCachePostProc function
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 
