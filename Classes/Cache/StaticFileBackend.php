@@ -213,21 +213,11 @@ class StaticFileBackend extends AbstractBackend {
 	 * @param string $tag The tag the entries must have
 	 *
 	 * @return void
-	 * @todo check with DB backend
 	 */
 	public function flushByTag($tag) {
-		// $identifiers = parent::findIdentifiersByTag($tag);
-	}
-
-	/**
-	 * Finds and returns all cache entry identifiers which are tagged by the
-	 * specified tag
-	 *
-	 * @param string $tag The tag to search for
-	 *
-	 * @return array An array with identifiers of all matching entries. An empty array if no entries matched
-	 * @todo check with DB backend
-	 */
-	public function findIdentifiersByTag($tag) {
+		$identifiers = $this->findIdentifiersByTag($tag);
+		foreach ($identifiers as $identifier) {
+			$this->remove($identifier);
+		}
 	}
 }

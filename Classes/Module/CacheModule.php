@@ -82,11 +82,18 @@ class CacheModule extends AbstractFunctionModule {
 	 */
 	protected function renderModule(BrowseTreeView $tree) {
 		$rows = array();
+
+		/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
+		$cacheManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager');
+		$cache = $cacheManager->getCache('static_file_cache');
+
 		foreach ($tree->tree as $row) {
 
 			// Fetch files:
 			$fileRecords = StaticFileCache::getInstance()
 				->getRecordForPageID($row['row']['uid']);
+
+			// $cacheEntries = $cache->getByTag('page_' . $row['row']['uid']);
 
 			if ($fileRecords) {
 				foreach ($fileRecords as $k => $frec) {

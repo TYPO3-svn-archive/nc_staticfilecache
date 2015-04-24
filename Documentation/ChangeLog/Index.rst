@@ -21,6 +21,7 @@ ChangeLog
 - Update PhpDoc comments
 - Move more HTML to the templates of the Backend module
 - removed unused function getContentObject
+- Integration SFC Backend functions for the cache
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 
