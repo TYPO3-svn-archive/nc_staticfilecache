@@ -15,6 +15,7 @@ ChangeLog
 - Move the creation of the htaccess to the StaticFileBackend
 - Move the .htaccess content to a separate template file
 - Move Backend module to a separate template file (partly)
+- StaticFileCache.php Singleton
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 

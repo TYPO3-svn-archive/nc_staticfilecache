@@ -88,7 +88,7 @@ class CacheModule extends AbstractFunctionModule {
 		foreach ($tree->tree as $row) {
 
 			// Fetch files:
-			$filerecords = $this->getStaticFileCacheInstance()
+			$filerecords = StaticFileCache::getInstance()
 				->getRecordForPageID($row['row']['uid']);
 			$cellAttrib = ($row['row']['_CSSCLASS'] ? ' class="' . $row['row']['_CSSCLASS'] . '"' : '');
 
@@ -157,7 +157,7 @@ class CacheModule extends AbstractFunctionModule {
 		$action = GeneralUtility::_GP('ACTION');
 
 		if (isset($action['removeExpiredPages'])) {
-			$this->getStaticFileCacheInstance()
+			StaticFileCache::getInstance()
 				->removeExpiredPages();
 		}
 	}
@@ -186,18 +186,6 @@ class CacheModule extends AbstractFunctionModule {
 	 */
 	protected function renderActionButton($elementName, $elementLabel, $confirmationText = '') {
 		return '<input type="submit" name="ACTION[' . htmlspecialchars($elementName) . ']" value="' . $elementLabel . '"' . ($confirmationText ? ' onclick="return confirm(\'' . addslashes($confirmationText) . '\');"' : '') . ' />';
-	}
-
-	/**
-	 * Gets the instance of the static file cache object to modify the cached information.
-	 *
-	 * @return StaticFileCache
-	 */
-	protected function getStaticFileCacheInstance() {
-		if (!isset($this->pubObj)) {
-			$this->pubObj = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
-		}
-		return $this->pubObj;
 	}
 
 	/**

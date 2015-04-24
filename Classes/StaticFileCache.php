@@ -13,6 +13,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Controller\CommandLineController;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -27,7 +28,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  * @author Michiel Roos
  * @author Tim Lochmüller
  */
-class StaticFileCache {
+class StaticFileCache implements SingletonInterface {
 
 	/**
 	 * Configuration of the extension
@@ -55,6 +56,15 @@ class StaticFileCache {
 	 * @var UriFrontend
 	 */
 	protected $cache;
+
+	/**
+	 * Get the current object
+	 *
+	 * @return StaticFileCache
+	 */
+	public static function getInstance() {
+		return GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\StaticFileCache');
+	}
 
 	/**
 	 * Constructs this object.
