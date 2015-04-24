@@ -23,6 +23,7 @@ ChangeLog
 - removed unused function getContentObject
 - Integration SFC Backend functions for the cache
 - [!!!] Migrate the backend module and all functions to the new Caching Framework mechanism
+- Migrate one manually clear cache to the core mechanism, by tagging the pages with the right pageId_X tag
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 

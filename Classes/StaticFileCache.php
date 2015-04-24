@@ -380,7 +380,7 @@ class StaticFileCache implements SingletonInterface {
 
 				$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
 				$tags = array(
-					'page_' . $pObj->page['uid'],
+					'pageId_' . $pObj->page['uid'],
 				);
 				$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
 			} else {
@@ -442,7 +442,7 @@ class StaticFileCache implements SingletonInterface {
 				// new cache
 				$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
 				$tags = array(
-					'page_' . $pObj->page['uid'],
+					'pageId_' . $pObj->page['uid'],
 					'explanation'
 				);
 				$this->cache->set($cacheUri, $explanation, $tags, 0);
@@ -611,7 +611,7 @@ class StaticFileCache implements SingletonInterface {
 
 		if ($pid > 0) {
 
-			$cacheEntries = array_keys($this->cache->getByTag('page_' . $pid));
+			$cacheEntries = array_keys($this->cache->getByTag('pageId_' . $pid));
 			foreach ($cacheEntries as $cacheEntry) {
 				$this->cache->remove($cacheEntry);
 			}
