@@ -134,7 +134,6 @@ class CacheModule extends AbstractFunctionModule {
 		$renderer->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:nc_staticfilecache/Resources/Private/Templates/Module.html'));
 		$renderer->assignMultiple(array(
 			'requestUri'   => GeneralUtility::getIndpEnv('REQUEST_URI'),
-			'refreshLabel' => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1),
 			'rows'         => $rows,
 			'pageId'       => $this->pageId
 		));
