@@ -652,18 +652,6 @@ class StaticFileCache implements SingletonInterface {
 	}
 
 	/**
-	 * Gets the content object (cObj) of TSFE.
-	 *
-	 * @return    \tslib_cObj        The content object (cObj) of TSFE
-	 */
-	protected function getContentObject() {
-		if (!isset($GLOBALS['TSFE']->cObj)) {
-			$GLOBALS['TSFE']->newCObj();
-		}
-		return $GLOBALS['TSFE']->cObj;
-	}
-
-	/**
 	 * Deletes the static cache in database and filesystem.
 	 *
 	 * @param    integer $pid       : (optional) Id of the page perform this action
