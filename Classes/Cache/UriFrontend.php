@@ -2,7 +2,7 @@
 /**
  * Cache frontend for static file cache
  *
- * @package Hdnet
+ * @package NcStaticfilecache\Cache
  * @author  Tim Lochmüller
  */
 

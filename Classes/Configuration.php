@@ -2,6 +2,7 @@
 /**
  * Handle extension and TS configuration
  *
+ * @package NcStaticfilecache
  * @author  Tim Lochmüller
  */
 

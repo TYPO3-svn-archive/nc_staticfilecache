@@ -2,7 +2,7 @@
 /**
  * Crawler hook
  *
- * @package Hdnet
+ * @package NcStaticfilecache\Hook
  * @author  Tim Lochmüller
  */
 

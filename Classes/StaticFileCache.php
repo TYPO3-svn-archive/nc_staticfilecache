@@ -2,7 +2,7 @@
 /**
  * Static File Cache
  *
- * @package Hdnet
+ * @package NcStaticfilecache
  * @author  Tim Lochmüller
  */
 
@@ -37,13 +37,30 @@ class StaticFileCache implements SingletonInterface {
 	 */
 	protected $configuration;
 
+	/**
+	 * Extension key
+	 *
+	 * @var string
+	 */
 	protected $extKey = 'nc_staticfilecache';
 
+	/**
+	 * File table (old)
+	 *
+	 * @var string
+	 */
 	protected $fileTable = 'tx_ncstaticfilecache_file';
 
+	/**
+	 * If is debug enabled
+	 *
+	 * @var bool
+	 */
 	protected $isDebugEnabled = FALSE;
 
 	/**
+	 * Is clear cache processing enabled
+	 *
 	 * @var boolean
 	 */
 	protected $isClearCacheProcessingEnabled = TRUE;

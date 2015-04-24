@@ -2,7 +2,7 @@
 /**
  * Static file cache info module
  *
- * @package Hdnet
+ * @package NcStaticfilecache\Module
  * @author  Tim Lochmüller
  */
 
@@ -25,12 +25,9 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 class CacheModule extends AbstractFunctionModule {
 
 	/**
-	 * @var StaticFileCache
-	 */
-	protected $pubObj;
-
-	/**
-	 * @var    integer
+	 * Page ID
+	 *
+	 * @var integer
 	 */
 	protected $pageId = 0;
 

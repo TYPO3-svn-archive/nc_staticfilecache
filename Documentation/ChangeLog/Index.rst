@@ -18,6 +18,7 @@ ChangeLog
 - StaticFileCache.php Singleton
 - Split up the StaticFileBackend into General/Abstract and File related functions
 - Remove old cacheDir variable in StaticFileCache class
+- Update PhpDoc comments
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 

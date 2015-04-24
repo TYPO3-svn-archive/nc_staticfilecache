@@ -2,7 +2,7 @@
 /**
  * Cache commands
  *
- * @package Hdnet
+ * @package NcStaticfilecache\Command
  * @author  Tim Lochmüller
  */
 
