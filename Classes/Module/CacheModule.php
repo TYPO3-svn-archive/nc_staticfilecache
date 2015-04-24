@@ -15,6 +15,7 @@ use TYPO3\CMS\Backend\Tree\View\BrowseTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 /**
@@ -150,8 +151,11 @@ class CacheModule extends AbstractFunctionModule {
 		$action = GeneralUtility::_GP('ACTION');
 
 		if (isset($action['removeExpiredPages'])) {
-			StaticFileCache::getInstance()
-				->removeExpiredPages();
+			/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
+			$objectManager = new ObjectManager();
+			$cacheManager = $objectManager->get('TYPO3\\CMS\\Core\\Cache\\CacheManager');
+			$cache = $cacheManager->getCache('static_file_cache');
+			$cache->collectGarbage();
 		}
 	}
 

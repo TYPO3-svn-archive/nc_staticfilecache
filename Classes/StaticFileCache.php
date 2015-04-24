@@ -10,7 +10,6 @@ namespace SFC\NcStaticfilecache;
 
 use SFC\NcStaticfilecache\Cache\UriFrontend;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Controller\CommandLineController;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -237,7 +236,7 @@ class StaticFileCache implements SingletonInterface {
 					}
 
 					$this->debug('clearing all static cache');
-					$this->deleteStaticCache(0, $directory);
+					$this->cache->flush();
 					break;
 				case 'temp_CACHED':
 					// Clear temp files, not frontend cache.
@@ -247,7 +246,10 @@ class StaticFileCache implements SingletonInterface {
 
 					if ($doClearCache) {
 						$this->debug('clearing cache for pid: ' . $cacheCmd);
-						$this->deleteStaticCache($cacheCmd);
+						$cacheEntries = array_keys($this->cache->getByTag('pageId_' . $cacheCmd));
+						foreach ($cacheEntries as $cacheEntry) {
+							$this->cache->remove($cacheEntry);
+						}
 					} else {
 						$this->debug('Expected integer on clearing static cache', LOG_WARNING, $cacheCmd);
 					}
@@ -484,17 +486,6 @@ class StaticFileCache implements SingletonInterface {
 	}
 
 	/**
-	 * Remove expired pages. Call from cli script.
-	 *
-	 * @param CommandLineController $parent : The calling parent object
-	 *
-	 * @return    void
-	 */
-	public function removeExpiredPages(CommandLineController $parent = NULL) {
-		$this->cache->collectGarbage();
-	}
-
-	/**
 	 * Set a cookie if a user logs in or refresh it
 	 *
 	 * This function is needed because TYPO3 always sets the fe_typo_user cookie,
@@ -595,36 +586,6 @@ class StaticFileCache implements SingletonInterface {
 		return $uriBuilder->reset()
 			->setAddQueryString(TRUE)
 			->build();
-	}
-
-	/**
-	 * Deletes the static cache in database and filesystem.
-	 *
-	 * @param    integer $pid       : (optional) Id of the page perform this action
-	 * @param    string  $directory : (optional) The directory to use on deletion
-	 *                              below the static file directory
-	 *
-	 * @return    void
-	 */
-	protected function deleteStaticCache($pid = 0, $directory = '') {
-		$pid = intval($pid);
-
-		if ($pid > 0) {
-
-			$cacheEntries = array_keys($this->cache->getByTag('pageId_' . $pid));
-			foreach ($cacheEntries as $cacheEntry) {
-				$this->cache->remove($cacheEntry);
-			}
-
-			return;
-		}
-
-		// Cache of all pages shall be removed (clearCacheCmd "all" or "pages")
-		try {
-			$this->cache->flush();
-		} catch (\Exception $e) {
-			$this->debug($e->getMessage(), LOG_CRIT);
-		}
 	}
 
 	/**
