@@ -1,5 +1,5 @@
 <h1>Static file cache</h1>
-<f:format.raw>{headerActionButtons}</f:format.raw>
+<input type="submit" onclick="return confirm('Are you sure?');" value="Remove all expired pages" name="ACTION[removeExpiredPages]">
 <p class="c-refresh">
 	<a href="{requestUri}">
 		<f:be.buttons.icon icon="actions-system-refresh" title="{refreshLabel}" />
@@ -14,7 +14,13 @@
 			<th>Explanation</th>
 		</tr>
 	</thead>
-	<f:format.raw>{table}</f:format.raw>
+	<tbody>
+		<f:for each="{rows}" as="row">
+			<tr>
+				<f:format.raw>{row}</f:format.raw>
+			</tr>
+		</f:for>
+	</tbody>
 </table>
 <f:if condition="{pageId} > 0">
 	<input type="hidden" name="id" value="{pageId}" />

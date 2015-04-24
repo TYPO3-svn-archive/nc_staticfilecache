@@ -81,22 +81,21 @@ class CacheModule extends AbstractFunctionModule {
 	 * @return    string        HTML for the information table.
 	 */
 	protected function renderModule(BrowseTreeView $tree) {
-		$output = '';
+		$rows = array();
 		foreach ($tree->tree as $row) {
 
 			// Fetch files:
-			$filerecords = StaticFileCache::getInstance()
+			$fileRecords = StaticFileCache::getInstance()
 				->getRecordForPageID($row['row']['uid']);
-			$cellAttrib = ($row['row']['_CSSCLASS'] ? ' class="' . $row['row']['_CSSCLASS'] . '"' : '');
 
-			if (count($filerecords)) {
-				foreach ($filerecords as $k => $frec) {
+			if ($fileRecords) {
+				foreach ($fileRecords as $k => $frec) {
 					$tCells = array();
 
 					if (!$k) {
-						$tCells[] = '<td nowrap="nowrap"' . $cellAttrib . '>' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>';
+						$tCells[] = '<td nowrap="nowrap">' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>';
 					} else {
-						$tCells[] = '<td nowrap="nowrap"' . $cellAttrib . '>' . $row['HTML_depthData'] . '</td>';
+						$tCells[] = '<td nowrap="nowrap">' . $row['HTML_depthData'] . '</td>';
 					}
 
 					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">' . ($frec['tstamp'] ? BackendUtility::datetime($frec['tstamp']) : '') . '</span></td>';
@@ -104,17 +103,15 @@ class CacheModule extends AbstractFunctionModule {
 					$tCells[] = '<td nowrap="nowrap">' . $timeout . '</td>';
 					$tCells[] = '<td nowrap="nowrap">' . ($frec['explanation'] ? $frec['explanation'] : '') . '</td>';
 
-					// Compile Row:
-					$output .= $this->renderTableRow($tCells, 'valign="top" title="id=' . $frec['pid'] . ' host=' . $frec['host'] . ' uri=' . $frec['uri'] . '"', $frec);
+					$rows[] = implode('', $tCells);
 				}
 			} else {
 				$tCells = array(
-					'<td nowrap="nowrap" colspan="3"' . $cellAttrib . '>' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
+					'<td nowrap="nowrap" colspan="3">' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
 					'<td><span class="typo3-dimmed">' . ($row['row']['uid'] == 0 ? '' : 'not hit') . '</span></td>',
 				);
 
-				// Compile Row:
-				$output .= $this->renderTableRow($tCells, 'valign="top" class="bgColor4" title="id=' . $row['row']['uid'] . '"');
+				$rows[] = implode('', $tCells);
 			}
 		}
 
@@ -122,27 +119,13 @@ class CacheModule extends AbstractFunctionModule {
 		$renderer = GeneralUtility::makeInstance('TYPO3\\CMS\\Fluid\\View\\StandaloneView');
 		$renderer->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:nc_staticfilecache/Resources/Private/Templates/Module.html'));
 		$renderer->assignMultiple(array(
-			'headerActionButtons' => implode('', $this->getHeaderActionButtons()),
-			'requestUri'          => GeneralUtility::getIndpEnv('REQUEST_URI'),
-			'refreshLabel'        => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1),
-			'table'               => '<tbody>' . $output . '</tbody>',
-			'pageId'              => $this->pageId
+			'requestUri'   => GeneralUtility::getIndpEnv('REQUEST_URI'),
+			'refreshLabel' => $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.refresh', 1),
+			'rows'         => $rows,
+			'pageId'       => $this->pageId
 		));
 
 		return $renderer->render();
-	}
-
-	/**
-	 * Renders a table row.
-	 *
-	 * @param    array  $elements     : The row elements to be rendered
-	 * @param    string $attributes   : (optional) The attributes to be used on the table row
-	 * @param    array  $cacheElement : (optional) The cache element row
-	 *
-	 * @return    string        The HTML representation of the table row
-	 */
-	protected function renderTableRow(array $elements, $attributes = '', array $cacheElement = NULL) {
-		return '<tr' . ($attributes ? ' ' : '') . $attributes . '>' . implode('', $elements) . '</tr>';
 	}
 
 	/**
@@ -157,32 +140,6 @@ class CacheModule extends AbstractFunctionModule {
 			StaticFileCache::getInstance()
 				->removeExpiredPages();
 		}
-	}
-
-	/**
-	 * Gets the header actions buttons to be rendered in the header section.
-	 *
-	 * @return    array        Action buttons to be rendered in the header section
-	 */
-	protected function getHeaderActionButtons() {
-		$headerActionButtons = array(
-			'removeExpiredPages' => $this->renderActionButton('removeExpiredPages', 'Remove all expired pages', 'Are you sure?'),
-		);
-
-		return $headerActionButtons;
-	}
-
-	/**
-	 * Renders a single action button,
-	 *
-	 * @param    string $elementName      : Name attribute of the element
-	 * @param    string $elementLabel     : Label of the action button
-	 * @param    string $confirmationText : (optional) Confirmation text - will not be used if empty
-	 *
-	 * @return    string        The HTML representation of an action button
-	 */
-	protected function renderActionButton($elementName, $elementLabel, $confirmationText = '') {
-		return '<input type="submit" name="ACTION[' . htmlspecialchars($elementName) . ']" value="' . $elementLabel . '"' . ($confirmationText ? ' onclick="return confirm(\'' . addslashes($confirmationText) . '\');"' : '') . ' />';
 	}
 
 	/**

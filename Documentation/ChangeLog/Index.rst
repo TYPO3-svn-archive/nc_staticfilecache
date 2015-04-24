@@ -19,6 +19,7 @@ ChangeLog
 - Split up the StaticFileBackend into General/Abstract and File related functions
 - Remove old cacheDir variable in StaticFileCache class
 - Update PhpDoc comments
+- Move more HTML to the templates of the Backend module
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 
