@@ -41,8 +41,6 @@ class StaticFileCache implements SingletonInterface {
 
 	protected $fileTable = 'tx_ncstaticfilecache_file';
 
-	protected $cacheDir = 'typo3temp/tx_ncstaticfilecache/';
-
 	protected $isDebugEnabled = FALSE;
 
 	/**
@@ -75,15 +73,6 @@ class StaticFileCache implements SingletonInterface {
 		$this->cache = $cacheManager->getCache('static_file_cache');
 
 		$this->configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
-	}
-
-	/**
-	 * Gets the directory used for storing the cached files.
-	 *
-	 * @return    string        The directory used for storing the cached files
-	 */
-	public function getCacheDirectory() {
-		return $this->cacheDir;
 	}
 
 	/**
@@ -314,8 +303,6 @@ class StaticFileCache implements SingletonInterface {
 		}
 		$uri = urldecode($uri);
 
-		$cacheDir = $this->cacheDir . $host;
-
 		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
 		$loginsDeniedCfg = (!$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch);
 		$staticCacheable = $pObj->isStaticCacheble();
@@ -332,7 +319,6 @@ class StaticFileCache implements SingletonInterface {
 					'host'            => &$host,
 					'uri'             => &$uri,
 					'isHttp'          => &$isHttp,
-					'cacheDir'        => &$cacheDir,
 					'fieldValues'     => &$fieldValues,
 					'loginDenied'     => &$loginsDeniedCfg,
 					'additionalHash'  => &$additionalHash,
@@ -390,7 +376,6 @@ class StaticFileCache implements SingletonInterface {
 							'TSFE'        => $pObj,
 							'content'     => $content,
 							'fieldValues' => &$fieldValues,
-							'directory'   => PATH_site . $cacheDir,
 							'file'        => $file,
 							'host'        => $host,
 							'uri'         => $uri,
