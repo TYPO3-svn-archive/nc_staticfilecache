@@ -8,9 +8,7 @@
 
 namespace SFC\NcStaticfilecache\Cache;
 
-use TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 /**
@@ -22,12 +20,7 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
  *
  * @author Tim Lochmüller
  */
-class StaticFileBackend extends Typo3DatabaseBackend {
-
-	/**
-	 * The default compression level
-	 */
-	const DEFAULT_COMPRESSION_LEVEL = 3;
+class StaticFileBackend extends AbstractBackend {
 
 	/**
 	 * Cache directory
@@ -35,20 +28,6 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 	 * @var string
 	 */
 	protected $cacheDirectory = 'typo3temp/tx_ncstaticfilecache/';
-
-	/**
-	 * Configuration
-	 *
-	 * @var \SFC\NcStaticfilecache\Configuration
-	 */
-	protected $configuration;
-
-	/**
-	 * Build up the object
-	 */
-	public function __construct() {
-		$this->configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
-	}
 
 	/**
 	 * Saves data in the cache.
@@ -80,11 +59,7 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 
 			// gz
 			if ($this->configuration->get('enableStaticFileCompression')) {
-				$level = isset($GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel']) ? (int)$GLOBALS['TYPO3_CONF_VARS']['FE']['compressionLevel'] : self::DEFAULT_COMPRESSION_LEVEL;
-				if (!MathUtility::isIntegerInRange($level, 1, 9)) {
-					$level = self::DEFAULT_COMPRESSION_LEVEL;
-				}
-				$contentGzip = gzencode($data, $level);
+				$contentGzip = gzencode($data, $this->getCompressionLevel());
 				if ($contentGzip) {
 					GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
 				}
@@ -95,23 +70,6 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 		} else {
 			parent::set($entryIdentifier, $data, $tags, $lifetime);
 		}
-	}
-
-	/**
-	 * Get the real life time
-	 *
-	 * @param int $lifetime
-	 *
-	 * @return int
-	 */
-	protected function getRealLifetime($lifetime) {
-		if (is_null($lifetime)) {
-			$lifetime = $this->defaultLifetime;
-		}
-		if ($lifetime === 0 || $lifetime > $this->maximumLifetime) {
-			$lifetime = $this->maximumLifetime;
-		}
-		return $lifetime;
 	}
 
 	/**
@@ -241,7 +199,8 @@ class StaticFileBackend extends Typo3DatabaseBackend {
 	 * @return void
 	 */
 	public function collectGarbage() {
-		$cacheEntryIdentifierRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('DISTINCT identifier', $this->cacheTable, $this->expiredStatement);
+		$cacheEntryIdentifierRows = $this->getDatabaseConnection()
+			->exec_SELECTgetRows('DISTINCT identifier', $this->cacheTable, $this->expiredStatement);
 		parent::collectGarbage();
 		foreach ($cacheEntryIdentifierRows as $row) {
 			$this->removeStaticFiles($row['identifier']);
