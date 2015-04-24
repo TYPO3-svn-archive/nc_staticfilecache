@@ -469,23 +469,6 @@ class StaticFileCache implements SingletonInterface {
 	}
 
 	/**
-	 * Log cache miss if no_cache is true
-	 *
-	 * @param    array  $params : Parameters delivered by the calling object
-	 * @param    object $parent : The calling parent object
-	 *
-	 * @return    void
-	 */
-	public function logNoCache(&$params, $parent) {
-		if ($params['pObj']) {
-			if ($params['pObj']->no_cache) {
-				$timeOutTime = 0;
-				$this->insertPageInCache($params['pObj'], $timeOutTime);
-			}
-		}
-	}
-
-	/**
 	 * Set a cookie if a user logs in or refresh it
 	 *
 	 * This function is needed because TYPO3 always sets the fe_typo_user cookie,

@@ -11,8 +11,13 @@ if (!defined('TYPO3_MODE')) {
 // Register with "crawler" extension:
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['crawler']['procInstructions']['tx_ncstaticfilecache_clearstaticfile'] = 'clear static cache file';
 
+$hookNamespace = 'SFC\\NcStaticfilecache\\Hook\\';
+
 // Hook to process clearing static cached files if "crawler" extension is active:
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\Hook\\Crawler->clearStaticFile';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['headerNoCache'][$_EXTKEY] = $hookNamespace . 'Crawler->clearStaticFile';
+
+// Log a cache miss if no_cache is true
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-all'][$_EXTKEY] = $hookNamespace . 'LogNoCache->log';
 
 // Create cache
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPageIncache'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache';
@@ -21,9 +26,6 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPag
 //	You need the be_typo_user cookie detection enabled in the rewrite rules
 //	for this to work.
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['tslib_fe-PostProc'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache->headerNoCache';
-
-// Log a cache miss if no_cache is true
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-all'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache->logNoCache';
 
 // Clear cache
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache->clearCachePostProc';
