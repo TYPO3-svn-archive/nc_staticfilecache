@@ -45,13 +45,6 @@ class StaticFileCache implements SingletonInterface {
 	protected $extKey = 'nc_staticfilecache';
 
 	/**
-	 * File table (old)
-	 *
-	 * @var string
-	 */
-	protected $fileTable = 'tx_ncstaticfilecache_file';
-
-	/**
 	 * If is debug enabled
 	 *
 	 * @var bool
@@ -264,22 +257,6 @@ class StaticFileCache implements SingletonInterface {
 	}
 
 	/**
-	 * Returns records for a page id
-	 *
-	 * @param    integer $pid Page id
-	 *
-	 * @return    array        Array of records
-	 */
-	public function getRecordForPageID($pid) {
-
-		#DebuggerUtility::var_dump($this->cache->getByTag('page_' . intval($pid)));
-		#die();
-
-		return $this->getDatabaseConnection()
-			->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . intval($pid));
-	}
-
-	/**
 	 * Detecting if shift-reload has been clicked. Will not be called if re-
 	 * generation of page happens by other reasons (for instance that the page
 	 * is not in cache yet!) Also, a backend user MUST be logged in for the
@@ -401,16 +378,11 @@ class StaticFileCache implements SingletonInterface {
 					}
 				}
 
-				$recordIsWritten = $this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, '');
-				if ($recordIsWritten === TRUE) {
-
-					// new cache
-					$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
-					$tags = array(
-						'page_' . $pObj->page['uid'],
-					);
-					$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
-				}
+				$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
+				$tags = array(
+					'page_' . $pObj->page['uid'],
+				);
+				$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
 			} else {
 				$explanation = '';
 				// This is an 'explode' of the function isStaticCacheable()
@@ -475,7 +447,6 @@ class StaticFileCache implements SingletonInterface {
 				);
 				$this->cache->set($cacheUri, $explanation, $tags, 0);
 
-				$this->writeStaticCacheRecord($pObj, $fieldValues, $host, $uri, $file, $additionalHash, 0, $explanation);
 				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
 			}
 		}
@@ -520,32 +491,7 @@ class StaticFileCache implements SingletonInterface {
 	 * @return    void
 	 */
 	public function removeExpiredPages(CommandLineController $parent = NULL) {
-		$clearedPages = array();
-
-		$rows = $this->getDatabaseConnection()
-			->exec_SELECTgetRows('file, host, pid, (' . $GLOBALS['EXEC_TIME'] . ' - crdate - cache_timeout) as seconds', $this->fileTable, '(cache_timeout + crdate) <= ' . $GLOBALS['EXEC_TIME'] . ' AND crdate > 0');
-
-		if ($rows) {
-			/* @var $tce \TYPO3\CMS\Core\DataHandling\DataHandler */
-			$tce = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\DataHandling\\DataHandler');
-			$tce->start(array(), array());
-
-			foreach ($rows as $row) {
-				$pageId = $row['pid'];
-
-				if (isset($parent)) {
-					$parent->cli_echo("Removed pid: " . $pageId . "\t" . $row['host'] . $row['file'] . ", expired by " . $row['seconds'] . " seconds.\n");
-				}
-
-				// Check whether page was already cleared:
-				if (!isset($clearedPages[$pageId])) {
-					$tce->clear_cacheCmd($pageId);
-					$clearedPages[$pageId] = TRUE;
-				}
-			}
-		} elseif (isset($parent)) {
-			$parent->cli_echo("No expired pages found.\n");
-		}
+		$this->cache->collectGarbage();
 	}
 
 	/**
@@ -670,82 +616,15 @@ class StaticFileCache implements SingletonInterface {
 				$this->cache->remove($cacheEntry);
 			}
 
-			// @deprecated Cache of a single page shall be removed
-			$rows = $this->getDatabaseConnection()
-				->exec_SELECTgetRows('*', $this->fileTable, 'pid=' . $pid);
-			foreach ($rows as $row) {
-				$this->getDatabaseConnection()
-					->exec_DELETEquery($this->fileTable, 'uid=' . $row['uid']);
-			}
 			return;
 		}
 
 		// Cache of all pages shall be removed (clearCacheCmd "all" or "pages")
 		try {
-
 			$this->cache->flush();
-
-			// @deprecated (Remove old cache information table)
-			$this->getDatabaseConnection()
-				->exec_TRUNCATEquery($this->fileTable);
 		} catch (\Exception $e) {
 			$this->debug($e->getMessage(), LOG_CRIT);
 		}
-	}
-
-	/**
-	 * Gets the name of the database table holding all cached files.
-	 *
-	 * @return    string        Name of the database holding all cached files
-	 */
-	public function getFileTable() {
-		return $this->fileTable;
-	}
-
-	/**
-	 *    Check for existing entries with the same uid and file, if a record exists, update timestamp, otherwise create a new record.
-	 *
-	 * @param object  $pObj
-	 * @param array   $fieldValues
-	 * @param string  $host
-	 * @param string  $uri
-	 * @param string  $file
-	 * @param string  $additionalHash
-	 * @param integer $timeOutSeconds
-	 * @param string  $explanation
-	 *
-	 * @return boolean
-	 */
-	private function writeStaticCacheRecord($pObj, array $fieldValues, $host, $uri, $file, $additionalHash, $timeOutSeconds, $explanation) {
-		$databaseConnection = $this->getDatabaseConnection();
-		$rows = $databaseConnection->exec_SELECTgetRows('uid', $this->fileTable, 'pid=' . $pObj->page['uid'] . ' AND host = ' . $databaseConnection->fullQuoteStr($host, $this->fileTable) . ' AND file=' . $databaseConnection->fullQuoteStr($file, $this->fileTable) . ' AND additionalhash=' . $databaseConnection->fullQuoteStr($additionalHash, $this->fileTable));
-
-		// update DB-record
-		if (is_array($rows) === TRUE && count($rows) > 0) {
-			$fieldValues['tstamp'] = $GLOBALS['EXEC_TIME'];
-			$fieldValues['cache_timeout'] = $timeOutSeconds;
-			$fieldValues['explanation'] = $explanation;
-			$fieldValues['ismarkedtodelete'] = 0;
-			$result = $databaseConnection->exec_UPDATEquery($this->fileTable, 'uid=' . $rows[0]['uid'], $fieldValues);
-			if ($result === TRUE) {
-				return TRUE;
-			}
-		}
-
-		// create DB-record
-		$fieldValues = array_merge($fieldValues, array(
-			'crdate'         => $GLOBALS['EXEC_TIME'],
-			'tstamp'         => $GLOBALS['EXEC_TIME'],
-			'cache_timeout'  => $timeOutSeconds,
-			'explanation'    => $explanation,
-			'file'           => $file,
-			'pid'            => $pObj->page['uid'],
-			'reg1'           => $pObj->page_cache_reg1,
-			'host'           => $host,
-			'uri'            => $uri,
-			'additionalhash' => $additionalHash,
-		));
-		return $databaseConnection->exec_INSERTquery($this->fileTable, $fieldValues);
 	}
 
 	/**

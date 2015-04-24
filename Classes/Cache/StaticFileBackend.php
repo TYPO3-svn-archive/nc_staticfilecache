@@ -42,34 +42,34 @@ class StaticFileBackend extends AbstractBackend {
 	 * @throws \TYPO3\CMS\Core\Cache\Exception\InvalidDataException if the data is not a string
 	 */
 	public function set($entryIdentifier, $data, array $tags = array(), $lifetime = NULL) {
-		if (!in_array('explanation', $tags)) {
-
-			// call set in front of the generation, because the set method
-			// of the DB backend also call remove
-			parent::set($entryIdentifier, 'SFC', $tags, $lifetime);
-
-			$fileName = $this->getCacheFilename($entryIdentifier);
-			$cacheDir = pathinfo($fileName, PATHINFO_DIRNAME);
-			if (!is_dir($cacheDir)) {
-				GeneralUtility::mkdir_deep($cacheDir);
-			}
-
-			// normal
-			GeneralUtility::writeFile($fileName, $data);
-
-			// gz
-			if ($this->configuration->get('enableStaticFileCompression')) {
-				$contentGzip = gzencode($data, $this->getCompressionLevel());
-				if ($contentGzip) {
-					GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
-				}
-			}
-
-			// htaccess
-			$this->writeHtAccessFile($fileName, $lifetime);
-		} else {
+		if (in_array('explanation', $tags)) {
 			parent::set($entryIdentifier, $data, $tags, $lifetime);
+			return;
 		}
+
+		// call set in front of the generation, because the set method
+		// of the DB backend also call remove
+		parent::set($entryIdentifier, $GLOBALS['EXEC_TIME'] . '|' . ($GLOBALS['EXEC_TIME'] + $this->getRealLifetime($lifetime)), $tags, $lifetime);
+
+		$fileName = $this->getCacheFilename($entryIdentifier);
+		$cacheDir = pathinfo($fileName, PATHINFO_DIRNAME);
+		if (!is_dir($cacheDir)) {
+			GeneralUtility::mkdir_deep($cacheDir);
+		}
+
+		// normal
+		GeneralUtility::writeFile($fileName, $data);
+
+		// gz
+		if ($this->configuration->get('enableStaticFileCompression')) {
+			$contentGzip = gzencode($data, $this->getCompressionLevel());
+			if ($contentGzip) {
+				GeneralUtility::writeFile($fileName . '.gz', $contentGzip);
+			}
+		}
+
+		// htaccess
+		$this->writeHtAccessFile($fileName, $lifetime);
 	}
 
 	/**
@@ -137,7 +137,7 @@ class StaticFileBackend extends AbstractBackend {
 	 * @return boolean TRUE if such an entry exists, FALSE if not
 	 */
 	public function has($entryIdentifier) {
-		return is_file($this->getCacheFilename($entryIdentifier));
+		return is_file($this->getCacheFilename($entryIdentifier)) || parent::has($entryIdentifier);
 	}
 
 	/**

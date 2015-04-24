@@ -22,6 +22,7 @@ ChangeLog
 - Move more HTML to the templates of the Backend module
 - removed unused function getContentObject
 - Integration SFC Backend functions for the cache
+- [!!!] Migrate the backend module and all functions to the new Caching Framework mechanism
 
 2015-04-20 Tim Lochmüller <tim@fruit-lab.de>
 

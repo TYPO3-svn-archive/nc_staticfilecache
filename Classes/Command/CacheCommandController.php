@@ -22,9 +22,6 @@ class CacheCommandController extends CommandController {
 	 * Remove the expired pages
 	 */
 	public function removeExpiredPagesCommand() {
-		StaticFileCache::getInstance()
-			->removeExpiredPages();
-
 		/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
 		$cacheManager = $this->objectManager->get('TYPO3\\CMS\\Core\\Cache\\CacheManager');
 		$cache = $cacheManager->getCache('static_file_cache');

@@ -13,6 +13,7 @@ use SFC\NcStaticfilecache\StaticFileCache;
 use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
 use TYPO3\CMS\Backend\Tree\View\BrowseTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
@@ -89,35 +90,40 @@ class CacheModule extends AbstractFunctionModule {
 
 		foreach ($tree->tree as $row) {
 
-			// Fetch files:
-			$fileRecords = StaticFileCache::getInstance()
-				->getRecordForPageID($row['row']['uid']);
+			$cacheEntries = $cache->getByTag('page_' . $row['row']['uid']);
 
-			// $cacheEntries = $cache->getByTag('page_' . $row['row']['uid']);
-
-			if ($fileRecords) {
-				foreach ($fileRecords as $k => $frec) {
+			if ($cacheEntries) {
+				$isFirst = TRUE;
+				foreach ($cacheEntries as $identifier => $info) {
 					$tCells = array();
 
-					if (!$k) {
+					if ($isFirst) {
 						$tCells[] = '<td nowrap="nowrap">' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>';
+						$isFirst = FALSE;
 					} else {
 						$tCells[] = '<td nowrap="nowrap">' . $row['HTML_depthData'] . '</td>';
 					}
 
-					$tCells[] = '<td nowrap="nowrap"><span class="typo3-dimmed">' . ($frec['tstamp'] ? BackendUtility::datetime($frec['tstamp']) : '') . '</span></td>';
-					$timeout = ($frec['tstamp'] > 0) ? BackendUtility::calcAge(($frec['cache_timeout']), $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')) : '';
-					$tCells[] = '<td nowrap="nowrap">' . $timeout . '</td>';
-					$tCells[] = '<td nowrap="nowrap">' . ($frec['explanation'] ? $frec['explanation'] : '') . '</td>';
+					$tCells[] = '<td nowrap="nowrap">' . $identifier . '</td>';
+					if (strpos($info, '|')) {
+						$times = GeneralUtility::trimExplode('|', $info);
+						$tCells[] = '<td nowrap="nowrap">' . strftime('%d-%m-%y %H:%M', $times[0]) . '</td>';
+						$tCells[] = '<td nowrap="nowrap">' . strftime('%d-%m-%y %H:%M', $times[1]) . '</td>';
+						$tCells[] = '<td nowrap="nowrap">' . IconUtility::getSpriteIcon('status-status-permission-granted') . '</td>';
+					} else {
+						$tCells[] = '<td nowrap="nowrap">' . IconUtility::getSpriteIcon('status-status-permission-denied') . '</td>';
+						$tCells[] = '<td nowrap="nowrap">' . IconUtility::getSpriteIcon('status-status-permission-denied') . '</td>';
+						$tCells[] = '<td nowrap="nowrap">' . $info . '</td>';
+					}
 
 					$rows[] = implode('', $tCells);
 				}
 			} else {
+				// empty entry
 				$tCells = array(
-					'<td nowrap="nowrap" colspan="3">' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
+					'<td nowrap="nowrap" colspan="4">' . $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) . '</td>',
 					'<td><span class="typo3-dimmed">' . ($row['row']['uid'] == 0 ? '' : 'not hit') . '</span></td>',
 				);
-
 				$rows[] = implode('', $tCells);
 			}
 		}
