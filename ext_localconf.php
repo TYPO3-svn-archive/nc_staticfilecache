@@ -28,7 +28,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['insertPag
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['tslib_fe-PostProc'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache->headerNoCache';
 
 // Clear cache
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache->clearCachePostProc';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc'][$_EXTKEY] = $hookNamespace . 'ClearCachePostProc->clearCachePostProc';
 
 // Set cookie when User logs in
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['initFEuser'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache->setFeUserCookie';
