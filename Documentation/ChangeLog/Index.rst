@@ -5,6 +5,7 @@ ChangeLog
 
 - Move ClearCachePostProc.php to separate class
 - Move HeaderNoCache to separate class
+- Move the decision if the page is cachable to a rule based system (first two rules)
 
 2015-04-22 Tim Lochmüller <tim@fruit-lab.de>
 

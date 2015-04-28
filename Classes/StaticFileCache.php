@@ -15,6 +15,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -61,6 +62,13 @@ class StaticFileCache implements SingletonInterface {
 	protected $cache;
 
 	/**
+	 * Cache
+	 *
+	 * @var Dispatcher
+	 */
+	protected $signalDispatcher;
+
+	/**
 	 * Get the current object
 	 *
 	 * @return StaticFileCache
@@ -76,6 +84,7 @@ class StaticFileCache implements SingletonInterface {
 		/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
 		$cacheManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager');
 		$this->cache = $cacheManager->getCache('static_file_cache');
+		$this->signalDispatcher = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\SignalSlot\\Dispatcher');
 
 		$this->configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
 	}
@@ -165,14 +174,15 @@ class StaticFileCache implements SingletonInterface {
 		$this->debug('insertPageIncache');
 
 		// Find host-name / IP, always in lowercase:
+		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
 		$host = strtolower(GeneralUtility::getIndpEnv('HTTP_HOST'));
 		$uri = GeneralUtility::getIndpEnv('REQUEST_URI');
 		if ($this->configuration->get('recreateURI')) {
 			$uri = $this->recreateURI();
 		}
 		$uri = urldecode($uri);
+		$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
 
-		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
 		$loginsDeniedCfg = (!$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch);
 		$staticCacheable = $pObj->isStaticCacheble();
 
@@ -195,15 +205,28 @@ class StaticFileCache implements SingletonInterface {
 			}
 		}
 
+		// cache rules
+		$ruleArguments = array(
+			'explanation'        => array(),
+			'frontendController' => $pObj,
+			'uri'                => $cacheUri,
+		);
+		try {
+			$ruleArguments = $this->signalDispatcher->dispatch(__CLASS__, 'cacheRule', $ruleArguments);
+		} catch (\Exception $ex) {
+			// do not cache at all
+		}
+		$explanation = $ruleArguments['explanation'];
+
 		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
-		if (strpos($uri, '?') === FALSE && $pObj->page['doktype'] != 3 && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
+		if ($pObj->page['doktype'] != 3 && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
 			// Workspaces have been introduced with TYPO3 4.0.0:
 			$version = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
 			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
-			if ($pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
+			if (sizeof($explanation) === 0 && $pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
 
 				// If page has a endtime before the current timeOutTime, use it instead:
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
@@ -230,31 +253,29 @@ class StaticFileCache implements SingletonInterface {
 							'content'     => $content,
 							'fieldValues' => &$fieldValues,
 							'host'        => $host,
-							'uri'         => $uri,
+							'uri'         => $cacheUri,
 						);
 						$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 					}
 				}
 
-				$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
 				$tags = array(
 					'pageId_' . $pObj->page['uid'],
 				);
 				$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
 			} else {
-				$explanation = '';
 				// This is an 'explode' of the function isStaticCacheable()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
 					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
-					$explanation = 'static cache disabled on page';
+					$explanation[] = 'static cache disabled on page';
 				}
 				if ((boolean)$this->configuration->get('disableCache') === TRUE) {
 					$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"', LOG_INFO);
-					$explanation = 'static cache disabled by TypoScript';
+					$explanation[] = 'static cache disabled by TypoScript';
 				}
 				if ($pObj->no_cache) {
 					$this->debug('insertPageIncache: no_cache setting is true', LOG_INFO);
-					$explanation = 'config.no_cache is true';
+					$explanation[] = 'config.no_cache is true';
 				}
 				if ($pObj->isINTincScript()) {
 					$this->debug('insertPageIncache: page has INTincScript', LOG_INFO);
@@ -280,30 +301,29 @@ class StaticFileCache implements SingletonInterface {
 
 						$INTincScripts[] = implode(',', $infos);
 					}
-					$explanation = 'page has INTincScript: <ul><li>' . implode('</li><li>', $INTincScripts) . '</li></ul>';
+					$explanation[] = 'page has INTincScript: <ul><li>' . implode('</li><li>', $INTincScripts) . '</li></ul>';
 					unset($INTincScripts);
 				}
 				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
 					$this->debug('insertPageIncache: page has user or group set', LOG_INFO);
 					// This is actually ok, we do not need to create cache nor an entry in the files table
-					//$explanation = "page has user or group set";
+					$explanation[] = "page has user or group set";
 				}
 				if ($workspacePreview) {
 					$this->debug('insertPageIncache: workspace preview', LOG_INFO);
-					$explanation = 'workspace preview';
+					$explanation[] = 'workspace preview';
 				}
 				if (!$loginsDeniedCfg) {
 					$this->debug('insertPageIncache: loginsDeniedCfg is true', LOG_INFO);
-					$explanation = 'loginsDeniedCfg is true';
+					$explanation[] = 'loginsDeniedCfg is true';
 				}
 
 				// new cache
-				$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
 				$tags = array(
 					'pageId_' . $pObj->page['uid'],
 					'explanation'
 				);
-				$this->cache->set($cacheUri, $explanation, $tags, 0);
+				$this->cache->set($cacheUri, implode(' - ', $explanation), $tags, 0);
 
 				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
 			}
@@ -316,7 +336,7 @@ class StaticFileCache implements SingletonInterface {
 				$hookParameters = array(
 					'TSFE'           => $pObj,
 					'host'           => $host,
-					'uri'            => $uri,
+					'uri'            => $cacheUri,
 					'isStaticCached' => $isStaticCached,
 				);
 				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);

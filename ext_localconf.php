@@ -36,6 +36,11 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['initFEuse
 // register command controller
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = 'SFC\\NcStaticfilecache\\Command\\CacheCommandController';
 
+/** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
+$signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\SignalSlot\\Dispatcher');
+$signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\StaticCachable', 'check');
+$signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\ValidUri', 'check');
+
 // new Cache for Static file caches
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['static_file_cache'] = array(
 	'frontend' => 'SFC\\NcStaticfilecache\\Cache\\UriFrontend',
