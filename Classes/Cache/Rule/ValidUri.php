@@ -23,17 +23,20 @@ class ValidUri {
 	 * @param array                        $explanation
 	 * @param TypoScriptFrontendController $frontendController
 	 * @param string                       $uri
+	 * @param bool                         $skipProcessing
 	 *
 	 * @return array
 	 */
-	public function check($explanation, $frontendController, $uri) {
+	public function check($explanation, $frontendController, $uri, $skipProcessing) {
 		if (strpos($uri, '?') !== FALSE) {
 			$explanation[] = 'The URI contain a "?" that is not allowed for static file cache';
+			$skipProcessing = TRUE;
 		}
 		return array(
 			'explanation'        => $explanation,
 			'frontendController' => $frontendController,
 			'uri'                => $uri,
+			'skipProcessing'     => $skipProcessing,
 		);
 	}
 }

@@ -210,6 +210,7 @@ class StaticFileCache implements SingletonInterface {
 			'explanation'        => array(),
 			'frontendController' => $pObj,
 			'uri'                => $cacheUri,
+			'skipProcessing'     => FALSE,
 		);
 		try {
 			$ruleArguments = $this->signalDispatcher->dispatch(__CLASS__, 'cacheRule', $ruleArguments);
@@ -219,7 +220,7 @@ class StaticFileCache implements SingletonInterface {
 		$explanation = $ruleArguments['explanation'];
 
 		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
-		if ($pObj->page['doktype'] != 3 && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
+		if (!$ruleArguments['skipProcessing'] && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
 			// Workspaces have been introduced with TYPO3 4.0.0:
 			$version = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
 			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
