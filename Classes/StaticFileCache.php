@@ -153,27 +153,6 @@ class StaticFileCache implements SingletonInterface {
 	}
 
 	/**
-	 * Detecting if shift-reload has been clicked. Will not be called if re-
-	 * generation of page happens by other reasons (for instance that the page
-	 * is not in cache yet!) Also, a backend user MUST be logged in for the
-	 * shift-reload to be detected due to DoS-attack-security reasons.
-	 *
-	 * @param    array                        $params : array containing pObj among other things
-	 * @param    TypoScriptFrontendController $parent : The calling parent object
-	 *
-	 * @return    void
-	 */
-	public function headerNoCache(array &$params, TypoScriptFrontendController $parent) {
-		if (strtolower($_SERVER['HTTP_CACHE_CONTROL']) === 'no-cache' || strtolower($_SERVER['HTTP_PRAGMA']) === 'no-cache') {
-			if ($parent->beUserLogin) {
-				$this->debug('no-cache header found', LOG_INFO);
-				$cmd = array('cacheCmd' => $parent->id);
-				$this->clearStaticFile($cmd);
-			}
-		}
-	}
-
-	/**
 	 * Check if the SFC should create the cache
 	 *
 	 * @param    TypoScriptFrontendController $pObj        : The parent object

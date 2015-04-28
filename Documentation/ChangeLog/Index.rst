@@ -4,6 +4,7 @@ ChangeLog
 2015-04-28 Tim Lochmüller <tim@fruit-lab.de>
 
 - Move ClearCachePostProc.php to separate class
+- Move HeaderNoCache to separate class
 
 2015-04-22 Tim Lochmüller <tim@fruit-lab.de>
 
