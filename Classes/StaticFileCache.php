@@ -285,7 +285,6 @@ class StaticFileCache implements SingletonInterface {
 		$staticCacheable = $pObj->isStaticCacheble();
 
 		$fieldValues = array();
-		$additionalHash = '';
 
 		// Hook: Initialize variables before starting the processing.
 		$initializeVariablesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables'];
@@ -298,7 +297,6 @@ class StaticFileCache implements SingletonInterface {
 					'isHttp'          => &$isHttp,
 					'fieldValues'     => &$fieldValues,
 					'loginDenied'     => &$loginsDeniedCfg,
-					'additionalHash'  => &$additionalHash,
 					'staticCacheable' => &$staticCacheable,
 				);
 				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
@@ -310,20 +308,6 @@ class StaticFileCache implements SingletonInterface {
 			// Workspaces have been introduced with TYPO3 4.0.0:
 			$version = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
 			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
-
-			// check the allowed file types
-			$basename = basename($uri);
-			$fileExtension = pathinfo($basename, PATHINFO_EXTENSION);
-			$fileTypes = explode(',', $this->configuration->get('fileTypes'));
-
-			$file = $uri;
-			if (empty($fileExtension) || !in_array($fileExtension, $fileTypes)) {
-				$file .= '/index.html';
-			} else {
-				$uri = dirname($uri);
-			}
-
-			$file = preg_replace('#//#', '/', $file);
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
@@ -353,7 +337,6 @@ class StaticFileCache implements SingletonInterface {
 							'TSFE'        => $pObj,
 							'content'     => $content,
 							'fieldValues' => &$fieldValues,
-							'file'        => $file,
 							'host'        => $host,
 							'uri'         => $uri,
 						);
