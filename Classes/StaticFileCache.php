@@ -12,7 +12,6 @@ use SFC\NcStaticfilecache\Cache\UriFrontend;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
@@ -204,6 +203,10 @@ class StaticFileCache implements SingletonInterface {
 		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
 		if (!$ruleArguments['skipProcessing'] && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
 
+			$cacheTags = array(
+				'pageId_' . $pObj->page['uid'],
+			);
+
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
 			if (sizeof($explanation) === 0 && $pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $loginsDeniedCfg) {
@@ -236,11 +239,6 @@ class StaticFileCache implements SingletonInterface {
 						$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 					}
 				}
-
-				$tags = array(
-					'pageId_' . $pObj->page['uid'],
-				);
-				$this->cache->set($cacheUri, $content, $tags, $timeOutSeconds);
 			} else {
 				// This is an 'explode' of the function isStaticCacheable()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
@@ -252,43 +250,17 @@ class StaticFileCache implements SingletonInterface {
 				if ($pObj->no_cache) {
 					$explanation[] = 'config.no_cache is true';
 				}
-				if ($pObj->isINTincScript()) {
-
-					$INTincScripts = array();
-					foreach ($pObj->config['INTincScript'] as $k => $v) {
-						$infos = array();
-						if (isset($v['type'])) {
-							$infos[] = 'type: ' . $v['type'];
-						}
-						if (isset($v['conf']['userFunc'])) {
-							$infos[] = 'userFunc: ' . $v['conf']['userFunc'];
-						}
-						if (isset($v['conf']['includeLibs'])) {
-							$infos[] = 'includeLibs: ' . $v['conf']['includeLibs'];
-						}
-						if (isset($v['conf']['extensionName'])) {
-							$infos[] = 'extensionName: ' . $v['conf']['extensionName'];
-						}
-						if (isset($v['conf']['pluginName'])) {
-							$infos[] = 'pluginName: ' . $v['conf']['pluginName'];
-						}
-
-						$INTincScripts[] = implode(',', $infos);
-					}
-					$explanation[] = 'page has INTincScript: <ul><li>' . implode('</li><li>', $INTincScripts) . '</li></ul>';
-					unset($INTincScripts);
-				}
 				if (!$loginsDeniedCfg) {
 					$explanation[] = 'loginsDeniedCfg is true';
 				}
-
 				// new cache
-				$tags = array(
-					'pageId_' . $pObj->page['uid'],
-					'explanation'
-				);
-				$this->cache->set($cacheUri, implode(' - ', $explanation), $tags, 0);
+				$cacheTags[] = 'explanation';
+				$content = implode(' - ', $explanation);
+				$timeOutSeconds = 0;
 			}
+
+			// create cache entry
+			$this->cache->set($cacheUri, $content, $cacheTags, $timeOutSeconds);
 		}
 
 		// Hook: Post process (no matter whether content was cached statically)

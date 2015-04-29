@@ -11,6 +11,7 @@ ChangeLog
 - Speed up the flushByTag function of the StaticFileBackend
 - Remove the overhead of the debugger. Code checks should be done via e.g. xDebug and not with inline code rubbish
 - Move the UserOrGroup Rule to a separate class
+- Move the NoIntScripts Rule to a separate class
 
 2015-04-28 Klaus Bitto <klaus@netcreators.nl>
 
