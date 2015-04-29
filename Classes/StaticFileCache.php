@@ -136,8 +136,6 @@ class StaticFileCache implements SingletonInterface {
 		$uri = urldecode($uri);
 		$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
 
-		$loginsDeniedCfg = (!$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch);
-
 		$fieldValues = array();
 
 		// Hook: Initialize variables before starting the processing.
@@ -150,7 +148,6 @@ class StaticFileCache implements SingletonInterface {
 					'uri'         => &$uri,
 					'isHttp'      => &$isHttp,
 					'fieldValues' => &$fieldValues,
-					'loginDenied' => &$loginsDeniedCfg,
 				);
 				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 			}
@@ -175,7 +172,7 @@ class StaticFileCache implements SingletonInterface {
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
-			if (sizeof($explanation) === 0 && $pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $loginsDeniedCfg) {
+			if (sizeof($explanation) === 0 && $pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE) {
 
 				// If page has a endtime before the current timeOutTime, use it instead:
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
@@ -215,9 +212,6 @@ class StaticFileCache implements SingletonInterface {
 				}
 				if ($pObj->no_cache) {
 					$explanation[] = 'config.no_cache is true';
-				}
-				if (!$loginsDeniedCfg) {
-					$explanation[] = 'loginsDeniedCfg is true';
 				}
 				// new cache
 				$cacheTags[] = 'explanation';
