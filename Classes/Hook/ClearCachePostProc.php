@@ -50,7 +50,7 @@ class ClearCachePostProc {
 			return;
 		}
 
-		// Get Page TSconfig relavant:
+		// Get Page TSconfig relevant:
 		list($tscPID) = BackendUtility::getTSCpid($table, $uid, '');
 		$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 

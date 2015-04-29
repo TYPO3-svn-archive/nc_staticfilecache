@@ -70,24 +70,17 @@ class StaticFileCache implements SingletonInterface {
 	/**
 	 * Clear static file
 	 *
-	 * @param    object $_params : array containing 'cacheCmd'
+	 * @param array $params array containing 'cacheCmd'
 	 *
-	 * @return    void
+	 * @return void
 	 */
-	public function clearStaticFile(&$_params) {
-		if (isset($_params['cacheCmd']) && $_params['cacheCmd']) {
-			$cacheCmd = $_params['cacheCmd'];
+	public function clearStaticFile(&$params) {
+		if (isset($params['cacheCmd']) && $params['cacheCmd']) {
+			$cacheCmd = $params['cacheCmd'];
 			switch ($cacheCmd) {
 				case 'all':
 				case 'pages':
-					$directory = '';
-					if ((boolean)$this->configuration->get('clearCacheForAllDomains') === FALSE) {
-						if (isset($_params['host']) && $_params['host']) {
-							$directory = $_params['host'];
-						} else {
-							$directory = GeneralUtility::getIndpEnv('HTTP_HOST');
-						}
-					}
+					// @todo check (boolean)$this->configuration->get('clearCacheForAllDomains') here and tag the entries with the domain
 
 					$this->cache->flush();
 					break;
@@ -138,7 +131,6 @@ class StaticFileCache implements SingletonInterface {
 		$ruleArguments = $this->signalDispatcher->dispatch(__CLASS__, 'cacheRule', $ruleArguments);
 		$explanation = $ruleArguments['explanation'];
 
-		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
 		if (!$ruleArguments['skipProcessing']) {
 
 			$cacheTags = array(
@@ -154,13 +146,12 @@ class StaticFileCache implements SingletonInterface {
 					$timeOutTime = $pObj->page['endtime'];
 				}
 
-				// write DB-record and staticCache-files, after DB-record was successful updated or created
 				$timeOutSeconds = $timeOutTime - $GLOBALS['EXEC_TIME'];
 
 				$content = $pObj->content;
 				if ($this->configuration->get('showGenerationSignature')) {
 					$content .= "\n<!-- cached statically on: " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME']) . ' -->';
-					$content .= "\n<!-- expires on: " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME'] + $timeOutSeconds) . ' -->';
+					$content .= "\n<!-- expires on: " . strftime($this->configuration->get('strftime'), ($GLOBALS['EXEC_TIME'] + $timeOutSeconds)) . ' -->';
 				}
 
 				// Signal: Process content before writing to static cached file
@@ -182,7 +173,7 @@ class StaticFileCache implements SingletonInterface {
 				if ($pObj->no_cache) {
 					$explanation[] = 'config.no_cache is true';
 				}
-				// new cache
+
 				$cacheTags[] = 'explanation';
 				$content = implode(' - ', $explanation);
 				$timeOutSeconds = 0;

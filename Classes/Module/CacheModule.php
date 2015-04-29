@@ -133,9 +133,9 @@ class CacheModule extends AbstractFunctionModule {
 		$renderer = GeneralUtility::makeInstance('TYPO3\\CMS\\Fluid\\View\\StandaloneView');
 		$renderer->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:nc_staticfilecache/Resources/Private/Templates/Module.html'));
 		$renderer->assignMultiple(array(
-			'requestUri'   => GeneralUtility::getIndpEnv('REQUEST_URI'),
-			'rows'         => $rows,
-			'pageId'       => $this->pageId
+			'requestUri' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+			'rows'       => $rows,
+			'pageId'     => $this->pageId
 		));
 
 		return $renderer->render();

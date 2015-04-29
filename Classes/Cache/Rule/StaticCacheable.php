@@ -29,7 +29,7 @@ class StaticCacheable {
 	 */
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if (!$frontendController->isStaticCacheble()) {
-			$explanation[] = 'The page is not static chachable via TSFE';
+			$explanation[] = 'The page is not static chachable via TypoScriptFrontend';
 		}
 		return array(
 			'frontendController' => $frontendController,

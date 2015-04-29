@@ -85,7 +85,7 @@ class InitFrontendUser {
 		if ($cookieDomain) {
 			if ($cookieDomain[0] == '/') {
 				$match = array();
-				$matchCnt = @preg_match($cookieDomain, GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY'), $match);
+				$matchCnt = preg_match($cookieDomain, GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY'), $match);
 				if ($matchCnt === FALSE) {
 					GeneralUtility::sysLog('The regular expression for the cookie domain (' . $cookieDomain . ') contains errors. The session is not shared across sub-domains.', 'Core', GeneralUtility::SYSLOG_SEVERITY_ERROR);
 				} elseif ($matchCnt) {

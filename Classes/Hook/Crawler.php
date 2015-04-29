@@ -21,10 +21,10 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 class Crawler {
 
 	/**
-	 * (Hook-function called from TSFE, see ext_localconf.php for configuration)
+	 * (Hook-function called from TypoScriptFrontend, see ext_localconf.php for configuration)
 	 *
-	 * @param array                        $parameters Parameters delivered by TSFE
-	 * @param TypoScriptFrontendController $pObj       The calling parent object (TSFE)
+	 * @param array                        $parameters Parameters delivered by TypoScriptFrontend
+	 * @param TypoScriptFrontendController $pObj       The calling parent object (TypoScriptFrontend)
 	 *
 	 * @returnvoid
 	 */
