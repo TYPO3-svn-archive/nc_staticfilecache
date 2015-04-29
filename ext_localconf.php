@@ -40,6 +40,9 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = '
 $signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\SignalSlot\\Dispatcher');
 $signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\StaticCachable', 'check');
 $signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\ValidUri', 'check');
+$signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\ValidDoktype', 'check');
+$signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\NoWorkspacePreview', 'check');
+
 
 // new Cache for Static file caches
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['static_file_cache'] = array(

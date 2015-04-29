@@ -184,7 +184,6 @@ class StaticFileCache implements SingletonInterface {
 		$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
 
 		$loginsDeniedCfg = (!$pObj->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$pObj->loginAllowedInBranch);
-		$staticCacheable = $pObj->isStaticCacheble();
 
 		$fieldValues = array();
 
@@ -193,13 +192,12 @@ class StaticFileCache implements SingletonInterface {
 		if (is_array($initializeVariablesHooks)) {
 			foreach ($initializeVariablesHooks as $hookFunction) {
 				$hookParameters = array(
-					'TSFE'            => $pObj,
-					'host'            => &$host,
-					'uri'             => &$uri,
-					'isHttp'          => &$isHttp,
-					'fieldValues'     => &$fieldValues,
-					'loginDenied'     => &$loginsDeniedCfg,
-					'staticCacheable' => &$staticCacheable,
+					'TSFE'        => $pObj,
+					'host'        => &$host,
+					'uri'         => &$uri,
+					'isHttp'      => &$isHttp,
+					'fieldValues' => &$fieldValues,
+					'loginDenied' => &$loginsDeniedCfg,
 				);
 				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
 			}
@@ -212,22 +210,15 @@ class StaticFileCache implements SingletonInterface {
 			'uri'                => $cacheUri,
 			'skipProcessing'     => FALSE,
 		);
-		try {
-			$ruleArguments = $this->signalDispatcher->dispatch(__CLASS__, 'cacheRule', $ruleArguments);
-		} catch (\Exception $ex) {
-			// do not cache at all
-		}
+		$ruleArguments = $this->signalDispatcher->dispatch(__CLASS__, 'cacheRule', $ruleArguments);
 		$explanation = $ruleArguments['explanation'];
 
 		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
 		if (!$ruleArguments['skipProcessing'] && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
-			// Workspaces have been introduced with TYPO3 4.0.0:
-			$version = VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version);
-			$workspacePreview = ($version >= 4000000 && $pObj->doWorkspacePreview());
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
-			if (sizeof($explanation) === 0 && $pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $staticCacheable && !$workspacePreview && $loginsDeniedCfg) {
+			if (sizeof($explanation) === 0 && $pObj->page['tx_ncstaticfilecache_cache'] && (boolean)$this->configuration->get('disableCache') === FALSE && $loginsDeniedCfg) {
 
 				// If page has a endtime before the current timeOutTime, use it instead:
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
@@ -309,10 +300,6 @@ class StaticFileCache implements SingletonInterface {
 					$this->debug('insertPageIncache: page has user or group set', LOG_INFO);
 					// This is actually ok, we do not need to create cache nor an entry in the files table
 					$explanation[] = "page has user or group set";
-				}
-				if ($workspacePreview) {
-					$this->debug('insertPageIncache: workspace preview', LOG_INFO);
-					$explanation[] = 'workspace preview';
 				}
 				if (!$loginsDeniedCfg) {
 					$this->debug('insertPageIncache: loginsDeniedCfg is true', LOG_INFO);

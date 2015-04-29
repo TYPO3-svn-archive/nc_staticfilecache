@@ -7,6 +7,7 @@ ChangeLog
 - Move HeaderNoCache to separate class
 - Move the decision if the page is cachable to a rule based system (first two rules)
 - Fix documentation against http://docs.typo3.org/typo3cms/extensions/nc_staticfilecache/3.2.0/warnings.txt
+- Move the WorkspacePreview Rule to a separate class
 
 2015-04-28 Klaus Bitto <klaus@netcreators.nl>
 
