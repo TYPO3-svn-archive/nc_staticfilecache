@@ -20,21 +20,21 @@ class StaticCacheable {
 	/**
 	 * Check if the page is static cachable
 	 *
-	 * @param array                        $explanation
 	 * @param TypoScriptFrontendController $frontendController
 	 * @param string                       $uri
+	 * @param array                        $explanation
 	 * @param bool                         $skipProcessing
 	 *
 	 * @return array
 	 */
-	public function check($explanation, $frontendController, $uri, $skipProcessing) {
+	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if (!$frontendController->isStaticCacheble()) {
 			$explanation[] = 'The page is not static chachable via TSFE';
 		}
 		return array(
-			'explanation'        => $explanation,
 			'frontendController' => $frontendController,
 			'uri'                => $uri,
+			'explanation'        => $explanation,
 			'skipProcessing'     => $skipProcessing,
 		);
 	}

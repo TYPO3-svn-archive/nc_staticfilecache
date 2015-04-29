@@ -20,21 +20,21 @@ class NoWorkspacePreview {
 	/**
 	 * Check if it is no workspace preview
 	 *
-	 * @param array                        $explanation
 	 * @param TypoScriptFrontendController $frontendController
 	 * @param string                       $uri
+	 * @param array                        $explanation
 	 * @param bool                         $skipProcessing
 	 *
 	 * @return array
 	 */
-	public function check($explanation, $frontendController, $uri, $skipProcessing) {
+	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if ($frontendController->doWorkspacePreview()) {
 			$explanation[] = 'The page is in workspace preview mode';
 		}
 		return array(
-			'explanation'        => $explanation,
 			'frontendController' => $frontendController,
 			'uri'                => $uri,
+			'explanation'        => $explanation,
 			'skipProcessing'     => $skipProcessing,
 		);
 	}

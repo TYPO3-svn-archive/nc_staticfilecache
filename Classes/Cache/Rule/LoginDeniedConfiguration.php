@@ -20,22 +20,22 @@ class LoginDeniedConfiguration {
 	/**
 	 * Check LoginDeniedConfiguration
 	 *
-	 * @param array                        $explanation
 	 * @param TypoScriptFrontendController $frontendController
 	 * @param string                       $uri
+	 * @param array                        $explanation
 	 * @param bool                         $skipProcessing
 	 *
 	 * @return array
 	 */
-	public function check($explanation, $frontendController, $uri, $skipProcessing) {
+	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		$loginDeniedCfg = (!$frontendController->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$frontendController->loginAllowedInBranch);
 		if (!$loginDeniedCfg) {
 			$explanation[] = 'loginsDeniedCfg is true';
 		}
 		return array(
-			'explanation'        => $explanation,
 			'frontendController' => $frontendController,
 			'uri'                => $uri,
+			'explanation'        => $explanation,
 			'skipProcessing'     => $skipProcessing,
 		);
 	}

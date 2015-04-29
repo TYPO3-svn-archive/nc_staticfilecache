@@ -125,39 +125,28 @@ class StaticFileCache implements SingletonInterface {
 	 */
 	public function insertPageIncache(TypoScriptFrontendController &$pObj, &$timeOutTime) {
 		$isStaticCached = FALSE;
-
-		// Find host-name / IP, always in lowercase:
-		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
-		$uri = GeneralUtility::getIndpEnv('REQUEST_URI');
-		if ($this->configuration->get('recreateURI')) {
-			$uri = $this->recreateURI();
-		}
-		$uri = urldecode($uri);
-		$cacheUri = ($isHttp ? 'http://' : 'https://') . strtolower(GeneralUtility::getIndpEnv('HTTP_HOST')) . $uri;
-
-		$fieldValues = array();
+		$uri = $this->getUri();
 
 		// Signal: Initialize variables before starting the processing.
 		$preProcessArguments = array(
 			'frontendController' => $pObj,
-			'uri'                => $cacheUri,
-			'isHttp'             => $isHttp,
+			'uri'                => $uri,
 		);
 		$preProcessArguments = $this->signalDispatcher->dispatch(__CLASS__, 'preProcess', $preProcessArguments);
-		$cacheUri = $preProcessArguments['uri'];
+		$uri = $preProcessArguments['uri'];
 
 		// cache rules
 		$ruleArguments = array(
-			'explanation'        => array(),
 			'frontendController' => $pObj,
-			'uri'                => $cacheUri,
+			'uri'                => $uri,
+			'explanation'        => array(),
 			'skipProcessing'     => FALSE,
 		);
 		$ruleArguments = $this->signalDispatcher->dispatch(__CLASS__, 'cacheRule', $ruleArguments);
 		$explanation = $ruleArguments['explanation'];
 
 		// Only process if there are not query arguments, no link to external page (doktype=3) and not called over https:
-		if (!$ruleArguments['skipProcessing'] && ($isHttp || $this->configuration->get('enableHttpsCaching'))) {
+		if (!$ruleArguments['skipProcessing']) {
 
 			$cacheTags = array(
 				'pageId_' . $pObj->page['uid'],
@@ -184,14 +173,15 @@ class StaticFileCache implements SingletonInterface {
 				// Signal: Process content before writing to static cached file
 				$processContentArguments = array(
 					'frontendController' => $pObj,
+					'uri'                => $uri,
 					'content'            => $content,
-					'uri'                => $cacheUri,
 					'timeOutSeconds'     => $timeOutSeconds,
 				);
 				$processContentArguments = $this->signalDispatcher->dispatch(__CLASS__, 'processContent', $processContentArguments);
 				$content = $processContentArguments['content'];
 				$timeOutSeconds = $processContentArguments['timeOutSeconds'];
-				$cacheUri = $processContentArguments['uri'];
+				$uri = $processContentArguments['uri'];
+				$isStaticCached = TRUE;
 			} else {
 				if ((boolean)$this->configuration->get('disableCache') === TRUE) {
 					$explanation[] = 'static cache disabled by TypoScript';
@@ -206,13 +196,13 @@ class StaticFileCache implements SingletonInterface {
 			}
 
 			// create cache entry
-			$this->cache->set($cacheUri, $content, $cacheTags, $timeOutSeconds);
+			$this->cache->set($uri, $content, $cacheTags, $timeOutSeconds);
 		}
 
 		// Signal: Post process (no matter whether content was cached statically)
 		$postProcessArguments = array(
 			'frontendController' => $pObj,
-			'uri'                => $cacheUri,
+			'uri'                => $uri,
 			'isStaticCached'     => $isStaticCached,
 		);
 		$this->signalDispatcher->dispatch(__CLASS__, 'postProcess', $postProcessArguments);
@@ -272,6 +262,22 @@ class StaticFileCache implements SingletonInterface {
 				}
 			}
 		}
+	}
+
+	/**
+	 * get the URI for the current cache ident
+	 *
+	 * @return string
+	 */
+	protected function getUri() {
+		// Find host-name / IP, always in lowercase:
+		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
+		$uri = GeneralUtility::getIndpEnv('REQUEST_URI');
+		if ($this->configuration->get('recreateURI')) {
+			$uri = $this->recreateURI();
+		}
+		$uri = urldecode($uri);
+		return ($isHttp ? 'http://' : 'https://') . strtolower(GeneralUtility::getIndpEnv('HTTP_HOST')) . $uri;
 	}
 
 	/**

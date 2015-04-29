@@ -20,21 +20,21 @@ class NoUserOrGroupSet {
 	/**
 	 * Check if no user or group is set
 	 *
-	 * @param array                        $explanation
 	 * @param TypoScriptFrontendController $frontendController
 	 * @param string                       $uri
+	 * @param array                        $explanation
 	 * @param bool                         $skipProcessing
 	 *
 	 * @return array
 	 */
-	public function check($explanation, $frontendController, $uri, $skipProcessing) {
+	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if ($frontendController->isUserOrGroupSet()) {
 			$explanation[] = 'User or group are set';
 		}
 		return array(
-			'explanation'        => $explanation,
 			'frontendController' => $frontendController,
 			'uri'                => $uri,
+			'explanation'        => $explanation,
 			'skipProcessing'     => $skipProcessing,
 		);
 	}

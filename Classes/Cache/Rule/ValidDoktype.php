@@ -20,23 +20,23 @@ class ValidDoktype {
 	/**
 	 * Check if the URI is valid
 	 *
-	 * @param array                        $explanation
 	 * @param TypoScriptFrontendController $frontendController
 	 * @param string                       $uri
+	 * @param array                        $explanation
 	 * @param bool                         $skipProcessing
 	 *
 	 * @return array
 	 */
-	public function check($explanation, $frontendController, $uri, $skipProcessing) {
+	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		$ignoreTypes = array(3);
 		if (in_array($frontendController->page['doktype'], $ignoreTypes)) {
 			$explanation[] = 'The Page doktype is one of the follwing not allowed numbers: ' . implode(', ', $ignoreTypes);
 			$skipProcessing = TRUE;
 		}
 		return array(
-			'explanation'        => $explanation,
 			'frontendController' => $frontendController,
 			'uri'                => $uri,
+			'explanation'        => $explanation,
 			'skipProcessing'     => $skipProcessing,
 		);
 	}

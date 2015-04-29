@@ -17,6 +17,7 @@ ChangeLog
 - Move the LoginDeniedConfiguration Rule to a separate class
 - Move the PageCacheable Rule to a separate class
 - Replace Hooks with more modern Signals
+- Move the ValidProtocol Rule to a separate class
 
 2015-04-28 Klaus Bitto <klaus@netcreators.nl>
 
