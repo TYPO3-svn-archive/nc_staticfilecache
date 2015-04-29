@@ -32,9 +32,6 @@ class ClearCachePostProc {
 	 */
 	public function clearCachePostProc(array &$params, DataHandler &$pObj) {
 		$staticFileCache = StaticFileCache::getInstance();
-		if (!$staticFileCache->isClearCacheProcessingEnabled()) {
-			return;
-		}
 
 		if ($params['cacheCmd']) {
 			$staticFileCache->clearStaticFile($params);

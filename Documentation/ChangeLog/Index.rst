@@ -12,6 +12,7 @@ ChangeLog
 - Remove the overhead of the debugger. Code checks should be done via e.g. xDebug and not with inline code rubbish
 - Move the UserOrGroup Rule to a separate class
 - Move the NoIntScripts Rule to a separate class
+- Remove old ClearCacheProcessing variable and handling
 
 2015-04-28 Klaus Bitto <klaus@netcreators.nl>
 

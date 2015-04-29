@@ -40,13 +40,6 @@ class StaticFileCache implements SingletonInterface {
 	protected $extKey = 'nc_staticfilecache';
 
 	/**
-	 * Is clear cache processing enabled
-	 *
-	 * @var boolean
-	 */
-	protected $isClearCacheProcessingEnabled = TRUE;
-
-	/**
 	 * Cache
 	 *
 	 * @var UriFrontend
@@ -79,33 +72,6 @@ class StaticFileCache implements SingletonInterface {
 		$this->signalDispatcher = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\SignalSlot\\Dispatcher');
 
 		$this->configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
-	}
-
-	/**
-	 * Enables the clear cache processing.
-	 *
-	 * @return void
-	 * @see clearCachePostProc
-	 */
-	public function enableClearCacheProcessing() {
-		$this->isClearCacheProcessingEnabled = TRUE;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isClearCacheProcessingEnabled() {
-		return $this->isClearCacheProcessingEnabled;
-	}
-
-	/**
-	 * Disables the clear cache processing.
-	 *
-	 * @return void
-	 * @see clearCachePostProc
-	 */
-	public function disableClearCacheProcessing() {
-		$this->isClearCacheProcessingEnabled = FALSE;
 	}
 
 	/**
