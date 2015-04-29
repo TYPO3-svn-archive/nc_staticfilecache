@@ -128,30 +128,23 @@ class StaticFileCache implements SingletonInterface {
 
 		// Find host-name / IP, always in lowercase:
 		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
-		$host = strtolower(GeneralUtility::getIndpEnv('HTTP_HOST'));
 		$uri = GeneralUtility::getIndpEnv('REQUEST_URI');
 		if ($this->configuration->get('recreateURI')) {
 			$uri = $this->recreateURI();
 		}
 		$uri = urldecode($uri);
-		$cacheUri = ($isHttp ? 'http://' : 'https://') . $host . $uri;
+		$cacheUri = ($isHttp ? 'http://' : 'https://') . strtolower(GeneralUtility::getIndpEnv('HTTP_HOST')) . $uri;
 
 		$fieldValues = array();
 
-		// Hook: Initialize variables before starting the processing.
-		$initializeVariablesHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_initializeVariables'];
-		if (is_array($initializeVariablesHooks)) {
-			foreach ($initializeVariablesHooks as $hookFunction) {
-				$hookParameters = array(
-					'TSFE'        => $pObj,
-					'host'        => &$host,
-					'uri'         => &$uri,
-					'isHttp'      => &$isHttp,
-					'fieldValues' => &$fieldValues,
-				);
-				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
-			}
-		}
+		// Signal: Initialize variables before starting the processing.
+		$preProcessArguments = array(
+			'frontendController' => $pObj,
+			'uri'                => $cacheUri,
+			'isHttp'             => $isHttp,
+		);
+		$preProcessArguments = $this->signalDispatcher->dispatch(__CLASS__, 'preProcess', $preProcessArguments);
+		$cacheUri = $preProcessArguments['uri'];
 
 		// cache rules
 		$ruleArguments = array(
@@ -188,20 +181,17 @@ class StaticFileCache implements SingletonInterface {
 					$content .= "\n<!-- expires on: " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME'] + $timeOutSeconds) . ' -->';
 				}
 
-				// Hook: Process content before writing to static cached file:
-				$processContentHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent'];
-				if (is_array($processContentHooks)) {
-					foreach ($processContentHooks as $hookFunction) {
-						$hookParameters = array(
-							'TSFE'        => $pObj,
-							'content'     => $content,
-							'fieldValues' => &$fieldValues,
-							'host'        => $host,
-							'uri'         => $cacheUri,
-						);
-						$content = GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
-					}
-				}
+				// Signal: Process content before writing to static cached file
+				$processContentArguments = array(
+					'frontendController' => $pObj,
+					'content'            => $content,
+					'uri'                => $cacheUri,
+					'timeOutSeconds'     => $timeOutSeconds,
+				);
+				$processContentArguments = $this->signalDispatcher->dispatch(__CLASS__, 'processContent', $processContentArguments);
+				$content = $processContentArguments['content'];
+				$timeOutSeconds = $processContentArguments['timeOutSeconds'];
+				$cacheUri = $processContentArguments['uri'];
 			} else {
 				if ((boolean)$this->configuration->get('disableCache') === TRUE) {
 					$explanation[] = 'static cache disabled by TypoScript';
@@ -219,19 +209,13 @@ class StaticFileCache implements SingletonInterface {
 			$this->cache->set($cacheUri, $content, $cacheTags, $timeOutSeconds);
 		}
 
-		// Hook: Post process (no matter whether content was cached statically)
-		$postProcessHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['insertPageIncache_postProcess'];
-		if (is_array($postProcessHooks)) {
-			foreach ($postProcessHooks as $hookFunction) {
-				$hookParameters = array(
-					'TSFE'           => $pObj,
-					'host'           => $host,
-					'uri'            => $cacheUri,
-					'isStaticCached' => $isStaticCached,
-				);
-				GeneralUtility::callUserFunction($hookFunction, $hookParameters, $this);
-			}
-		}
+		// Signal: Post process (no matter whether content was cached statically)
+		$postProcessArguments = array(
+			'frontendController' => $pObj,
+			'uri'                => $cacheUri,
+			'isStaticCached'     => $isStaticCached,
+		);
+		$this->signalDispatcher->dispatch(__CLASS__, 'postProcess', $postProcessArguments);
 	}
 
 	/**
