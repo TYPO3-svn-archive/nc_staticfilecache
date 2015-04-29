@@ -217,7 +217,8 @@ class StaticFileBackend extends AbstractBackend {
 	public function flushByTag($tag) {
 		$identifiers = $this->findIdentifiersByTag($tag);
 		foreach ($identifiers as $identifier) {
-			$this->remove($identifier);
+			$this->removeStaticFiles($identifier);
 		}
+		parent::flushByTag($tag);
 	}
 }
