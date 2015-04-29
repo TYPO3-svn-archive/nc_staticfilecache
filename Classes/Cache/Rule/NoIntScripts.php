@@ -49,7 +49,7 @@ class NoIntScripts {
 					$info[] = 'pluginName: ' . $v['conf']['pluginName'];
 				}
 
-				$collect[] = implode(',', $info);
+				$collect[] = implode(', ', $info);
 			}
 			$explanation[] = 'The page has INTincScript: (' . implode(' - ', $collect) . ')';
 		}

@@ -15,6 +15,7 @@ ChangeLog
 - Remove old ClearCacheProcessing variable and handling
 - Fix #66651 Missing %{TIME} in RewritCond for Cache-Control header
 - Move the LoginDeniedConfiguration Rule to a separate class
+- Move the PageCacheable Rule to a separate class
 
 2015-04-28 Klaus Bitto <klaus@netcreators.nl>
 
