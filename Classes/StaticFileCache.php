@@ -33,13 +33,6 @@ class StaticFileCache implements SingletonInterface {
 	protected $configuration;
 
 	/**
-	 * Extension key
-	 *
-	 * @var string
-	 */
-	protected $extKey = 'nc_staticfilecache';
-
-	/**
 	 * Cache
 	 *
 	 * @var UriFrontend
@@ -206,62 +199,6 @@ class StaticFileCache implements SingletonInterface {
 			'isStaticCached'     => $isStaticCached,
 		);
 		$this->signalDispatcher->dispatch(__CLASS__, 'postProcess', $postProcessArguments);
-	}
-
-	/**
-	 * Set a cookie if a user logs in or refresh it
-	 *
-	 * This function is needed because TYPO3 always sets the fe_typo_user cookie,
-	 * even if the user never logs in. We want to be able to check against logged
-	 * in frontend users from mod_rewrite. So we need to set our own cookie (when
-	 * a user actually logs in).
-	 *
-	 * Checking code taken from class.t3lib_userauth.php
-	 *
-	 * @param    object $params : parameter array
-	 * @param    object $pObj   : partent object
-	 *
-	 * @return    void
-	 */
-	public function setFeUserCookie(&$params, &$pObj) {
-		$cookieDomain = NULL;
-		// Setting cookies
-		if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']) {
-			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain']{0} == '/') {
-				$matchCnt = @preg_match($GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain'], GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY'), $match);
-				if ($matchCnt === FALSE) {
-					GeneralUtility::sysLog('The regular expression of $GLOBALS[TYPO3_CONF_VARS][SYS][cookieDomain] contains errors. The session is not shared across sub-domains.', 'Core', 3);
-				} elseif ($matchCnt) {
-					$cookieDomain = $match[0];
-				}
-			} else {
-				$cookieDomain = $GLOBALS['TYPO3_CONF_VARS']['SYS']['cookieDomain'];
-			}
-		}
-
-		// If new session and the cookie is a sessioncookie, we need to set it only once!
-		if (($pObj->fe_user->loginSessionStarted || $pObj->fe_user->forceSetCookie) && $pObj->fe_user->lifetime == 0) { // isSetSessionCookie()
-			if (!$pObj->fe_user->dontSetCookie) {
-				if ($cookieDomain) {
-					SetCookie($this->extKey, 'fe_typo_user_logged_in', 0, '/', $cookieDomain);
-				} else {
-					SetCookie($this->extKey, 'fe_typo_user_logged_in', 0, '/');
-				}
-			}
-		}
-
-		// If it is NOT a session-cookie, we need to refresh it.
-		if ($pObj->fe_user->lifetime > 0) { // isRefreshTimeBasedCookie()
-			if ($pObj->fe_user->loginSessionStarted || isset($_COOKIE[$this->extKey])) {
-				if (!$pObj->fe_user->dontSetCookie) {
-					if ($cookieDomain) {
-						SetCookie($this->extKey, 'fe_typo_user_logged_in', time() + $pObj->fe_user->lifetime, '/', $cookieDomain);
-					} else {
-						SetCookie($this->extKey, 'fe_typo_user_logged_in', time() + $pObj->fe_user->lifetime, '/');
-					}
-				}
-			}
-		}
 	}
 
 	/**

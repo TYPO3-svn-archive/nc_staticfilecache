@@ -31,7 +31,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['tslib_fe-
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc'][$_EXTKEY] = $hookNamespace . 'ClearCachePostProc->clearCachePostProc';
 
 // Set cookie when User logs in
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['initFEuser'][$_EXTKEY] = 'SFC\\NcStaticfilecache\\StaticFileCache->setFeUserCookie';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['initFEuser'][$_EXTKEY] = $hookNamespace . 'InitFrontendUser->setFeUserCookie';
 
 // register command controller
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = 'SFC\\NcStaticfilecache\\Command\\CacheCommandController';

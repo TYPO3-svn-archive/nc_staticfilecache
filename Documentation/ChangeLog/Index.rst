@@ -18,6 +18,7 @@ ChangeLog
 - Move the PageCacheable Rule to a separate class
 - Replace Hooks with more modern Signals
 - Move the ValidProtocol Rule to a separate class
+- Move the setFeUserCookie Hook to separate class
 
 2015-04-28 Klaus Bitto <klaus@netcreators.nl>
 
