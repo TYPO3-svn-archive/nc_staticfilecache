@@ -41,13 +41,6 @@ class StaticFileCache implements SingletonInterface {
 	protected $extKey = 'nc_staticfilecache';
 
 	/**
-	 * If is debug enabled
-	 *
-	 * @var bool
-	 */
-	protected $isDebugEnabled = FALSE;
-
-	/**
 	 * Is clear cache processing enabled
 	 *
 	 * @var boolean
@@ -138,7 +131,6 @@ class StaticFileCache implements SingletonInterface {
 						}
 					}
 
-					$this->debug('clearing all static cache');
 					$this->cache->flush();
 					break;
 				case 'temp_CACHED':
@@ -148,13 +140,10 @@ class StaticFileCache implements SingletonInterface {
 					$doClearCache = MathUtility::canBeInterpretedAsInteger($cacheCmd);
 
 					if ($doClearCache) {
-						$this->debug('clearing cache for pid: ' . $cacheCmd);
 						$cacheEntries = array_keys($this->cache->getByTag('pageId_' . $cacheCmd));
 						foreach ($cacheEntries as $cacheEntry) {
 							$this->cache->remove($cacheEntry);
 						}
-					} else {
-						$this->debug('Expected integer on clearing static cache', LOG_WARNING, $cacheCmd);
 					}
 					break;
 			}
@@ -171,7 +160,6 @@ class StaticFileCache implements SingletonInterface {
 	 */
 	public function insertPageIncache(TypoScriptFrontendController &$pObj, &$timeOutTime) {
 		$isStaticCached = FALSE;
-		$this->debug('insertPageIncache');
 
 		// Find host-name / IP, always in lowercase:
 		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
@@ -234,8 +222,6 @@ class StaticFileCache implements SingletonInterface {
 					$content .= "\n<!-- expires on: " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME'] + $timeOutSeconds) . ' -->';
 				}
 
-				$this->debug('writing cache for pid: ' . $pObj->id);
-
 				// Hook: Process content before writing to static cached file:
 				$processContentHooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['nc_staticfilecache/class.tx_ncstaticfilecache.php']['createFile_processContent'];
 				if (is_array($processContentHooks)) {
@@ -258,19 +244,15 @@ class StaticFileCache implements SingletonInterface {
 			} else {
 				// This is an 'explode' of the function isStaticCacheable()
 				if (!$pObj->page['tx_ncstaticfilecache_cache']) {
-					$this->debug('insertPageIncache: static cache disabled by user', LOG_INFO);
 					$explanation[] = 'static cache disabled on page';
 				}
 				if ((boolean)$this->configuration->get('disableCache') === TRUE) {
-					$this->debug('insertPageIncache: static cache disabled by TypoScript "tx_ncstaticfilecache.disableCache"', LOG_INFO);
 					$explanation[] = 'static cache disabled by TypoScript';
 				}
 				if ($pObj->no_cache) {
-					$this->debug('insertPageIncache: no_cache setting is true', LOG_INFO);
 					$explanation[] = 'config.no_cache is true';
 				}
 				if ($pObj->isINTincScript()) {
-					$this->debug('insertPageIncache: page has INTincScript', LOG_INFO);
 
 					$INTincScripts = array();
 					foreach ($pObj->config['INTincScript'] as $k => $v) {
@@ -296,13 +278,10 @@ class StaticFileCache implements SingletonInterface {
 					$explanation[] = 'page has INTincScript: <ul><li>' . implode('</li><li>', $INTincScripts) . '</li></ul>';
 					unset($INTincScripts);
 				}
-				if ($pObj->isUserOrGroupSet() && $this->isDebugEnabled) {
-					$this->debug('insertPageIncache: page has user or group set', LOG_INFO);
-					// This is actually ok, we do not need to create cache nor an entry in the files table
+				if ($pObj->isUserOrGroupSet()) {
 					$explanation[] = "page has user or group set";
 				}
 				if (!$loginsDeniedCfg) {
-					$this->debug('insertPageIncache: loginsDeniedCfg is true', LOG_INFO);
 					$explanation[] = 'loginsDeniedCfg is true';
 				}
 
@@ -312,8 +291,6 @@ class StaticFileCache implements SingletonInterface {
 					'explanation'
 				);
 				$this->cache->set($cacheUri, implode(' - ', $explanation), $tags, 0);
-
-				$this->debug('insertPageIncache: ... this page is not cached!', LOG_INFO);
 			}
 		}
 
@@ -385,35 +362,6 @@ class StaticFileCache implements SingletonInterface {
 					}
 				}
 			}
-		}
-	}
-
-	/**
-	 * Puts a message to the devlog.
-	 *
-	 * @param string $message  The message to log
-	 * @param int    $severity The severity value from warning to fatal error (default: 1)
-	 * @param bool   $additionalData
-	 *
-	 * @return    void
-	 */
-	protected function debug($message, $severity = LOG_NOTICE, $additionalData = FALSE) {
-		if ($this->configuration->get('debug') || $severity <= LOG_CRIT) {
-
-			// map PHP or nc_staticfilecache error levels to
-			// GeneralUtility::devLog() severity level
-			$arMapping = array(
-				LOG_EMERG   => 3,
-				LOG_ALERT   => 3,
-				LOG_CRIT    => 3,
-				LOG_ERR     => 3,
-				LOG_WARNING => 2,
-				LOG_NOTICE  => 1,
-				LOG_INFO    => -1,
-				LOG_DEBUG   => 0,
-			);
-
-			GeneralUtility::devlog(trim($message), $this->extKey, isset($arMapping[$severity]) ? $arMapping[$severity] : 1, $additionalData);
 		}
 	}
 

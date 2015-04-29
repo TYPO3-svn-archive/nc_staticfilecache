@@ -9,6 +9,7 @@ ChangeLog
 - Fix documentation against http://docs.typo3.org/typo3cms/extensions/nc_staticfilecache/3.2.0/warnings.txt
 - Move the WorkspacePreview Rule to a separate class
 - Speed up the flushByTag function of the StaticFileBackend
+- Remove the overhead of the debugger. Code checks should be done via e.g. xDebug and not with inline code rubbish
 
 2015-04-28 Klaus Bitto <klaus@netcreators.nl>
 

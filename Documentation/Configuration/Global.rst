@@ -23,10 +23,6 @@ When checking this box, a signature will be added to each generated static html 
 
 This allows you to format the time according to your own locale. Please see the php manual for the function 'strftime'.
 
-*Log debug information to devlog*
-
-If enabled, logging info will be written to devlog. So make sure you have this installed if you have this option checked.
-
 *Recreate URI*
 
 Recreate URI by typoLink to have a valid cached file name.
