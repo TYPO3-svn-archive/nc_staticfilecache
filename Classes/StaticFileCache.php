@@ -278,9 +278,6 @@ class StaticFileCache implements SingletonInterface {
 					$explanation[] = 'page has INTincScript: <ul><li>' . implode('</li><li>', $INTincScripts) . '</li></ul>';
 					unset($INTincScripts);
 				}
-				if ($pObj->isUserOrGroupSet()) {
-					$explanation[] = "page has user or group set";
-				}
 				if (!$loginsDeniedCfg) {
 					$explanation[] = 'loginsDeniedCfg is true';
 				}

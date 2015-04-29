@@ -42,7 +42,7 @@ $signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cache
 $signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\ValidUri', 'check');
 $signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\ValidDoktype', 'check');
 $signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\NoWorkspacePreview', 'check');
-
+$signalSlotDispatcher->connect('SFC\\NcStaticfilecache\\StaticFileCache', 'cacheRule', 'SFC\\NcStaticfilecache\\Cache\\Rule\\NoUserOrGroupSet', 'check');
 
 // new Cache for Static file caches
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['static_file_cache'] = array(
