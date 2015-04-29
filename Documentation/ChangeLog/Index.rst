@@ -13,6 +13,7 @@ ChangeLog
 - Move the UserOrGroup Rule to a separate class
 - Move the NoIntScripts Rule to a separate class
 - Remove old ClearCacheProcessing variable and handling
+- Fix #66651 Missing %{TIME} in RewritCond for Cache-Control header
 
 2015-04-28 Klaus Bitto <klaus@netcreators.nl>
 
