@@ -6,6 +6,11 @@ ChangeLog
 - Move ClearCachePostProc.php to separate class
 - Move HeaderNoCache to separate class
 - Move the decision if the page is cachable to a rule based system (first two rules)
+- Fix documentation against http://docs.typo3.org/typo3cms/extensions/nc_staticfilecache/3.2.0/warnings.txt
+
+2015-04-28 Klaus Bitto <klaus@netcreators.nl>
+
+- Release of v3.2.0 to TER. Thanks to Tim Lochmüller for his extensive work.
 
 2015-04-22 Tim Lochmüller <tim@fruit-lab.de>
 

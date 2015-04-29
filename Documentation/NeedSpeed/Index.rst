@@ -129,7 +129,7 @@ Tests were run on a Unibody MacBook Pro with 4GB of ram and a tweaked out apache
      99%    163
     100%    168 (longest request)
 
-*Test result *
+*Test result*
 
 Quick calculation show us a performance increase factor of:
 135.24 / 10.23 = 13.22
