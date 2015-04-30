@@ -8,7 +8,7 @@
 
 namespace SFC\NcStaticfilecache\Hook;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use SFC\NcStaticfilecache\Utility\CacheUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
@@ -35,9 +35,7 @@ class HeaderNoCache {
 			strtolower($_SERVER['HTTP_PRAGMA'])
 		);
 		if (in_array('no-cache', $header) && $parent->beUserLogin) {
-			/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
-			$cacheManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager');
-			$cache = $cacheManager->getCache('static_file_cache');
+			$cache = CacheUtility::getCache();
 			$cacheEntries = array_keys($cache->getByTag('pageId_' . (int)$parent->id));
 			foreach ($cacheEntries as $cacheEntry) {
 				$cache->remove($cacheEntry);

@@ -9,6 +9,7 @@
 namespace SFC\NcStaticfilecache;
 
 use SFC\NcStaticfilecache\Cache\UriFrontend;
+use SFC\NcStaticfilecache\Utility\CacheUtility;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -59,11 +60,8 @@ class StaticFileCache implements SingletonInterface {
 	 * Constructs this object.
 	 */
 	public function __construct() {
-		/** @var \TYPO3\CMS\Core\Cache\CacheManager $cacheManager */
-		$cacheManager = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Cache\\CacheManager');
-		$this->cache = $cacheManager->getCache('static_file_cache');
+		$this->cache = CacheUtility::getCache();
 		$this->signalDispatcher = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\SignalSlot\\Dispatcher');
-
 		$this->configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
 	}
 

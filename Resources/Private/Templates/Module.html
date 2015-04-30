@@ -16,9 +16,25 @@
 		</tr>
 	</thead>
 	<tbody>
-		<f:for each="{rows}" as="row">
+		<f:for each="{rows}" as="cell">
 			<tr>
-				<f:format.raw>{row}</f:format.raw>
+				<f:if condition="{cell.noEntries}">
+					<f:then>
+						<td nowrap="nowrap" colspan="4">
+							<f:format.raw>{cell.title}</f:format.raw>
+						</td>
+						<td>
+							<f:if condition="{cell.uid}"><span class="typo3-dimmed">not hit</span></f:if>
+						</td>
+					</f:then>
+					<f:else>
+						<td nowrap="nowrap">
+							<f:format.raw>{cell.title}</f:format.raw>
+						</td>
+						<td>{cell.identifier}</td>
+						<f:format.raw>{cell.info}</f:format.raw>
+					</f:else>
+				</f:if>
 			</tr>
 		</f:for>
 	</tbody>

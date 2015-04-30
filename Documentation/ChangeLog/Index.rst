@@ -6,6 +6,8 @@ ChangeLog
 - Enable clearCacheForAllDomains again
 - Set clearcacheonload to TRUE and set the Version compat to 6.2.x - 7.2.x
 - Migrate the last two caching rules
+- Move More backend module HTML to template file
+- Introduce the CacheUtility
 
 2015-04-28 Tim Lochmüller <tim@fruit-lab.de>
 
