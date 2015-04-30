@@ -18,21 +18,50 @@
 	<tbody>
 		<f:for each="{rows}" as="cell">
 			<tr>
-				<f:if condition="{cell.noEntries}">
+				<f:if condition="{cell.info}">
 					<f:then>
+						<td nowrap="nowrap">
+							<f:format.raw>{cell.title}</f:format.raw>
+						</td>
+						<td>{cell.identifier}</td>
+						<td nowrap="nowrap">
+							<f:if condition="{cell.created}">
+								<f:then>
+									<f:format.date format="d-m-Y H:i">@{cell.created}</f:format.date>
+								</f:then>
+								<f:else>
+									<f:be.buttons.icon icon="status-status-permission-denied" />
+								</f:else>
+							</f:if>
+						</td>
+						<td nowrap="nowrap">
+							<f:if condition="{cell.expires}">
+								<f:then>
+									<f:format.date format="d-m-Y H:i">@{cell.expires}</f:format.date>
+								</f:then>
+								<f:else>
+									<f:be.buttons.icon icon="status-status-permission-denied" />
+								</f:else>
+							</f:if>
+						</td>
+						<td nowrap="nowrap">
+							<f:if condition="{cell.created}">
+								<f:then>
+									<f:be.buttons.icon icon="status-status-permission-granted" />
+								</f:then>
+								<f:else>
+									<f:format.raw>{cell.info}</f:format.raw>
+								</f:else>
+							</f:if>
+						</td>
+					</f:then>
+					<f:else>
 						<td nowrap="nowrap" colspan="4">
 							<f:format.raw>{cell.title}</f:format.raw>
 						</td>
 						<td>
 							<f:if condition="{cell.uid}"><span class="typo3-dimmed">not hit</span></f:if>
 						</td>
-					</f:then>
-					<f:else>
-						<td nowrap="nowrap">
-							<f:format.raw>{cell.title}</f:format.raw>
-						</td>
-						<td>{cell.identifier}</td>
-						<f:format.raw>{cell.info}</f:format.raw>
 					</f:else>
 				</f:if>
 			</tr>

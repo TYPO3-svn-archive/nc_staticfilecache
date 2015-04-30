@@ -14,7 +14,6 @@ use SFC\NcStaticfilecache\Utility\CacheUtility;
 use TYPO3\CMS\Backend\Module\AbstractFunctionModule;
 use TYPO3\CMS\Backend\Tree\View\BrowseTreeView;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Backend\Utility\IconUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
@@ -89,28 +88,22 @@ class CacheModule extends AbstractFunctionModule {
 						'uid'        => $row['row']['uid'],
 						'title'      => $isFirst ? $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE) : $row['HTML_depthData'],
 						'identifier' => $identifier,
+						'info'       => $info,
 					);
 					$isFirst = FALSE;
 
 					if (strpos($info, '|')) {
-						$times = GeneralUtility::trimExplode('|', $info);
-						$infoString = '<td nowrap="nowrap">' . strftime('%d-%m-%y %H:%M', $times[0]) . '</td>';
-						$infoString .= '<td nowrap="nowrap">' . strftime('%d-%m-%y %H:%M', $times[1]) . '</td>';
-						$infoString .= '<td>' . IconUtility::getSpriteIcon('status-status-permission-granted') . '</td>';
-					} else {
-						$infoString = '<td nowrap="nowrap">' . IconUtility::getSpriteIcon('status-status-permission-denied') . '</td>';
-						$infoString .= '<td nowrap="nowrap">' . IconUtility::getSpriteIcon('status-status-permission-denied') . '</td>';
-						$infoString .= '<td>' . $info . '</td>';
+						$times = GeneralUtility::trimExplode('|', $info, TRUE, 2);
+						$cell['created'] = $times[0];
+						$cell['expires'] = $times[1];
 					}
 
-					$cell['info'] = $infoString;
 					$rows[] = $cell;
 				}
 			} else {
 				$cell = array(
 					'uid'       => $row['row']['uid'],
 					'title'     => $row['HTML'] . BackendUtility::getRecordTitle('pages', $row['row'], TRUE),
-					'noEntries' => TRUE,
 				);
 				$rows[] = $cell;
 			}

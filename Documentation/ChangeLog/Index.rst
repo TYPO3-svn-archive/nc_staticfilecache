@@ -11,6 +11,7 @@ ChangeLog
 - Use the PathUtility to call pathinfo functions
 - Avoid double slash in the cache filename path
 - Add class information to the explanation
+- Remove all the HTML in the backend module class
 
 2015-04-28 Tim Lochmüller <tim@fruit-lab.de>
 
