@@ -29,7 +29,7 @@ class PageCacheable {
 	 */
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if (!$frontendController->page['tx_ncstaticfilecache_cache']) {
-			$explanation[] = 'static cache disabled on page';
+			$explanation[__CLASS__] = 'static cache disabled on page';
 		}
 		return array(
 			'frontendController' => $frontendController,

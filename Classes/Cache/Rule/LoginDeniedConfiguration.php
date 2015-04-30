@@ -30,7 +30,7 @@ class LoginDeniedConfiguration {
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		$loginDeniedCfg = (!$frontendController->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$frontendController->loginAllowedInBranch);
 		if (!$loginDeniedCfg) {
-			$explanation[] = 'LoginDeniedCfg is true';
+			$explanation[__CLASS__] = 'LoginDeniedCfg is true';
 		}
 		return array(
 			'frontendController' => $frontendController,

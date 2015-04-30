@@ -30,7 +30,7 @@ class ValidDoktype {
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		$ignoreTypes = array(3);
 		if (in_array($frontendController->page['doktype'], $ignoreTypes)) {
-			$explanation[] = 'The Page doktype is one of the following not allowed numbers: ' . implode(', ', $ignoreTypes);
+			$explanation[__CLASS__] = 'The Page doktype is one of the following not allowed numbers: ' . implode(', ', $ignoreTypes);
 			$skipProcessing = TRUE;
 		}
 		return array(

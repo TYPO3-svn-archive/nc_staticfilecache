@@ -29,7 +29,7 @@ class ValidUri {
 	 */
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if (strpos($uri, '?') !== FALSE) {
-			$explanation[] = 'The URI contain a "?" that is not allowed for static file cache';
+			$explanation[__CLASS__] = 'The URI contain a "?" that is not allowed for static file cache';
 			$skipProcessing = TRUE;
 		}
 		return array(

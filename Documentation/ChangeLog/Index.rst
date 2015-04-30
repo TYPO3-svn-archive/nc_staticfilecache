@@ -10,6 +10,7 @@ ChangeLog
 - Introduce the CacheUtility
 - Use the PathUtility to call pathinfo functions
 - Avoid double slash in the cache filename path
+- Add class information to the explanation
 
 2015-04-28 Tim Lochmüller <tim@fruit-lab.de>
 

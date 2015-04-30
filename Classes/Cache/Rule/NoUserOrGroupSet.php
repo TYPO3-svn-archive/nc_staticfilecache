@@ -29,7 +29,7 @@ class NoUserOrGroupSet {
 	 */
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if ($frontendController->isUserOrGroupSet()) {
-			$explanation[] = 'User or group are set';
+			$explanation[__CLASS__] = 'User or group are set';
 		}
 		return array(
 			'frontendController' => $frontendController,

@@ -33,7 +33,7 @@ class Enable {
 		/** @var Configuration $configuration */
 		$configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
 		if ((boolean)$configuration->get('disableCache') === TRUE) {
-			$explanation[] = 'static cache disabled by TypoScript';
+			$explanation[__CLASS__] = 'static cache disabled by TypoScript';
 		}
 		return array(
 			'frontendController' => $frontendController,

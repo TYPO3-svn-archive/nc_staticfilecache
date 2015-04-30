@@ -29,7 +29,7 @@ class NoNoCache {
 	 */
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if ($frontendController->no_cache) {
-			$explanation[] = 'config.no_cache is true';
+			$explanation[__CLASS__] = 'config.no_cache is true';
 		}
 		return array(
 			'frontendController' => $frontendController,

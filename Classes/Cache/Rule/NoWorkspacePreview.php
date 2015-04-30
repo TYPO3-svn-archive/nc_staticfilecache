@@ -29,7 +29,7 @@ class NoWorkspacePreview {
 	 */
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if ($frontendController->doWorkspacePreview()) {
-			$explanation[] = 'The page is in workspace preview mode';
+			$explanation[__CLASS__] = 'The page is in workspace preview mode';
 		}
 		return array(
 			'frontendController' => $frontendController,

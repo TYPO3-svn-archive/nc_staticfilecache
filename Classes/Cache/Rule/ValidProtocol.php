@@ -35,7 +35,7 @@ class ValidProtocol {
 		$cached = ($scheme === 'http' || ($scheme === 'https' && $allowHttps));
 
 		if (!$cached) {
-			$explanation[] = 'The current protocol is not allowed by configuration: ' . $scheme;
+			$explanation[__CLASS__] = 'The current protocol is not allowed by configuration: ' . $scheme;
 			$skipProcessing = TRUE;
 		}
 

@@ -51,7 +51,7 @@ class NoIntScripts {
 
 				$collect[] = implode(', ', $info);
 			}
-			$explanation[] = 'The page has INTincScript: (' . implode(' - ', $collect) . ')';
+			$explanation[__CLASS__] = 'The page has INTincScript: (' . implode(' - ', $collect) . ')';
 		}
 		return array(
 			'frontendController' => $frontendController,
