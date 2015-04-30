@@ -1,6 +1,10 @@
 ChangeLog
 ---------
 
+2015-04-30 Tim Lochmüller <tim@fruit-lab.de>
+
+- Enable clearCacheForAllDomains again
+
 2015-04-28 Tim Lochmüller <tim@fruit-lab.de>
 
 - Move ClearCachePostProc.php to separate class

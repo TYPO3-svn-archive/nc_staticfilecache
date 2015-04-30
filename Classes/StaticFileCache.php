@@ -75,29 +75,26 @@ class StaticFileCache implements SingletonInterface {
 	 * @return void
 	 */
 	public function clearStaticFile(&$params) {
-		if (isset($params['cacheCmd']) && $params['cacheCmd']) {
-			$cacheCmd = $params['cacheCmd'];
-			switch ($cacheCmd) {
-				case 'all':
-				case 'pages':
-					// @todo check (boolean)$this->configuration->get('clearCacheForAllDomains') here and tag the entries with the domain
-
+		if (!isset($params['cacheCmd']) || !$params['cacheCmd']) {
+			return;
+		}
+		switch ($params['cacheCmd']) {
+			case 'all':
+			case 'pages':
+				if ((boolean)$this->configuration->get('clearCacheForAllDomains')) {
 					$this->cache->flush();
-					break;
-				case 'temp_CACHED':
-					// Clear temp files, not frontend cache.
-					break;
-				default:
-					$doClearCache = MathUtility::canBeInterpretedAsInteger($cacheCmd);
-
-					if ($doClearCache) {
-						$cacheEntries = array_keys($this->cache->getByTag('pageId_' . $cacheCmd));
-						foreach ($cacheEntries as $cacheEntry) {
-							$this->cache->remove($cacheEntry);
-						}
+				} else {
+					$this->cache->flushByTag('domain_' . str_replace('.', '_', GeneralUtility::getIndpEnv('TYPO3_HOST_ONLY')));
+				}
+				break;
+			default:
+				if (MathUtility::canBeInterpretedAsInteger($params['cacheCmd'])) {
+					$cacheEntries = array_keys($this->cache->getByTag('pageId_' . $params['cacheCmd']));
+					foreach ($cacheEntries as $cacheEntry) {
+						$this->cache->remove($cacheEntry);
 					}
-					break;
-			}
+				}
+				break;
 		}
 	}
 
@@ -135,6 +132,7 @@ class StaticFileCache implements SingletonInterface {
 
 			$cacheTags = array(
 				'pageId_' . $pObj->page['uid'],
+				'domain_' . str_replace('.', '_', parse_url($uri, PHP_URL_HOST)),
 			);
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
@@ -151,7 +149,7 @@ class StaticFileCache implements SingletonInterface {
 				$content = $pObj->content;
 				if ($this->configuration->get('showGenerationSignature')) {
 					$content .= "\n<!-- cached statically on: " . strftime($this->configuration->get('strftime'), $GLOBALS['EXEC_TIME']) . ' -->';
-					$content .= "\n<!-- expires on: " . strftime($this->configuration->get('strftime'), ($GLOBALS['EXEC_TIME'] + $timeOutSeconds)) . ' -->';
+					$content .= "\n<!-- expires on: " . strftime($this->configuration->get('strftime'), $timeOutTime) . ' -->';
 				}
 
 				// Signal: Process content before writing to static cached file
