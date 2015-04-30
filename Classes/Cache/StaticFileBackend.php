@@ -43,14 +43,19 @@ class StaticFileBackend extends AbstractBackend {
 	 * @throws \TYPO3\CMS\Core\Cache\Exception\InvalidDataException if the data is not a string
 	 */
 	public function set($entryIdentifier, $data, array $tags = array(), $lifetime = NULL) {
+		$databaseData = array(
+			'created' => $GLOBALS['EXEC_TIME'],
+			'expires' => ($GLOBALS['EXEC_TIME'] + $this->getRealLifetime($lifetime)),
+		);
 		if (in_array('explanation', $tags)) {
-			parent::set($entryIdentifier, $data, $tags, $lifetime);
+			$databaseData['explanation'] = $data;
+			parent::set($entryIdentifier, serialize($databaseData), $tags, $lifetime);
 			return;
 		}
 
 		// call set in front of the generation, because the set method
 		// of the DB backend also call remove
-		parent::set($entryIdentifier, $GLOBALS['EXEC_TIME'] . '|' . ($GLOBALS['EXEC_TIME'] + $this->getRealLifetime($lifetime)), $tags, $lifetime);
+		parent::set($entryIdentifier, serialize($databaseData), $tags, $lifetime);
 
 		$fileName = $this->getCacheFilename($entryIdentifier);
 		$cacheDir = PathUtility::pathinfo($fileName, PATHINFO_DIRNAME);
@@ -127,7 +132,7 @@ class StaticFileBackend extends AbstractBackend {
 		if (!$this->has($entryIdentifier)) {
 			return NULL;
 		}
-		return parent::get($entryIdentifier);
+		return unserialize(parent::get($entryIdentifier));
 	}
 
 	/**

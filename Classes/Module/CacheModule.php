@@ -92,12 +92,6 @@ class CacheModule extends AbstractFunctionModule {
 					);
 					$isFirst = FALSE;
 
-					if (strpos($info, '|')) {
-						$times = GeneralUtility::trimExplode('|', $info, TRUE, 2);
-						$cell['created'] = $times[0];
-						$cell['expires'] = $times[1];
-					}
-
 					$rows[] = $cell;
 				}
 			} else {

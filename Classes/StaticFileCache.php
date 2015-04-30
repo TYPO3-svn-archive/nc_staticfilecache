@@ -164,7 +164,7 @@ class StaticFileCache implements SingletonInterface {
 				$isStaticCached = TRUE;
 			} else {
 				$cacheTags[] = 'explanation';
-				$content = implode(' - ', $explanation);
+				$content = $explanation;
 				$timeOutSeconds = 0;
 			}
 

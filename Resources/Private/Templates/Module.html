@@ -25,32 +25,36 @@
 						</td>
 						<td>{cell.identifier}</td>
 						<td nowrap="nowrap">
-							<f:if condition="{cell.created}">
+							<f:if condition="{cell.info.explanation -> f:count()}">
 								<f:then>
-									<f:format.date format="d-m-Y H:i">@{cell.created}</f:format.date>
+									<f:be.buttons.icon icon="status-status-permission-denied" />
 								</f:then>
 								<f:else>
-									<f:be.buttons.icon icon="status-status-permission-denied" />
+									<f:format.date format="d-m-Y H:i">@{cell.info.created}</f:format.date>
 								</f:else>
 							</f:if>
 						</td>
 						<td nowrap="nowrap">
-							<f:if condition="{cell.expires}">
+							<f:if condition="{cell.info.explanation -> f:count()}">
 								<f:then>
-									<f:format.date format="d-m-Y H:i">@{cell.expires}</f:format.date>
+									<f:be.buttons.icon icon="status-status-permission-denied" />
 								</f:then>
 								<f:else>
-									<f:be.buttons.icon icon="status-status-permission-denied" />
+									<f:format.date format="d-m-Y H:i">@{cell.info.expires}</f:format.date>
 								</f:else>
 							</f:if>
 						</td>
 						<td nowrap="nowrap">
-							<f:if condition="{cell.created}">
+							<f:if condition="{cell.info.explanation -> f:count()}">
 								<f:then>
+									<ul>
+										<f:for each="{cell.info.explanation}" as="explanation">
+											<li><f:format.crop maxCharacters="40" respectWordBoundaries="0" append="...{f:be.buttons.icon(icon:'status-dialog-information',title:'{explanation}')}">{explanation}</f:format.crop></li>
+										</f:for>
+									</ul>
+								</f:then>
+								<f:else>
 									<f:be.buttons.icon icon="status-status-permission-granted" />
-								</f:then>
-								<f:else>
-									<f:format.raw>{cell.info}</f:format.raw>
 								</f:else>
 							</f:if>
 						</td>
