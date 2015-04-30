@@ -137,7 +137,7 @@ class StaticFileCache implements SingletonInterface {
 
 			// This is supposed to have "&& !$pObj->beUserLogin" in there as well
 			// This fsck's up the ctrl-shift-reload hack, so I pulled it out.
-			if (sizeof($explanation) === 0 && (boolean)$this->configuration->get('disableCache') === FALSE) {
+			if (sizeof($explanation) === 0) {
 
 				// If page has a endtime before the current timeOutTime, use it instead:
 				if ($pObj->page['endtime'] > 0 && $pObj->page['endtime'] < $timeOutTime) {
@@ -165,13 +165,6 @@ class StaticFileCache implements SingletonInterface {
 				$uri = $processContentArguments['uri'];
 				$isStaticCached = TRUE;
 			} else {
-				if ((boolean)$this->configuration->get('disableCache') === TRUE) {
-					$explanation[] = 'static cache disabled by TypoScript';
-				}
-				if ($pObj->no_cache) {
-					$explanation[] = 'config.no_cache is true';
-				}
-
 				$cacheTags[] = 'explanation';
 				$content = implode(' - ', $explanation);
 				$timeOutSeconds = 0;
