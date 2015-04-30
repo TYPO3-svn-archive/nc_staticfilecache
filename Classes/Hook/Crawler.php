@@ -9,6 +9,7 @@
 namespace SFC\NcStaticfilecache\Hook;
 
 use SFC\NcStaticfilecache\StaticFileCache;
+use SFC\NcStaticfilecache\Utility\CacheUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -32,9 +33,7 @@ class Crawler {
 		if (ExtensionManagementUtility::isLoaded('crawler') && $pObj->applicationData['tx_crawler']['running'] && in_array('tx_ncstaticfilecache_clearstaticfile', $pObj->applicationData['tx_crawler']['parameters']['procInstructions'])) {
 			$pageId = $GLOBALS['TSFE']->id;
 			if (is_numeric($pageId)) {
-				$clearStaticFileParameters = array('cacheCmd' => $pageId);
-				StaticFileCache::getInstance()
-					->clearStaticFile($clearStaticFileParameters);
+				CacheUtility::clearByPageId($pageId);
 				$pObj->applicationData['tx_crawler']['log'][] = 'EXT:nc_staticfilecache cleared static file';
 			} else {
 				$pObj->applicationData['tx_crawler']['log'][] = 'EXT:nc_staticfilecache skipped';

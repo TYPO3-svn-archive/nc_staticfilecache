@@ -13,6 +13,7 @@ ChangeLog
 - Add class information to the explanation
 - Remove all the HTML in the backend module class
 - Cache the meta information as serialized array
+- Code cleanups
 
 2015-04-28 Tim Lochmüller <tim@fruit-lab.de>
 

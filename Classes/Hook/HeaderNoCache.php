@@ -35,11 +35,7 @@ class HeaderNoCache {
 			strtolower($_SERVER['HTTP_PRAGMA'])
 		);
 		if (in_array('no-cache', $header) && $parent->beUserLogin) {
-			$cache = CacheUtility::getCache();
-			$cacheEntries = array_keys($cache->getByTag('pageId_' . (int)$parent->id));
-			foreach ($cacheEntries as $cacheEntry) {
-				$cache->remove($cacheEntry);
-			}
+			CacheUtility::clearByPageId($parent->id);
 		}
 	}
 }

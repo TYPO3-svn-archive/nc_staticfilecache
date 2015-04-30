@@ -31,22 +31,22 @@ class NoIntScripts {
 		if ($frontendController->isINTincScript()) {
 
 			$collect = array();
-			foreach ($frontendController->config['INTincScript'] as $k => $v) {
+			foreach ($frontendController->config['INTincScript'] as $value) {
 				$info = array();
-				if (isset($v['type'])) {
-					$info[] = 'type: ' . $v['type'];
+				if (isset($value['type'])) {
+					$info[] = 'type: ' . $value['type'];
 				}
-				if (isset($v['conf']['userFunc'])) {
-					$info[] = 'userFunc: ' . $v['conf']['userFunc'];
+				if (isset($value['conf']['userFunc'])) {
+					$info[] = 'userFunc: ' . $value['conf']['userFunc'];
 				}
-				if (isset($v['conf']['includeLibs'])) {
-					$info[] = 'includeLibs: ' . $v['conf']['includeLibs'];
+				if (isset($value['conf']['includeLibs'])) {
+					$info[] = 'includeLibs: ' . $value['conf']['includeLibs'];
 				}
-				if (isset($v['conf']['extensionName'])) {
-					$info[] = 'extensionName: ' . $v['conf']['extensionName'];
+				if (isset($value['conf']['extensionName'])) {
+					$info[] = 'extensionName: ' . $value['conf']['extensionName'];
 				}
-				if (isset($v['conf']['pluginName'])) {
-					$info[] = 'pluginName: ' . $v['conf']['pluginName'];
+				if (isset($value['conf']['pluginName'])) {
+					$info[] = 'pluginName: ' . $value['conf']['pluginName'];
 				}
 
 				$collect[] = implode(', ', $info);

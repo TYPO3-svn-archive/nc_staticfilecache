@@ -29,9 +29,9 @@ class Configuration implements SingletonInterface {
 	 */
 	public function __construct() {
 		if (isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['nc_staticfilecache'])) {
-			$extensionConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['nc_staticfilecache']);
-			if (is_array($extensionConfiguration)) {
-				$this->configuration = array_merge($this->configuration, $extensionConfiguration);
+			$extensionConfig = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['nc_staticfilecache']);
+			if (is_array($extensionConfig)) {
+				$this->configuration = array_merge($this->configuration, $extensionConfig);
 			}
 		}
 		if (isset($GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.']) && is_array($GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.'])) {

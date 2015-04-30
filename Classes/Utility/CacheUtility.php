@@ -31,4 +31,17 @@ class CacheUtility {
 		$cacheManager = $objectManager->get('TYPO3\\CMS\\Core\\Cache\\CacheManager');
 		return $cacheManager->getCache('static_file_cache');
 	}
+
+	/**
+	 * Clear cache by page ID
+	 *
+	 * @param int $pageId
+	 */
+	static public function clearByPageId($pageId) {
+		$cache = self::getCache();
+		$cacheEntries = array_keys($cache->getByTag('pageId_' . (int)$pageId));
+		foreach ($cacheEntries as $cacheEntry) {
+			$cache->remove($cacheEntry);
+		}
+	}
 }

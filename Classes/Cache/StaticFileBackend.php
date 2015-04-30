@@ -205,10 +205,10 @@ class StaticFileBackend extends AbstractBackend {
 	 * @return void
 	 */
 	public function collectGarbage() {
-		$cacheEntryIdentifierRows = $this->getDatabaseConnection()
+		$cacheEntryIdentifiers = $this->getDatabaseConnection()
 			->exec_SELECTgetRows('DISTINCT identifier', $this->cacheTable, $this->expiredStatement);
 		parent::collectGarbage();
-		foreach ($cacheEntryIdentifierRows as $row) {
+		foreach ($cacheEntryIdentifiers as $row) {
 			$this->removeStaticFiles($row['identifier']);
 		}
 	}

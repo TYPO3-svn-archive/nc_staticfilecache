@@ -30,7 +30,7 @@ class ClearCachePostProc {
 	 *
 	 * @return    void
 	 */
-	public function clearCachePostProc(array &$params, DataHandler &$pObj) {
+	public function clear(array &$params, DataHandler &$pObj) {
 		$staticFileCache = StaticFileCache::getInstance();
 
 		if ($params['cacheCmd']) {
@@ -52,10 +52,10 @@ class ClearCachePostProc {
 
 		// Get Page TSconfig relevant:
 		list($tscPID) = BackendUtility::getTSCpid($table, $uid, '');
-		$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
+		$tsConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 
-		if (!$TSConfig['clearCache_disable']) {
-			$list_cache = array();
+		if (!$tsConfig['clearCache_disable']) {
+			$listCache = array();
 			$databaseConnection = $this->getDatabaseConnection();
 
 			// If table is "pages":
@@ -63,36 +63,36 @@ class ClearCachePostProc {
 				// Builds list of pages on the SAME level as this page (siblings)
 				$rows_tmp = $databaseConnection->exec_SELECTgetRows('A.pid AS pid, B.uid AS uid', 'pages A, pages B', 'A.uid=' . intval($uid) . ' AND B.pid=A.pid AND B.deleted=0');
 				$pid_tmp = 0;
-				foreach ($rows_tmp as $row_tmp) {
-					$list_cache[] = $row_tmp['uid'];
-					$pid_tmp = $row_tmp['pid'];
+				foreach ($rows_tmp as $rowTmp) {
+					$listCache[] = $rowTmp['uid'];
+					$pid_tmp = $rowTmp['pid'];
 
 					// Add children as well:
-					if ($TSConfig['clearCache_pageSiblingChildren']) {
-						$rows_tmp2 = $databaseConnection->exec_SELECTgetRows('uid', 'pages', 'pid=' . intval($row_tmp['uid']) . ' AND deleted=0');
-						foreach ($rows_tmp2 as $row_tmp2) {
-							$list_cache[] = $row_tmp2['uid'];
+					if ($tsConfig['clearCache_pageSiblingChildren']) {
+						$rows_tmp2 = $databaseConnection->exec_SELECTgetRows('uid', 'pages', 'pid=' . intval($rowTmp['uid']) . ' AND deleted=0');
+						foreach ($rows_tmp2 as $rowTmp2) {
+							$listCache[] = $rowTmp2['uid'];
 						}
 					}
 				}
 
 				// Finally, add the parent page as well:
-				$list_cache[] = $pid_tmp;
+				$listCache[] = $pid_tmp;
 
 				// Add grand-parent as well:
-				if ($TSConfig['clearCache_pageGrandParent']) {
+				if ($tsConfig['clearCache_pageGrandParent']) {
 					$rows_tmp = $databaseConnection->exec_SELECTgetRows('pid', 'pages', 'uid=' . intval($pid_tmp));
-					foreach ($rows_tmp as $row_tmp) {
-						$list_cache[] = $row_tmp['pid'];
+					foreach ($rows_tmp as $rowTmp) {
+						$listCache[] = $rowTmp['pid'];
 					}
 				}
 			} else {
 				// For other tables than "pages", delete cache for the records "parent page".
-				$list_cache[] = $tscPID;
+				$listCache[] = $tscPID;
 			}
 
 			// Delete cache for selected pages:
-			$ids = $databaseConnection->cleanIntArray($list_cache);
+			$ids = $databaseConnection->cleanIntArray($listCache);
 			foreach ($ids as $id) {
 				$cmd = array('cacheCmd' => $id);
 				$staticFileCache->clearStaticFile($cmd);
@@ -100,8 +100,8 @@ class ClearCachePostProc {
 		}
 
 		// Clear cache for pages entered in TSconfig:
-		if ($TSConfig['clearCacheCmd']) {
-			$Commands = GeneralUtility::trimExplode(',', strtolower($TSConfig['clearCacheCmd']), TRUE);
+		if ($tsConfig['clearCacheCmd']) {
+			$Commands = GeneralUtility::trimExplode(',', strtolower($tsConfig['clearCacheCmd']), TRUE);
 			$Commands = array_unique($Commands);
 			foreach ($Commands as $cmdPart) {
 				$cmd = array('cacheCmd' => $cmdPart);
