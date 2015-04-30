@@ -87,10 +87,7 @@ class StaticFileCache implements SingletonInterface {
 				break;
 			default:
 				if (MathUtility::canBeInterpretedAsInteger($params['cacheCmd'])) {
-					$cacheEntries = array_keys($this->cache->getByTag('pageId_' . $params['cacheCmd']));
-					foreach ($cacheEntries as $cacheEntry) {
-						$this->cache->remove($cacheEntry);
-					}
+					CacheUtility::clearByPageId($params['cacheCmd']);
 				}
 				break;
 		}
