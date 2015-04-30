@@ -2,7 +2,7 @@
 /**
  * No no_cache
  *
- * @package Hdnet
+ * @package SFC\NcStaticfilecache\Cache\Rule
  * @author  Tim Lochmüller
  */
 

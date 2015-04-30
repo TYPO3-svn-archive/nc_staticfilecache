@@ -2,7 +2,7 @@
 /**
  * Check if the URI is valid
  *
- * @package Hdnet
+ * @package SFC\NcStaticfilecache\Cache\Rule
  * @author  Tim Lochmüller
  */
 

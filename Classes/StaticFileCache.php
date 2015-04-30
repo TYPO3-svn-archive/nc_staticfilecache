@@ -2,7 +2,7 @@
 /**
  * Static File Cache
  *
- * @package NcStaticfilecache
+ * @package SFC\NcStaticfilecache
  * @author  Tim Lochmüller
  */
 

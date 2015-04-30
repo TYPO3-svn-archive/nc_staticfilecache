@@ -2,7 +2,7 @@
 /**
  * Cache frontend for static file cache
  *
- * @package NcStaticfilecache\Cache
+ * @package SFC\NcStaticfilecache\Cache
  * @author  Tim Lochmüller
  */
 

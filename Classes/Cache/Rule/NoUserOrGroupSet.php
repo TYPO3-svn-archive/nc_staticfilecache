@@ -2,7 +2,7 @@
 /**
  * NoUserOrGroupSet
  *
- * @package Hdnet
+ * @package SFC\NcStaticfilecache\Cache\Rule
  * @author  Tim Lochmüller
  */
 

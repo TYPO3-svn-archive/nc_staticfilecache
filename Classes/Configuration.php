@@ -2,7 +2,7 @@
 /**
  * Handle extension and TS configuration
  *
- * @package NcStaticfilecache
+ * @package SFC\NcStaticfilecache
  * @author  Tim Lochmüller
  */
 

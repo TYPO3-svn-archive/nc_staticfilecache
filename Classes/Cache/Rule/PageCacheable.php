@@ -2,7 +2,7 @@
 /**
  * Check if the current page is static cachable in Page property context
  *
- * @package Hdnet
+ * @package SFC\NcStaticfilecache\Cache\Rule
  * @author  Tim Lochmüller
  */
 

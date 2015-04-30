@@ -2,7 +2,7 @@
 /**
  * Log no cache
  *
- * @package NcStaticfilecache\Hook
+ * @package SFC\NcStaticfilecache\Hook
  * @author  Tim Lochmüller
  */
 

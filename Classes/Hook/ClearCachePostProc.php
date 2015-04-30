@@ -2,7 +2,7 @@
 /**
  * ClearCachePostProc
  *
- * @package Hdnet
+ * @package SFC\NcStaticfilecache\Hook
  * @author  Tim Lochmüller
  */
 

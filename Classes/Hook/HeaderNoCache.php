@@ -2,7 +2,7 @@
 /**
  * Clear the cache if there is a no cache header
  *
- * @package Hdnet
+ * @package SFC\NcStaticfilecache\Hook
  * @author  Tim Lochmüller
  */
 

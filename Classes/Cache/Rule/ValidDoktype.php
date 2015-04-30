@@ -2,7 +2,7 @@
 /**
  * Check if the doktype is valid
  *
- * @package Hdnet
+ * @package SFC\NcStaticfilecache\Cache\Rule
  * @author  Tim Lochmüller
  */
 
