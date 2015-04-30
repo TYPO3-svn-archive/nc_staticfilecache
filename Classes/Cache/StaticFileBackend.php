@@ -9,6 +9,7 @@
 namespace SFC\NcStaticfilecache\Cache;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 /**
@@ -52,7 +53,7 @@ class StaticFileBackend extends AbstractBackend {
 		parent::set($entryIdentifier, $GLOBALS['EXEC_TIME'] . '|' . ($GLOBALS['EXEC_TIME'] + $this->getRealLifetime($lifetime)), $tags, $lifetime);
 
 		$fileName = $this->getCacheFilename($entryIdentifier);
-		$cacheDir = pathinfo($fileName, PATHINFO_DIRNAME);
+		$cacheDir = PathUtility::pathinfo($fileName, PATHINFO_DIRNAME);
 		if (!is_dir($cacheDir)) {
 			GeneralUtility::mkdir_deep($cacheDir);
 		}
@@ -80,7 +81,7 @@ class StaticFileBackend extends AbstractBackend {
 	 */
 	protected function writeHtAccessFile($originalFileName, $lifetime) {
 		if ($this->configuration->get('sendCacheControlHeader')) {
-			$fileName = pathinfo($originalFileName, PATHINFO_DIRNAME) . '/.htaccess';
+			$fileName = PathUtility::pathinfo($originalFileName, PATHINFO_DIRNAME) . '/.htaccess';
 			$accessTimeout = $this->configuration->get('htaccessTimeout');
 			$lifetime = $accessTimeout ? $accessTimeout : $this->getRealLifetime($lifetime);
 
@@ -108,7 +109,7 @@ class StaticFileBackend extends AbstractBackend {
 	protected function getCacheFilename($entryIdentifier) {
 		$urlParts = parse_url($entryIdentifier);
 		$cacheFilename = GeneralUtility::getFileAbsFileName($this->cacheDirectory . $urlParts['host'] . '/' . trim($urlParts['path'], '/'));
-		$fileExtension = pathinfo(basename($cacheFilename), PATHINFO_EXTENSION);
+		$fileExtension = PathUtility::pathinfo(basename($cacheFilename), PATHINFO_EXTENSION);
 		if (empty($fileExtension) || !GeneralUtility::inList($this->configuration->get('fileTypes'), $fileExtension)) {
 			$cacheFilename .= '/index.html';
 		}
@@ -167,7 +168,7 @@ class StaticFileBackend extends AbstractBackend {
 		$files = array(
 			$fileName,
 			$fileName . '.gz',
-			pathinfo($fileName, PATHINFO_DIRNAME) . '/.htaccess'
+			PathUtility::pathinfo($fileName, PATHINFO_DIRNAME) . '/.htaccess'
 		);
 		foreach ($files as $file) {
 			if (is_file($file)) {
