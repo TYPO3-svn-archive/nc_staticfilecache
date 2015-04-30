@@ -9,6 +9,7 @@ ChangeLog
 - Move More backend module HTML to template file
 - Introduce the CacheUtility
 - Use the PathUtility to call pathinfo functions
+- Avoid double slash in the cache filename path
 
 2015-04-28 Tim Lochmüller <tim@fruit-lab.de>
 
