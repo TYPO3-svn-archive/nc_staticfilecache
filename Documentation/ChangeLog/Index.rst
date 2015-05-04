@@ -1,6 +1,10 @@
 ChangeLog
 ---------
 
+2015-05-04 Tim Lochmüller <tim@fruit-lab.de>
+
+- Prepare Release 3.3.0
+
 2015-04-30 Tim Lochmüller <tim@fruit-lab.de>
 
 - Enable clearCacheForAllDomains again
