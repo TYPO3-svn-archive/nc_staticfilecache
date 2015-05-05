@@ -1,6 +1,10 @@
 ChangeLog
 ---------
 
+2015-05-05 Tim Lochmüller <tim@fruit-lab.de>
+
+- Fix #56519 Add notice about AddType in the .htaccess
+
 2015-05-04 Tim Lochmüller <tim@fruit-lab.de>
 
 - Prepare Release 3.3.0

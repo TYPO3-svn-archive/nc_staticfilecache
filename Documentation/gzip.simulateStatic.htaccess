@@ -61,13 +61,22 @@ RewriteRule .* typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:T
 	</IfModule>
 </FilesMatch>
 
+# if there are same problems with ForceType, please try the AddType alternative
+
 # Set proper content type gzipped html
 <FilesMatch "\.html\.gz">
 	ForceType text/html
+	# AddType "text/html" .gz
 </FilesMatch>
-# Set proper content type gzipped xml and rss feeds
-<FilesMatch "\.(xml|rss)\.gz">
+# Set proper content type gzipped xml
+<FilesMatch "\.xml\.gz">
 	ForceType text/xml
+	# AddType "text/xml" .gz
+</FilesMatch>
+# Set proper content type gzipped rss
+<FilesMatch "\.rss\.gz">
+	ForceType text/xml
+	# AddType "text/xml" .gz
 </FilesMatch>
 
 # end of static file cache ruleset
