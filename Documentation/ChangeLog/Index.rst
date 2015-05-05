@@ -6,6 +6,7 @@ ChangeLog
 - Fix #56519 Add notice about AddType in the .htaccess
 - Fix #66779 (partly) wrong empty Space in .htaccess template
 - Add lines of #58315 to the cookie hook, to check if a FE cookie already exists (disabled)
+- Remove the double .htaccess files, because realurl and simulateStaticDocuments use the same structure
 
 2015-05-04 Tim Lochmüller <tim@fruit-lab.de>
 

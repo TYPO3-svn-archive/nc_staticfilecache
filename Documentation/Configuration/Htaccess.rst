@@ -3,10 +3,8 @@ htaccess file
 
 There are four example .htaccess configurations stored in the 'doc' directory. They are named:
 
-- gzip.realurl.htaccess – use if you enabled gzipping and use realurl
-- plain.realurl.htaccess – use if you have not enabled gzipping and use realurl
-- gzip.simulateStatic.htaccess – use if you enabled gzipping and use simulate static
-- plain.simulateStatic.htaccess – use if you have not enabled gzipping and use simulate static
+- gzip.htaccess – use if you enabled gzipping and use realurl or simulateStatic
+- plain.htaccess – use if you have not enabled gzipping and use realurl or simulateStatic
 
 The .htaccess files use an optimized rewrite configuration as is explained here: http://www.typofree.org/article/archive/2008/june/title/rethinking-the-realurl-mod-rewrite-rules/
 
