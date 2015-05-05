@@ -6,7 +6,7 @@
 <f:if condition="{sendCacheControlHeaderRedirectAfterCacheTimeout}">
 <IfModule mod_rewrite.c>
 	RewriteEngine On
-	RewriteCond %<![CDATA[{TIME}]]> > <f:format.date format="YmdHis">@{expires}</f:format.date>
+	RewriteCond %<![CDATA[{TIME}]]> ><f:format.date format="YmdHis">@{expires}</f:format.date>
 	RewriteRule ^.*$ /index.php
 </IfModule>
 </f:if>

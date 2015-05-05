@@ -4,6 +4,7 @@ ChangeLog
 2015-05-05 Tim Lochmüller <tim@fruit-lab.de>
 
 - Fix #56519 Add notice about AddType in the .htaccess
+- Fix #66779 (partly) wrong empty Space in .htaccess template
 
 2015-05-04 Tim Lochmüller <tim@fruit-lab.de>
 
