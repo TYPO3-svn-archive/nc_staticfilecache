@@ -40,20 +40,28 @@ class InitFrontendUser {
 	 * @return    void
 	 */
 	public function setFeUserCookie(&$params, &$pObj) {
-		// If new session and the cookie is a sessioncookie, we need to set it only once!
-		if (($pObj->fe_user->loginSessionStarted || $pObj->fe_user->forceSetCookie) && $pObj->fe_user->lifetime == 0) { // isSetSessionCookie()
-			if (!$pObj->fe_user->dontSetCookie) {
-				$this->setCookie(0);
-			}
+		if ($pObj->fe_user->dontSetCookie) {
+			// do not set any cookie
+			return;
 		}
 
-		// If it is NOT a session-cookie, we need to refresh it.
-		if ($pObj->fe_user->lifetime > 0) { // isRefreshTimeBasedCookie()
-			if ($pObj->fe_user->loginSessionStarted || isset($_COOKIE[$this->extKey])) {
-				if (!$pObj->fe_user->dontSetCookie) {
-					$this->setCookie(time() + $pObj->fe_user->lifetime);
-				}
-			}
+		// @todo Do we need this check?
+		#$configuredCookieName = trim($GLOBALS['TYPO3_CONF_VARS']['FE']['cookieName']);
+		#if (empty($configuredCookieName)) {
+		#	$configuredCookieName = 'fe_typo_user';
+		#}
+		#if (!isset($_COOKIE[$configuredCookieName])) {
+		#	return;
+		#}
+
+		if (($pObj->fe_user->loginSessionStarted || $pObj->fe_user->forceSetCookie) && $pObj->fe_user->lifetime == 0) {
+			// If new session and the cookie is a sessioncookie, we need to set it only once!
+			// // isSetSessionCookie()
+			$this->setCookie(0);
+		} elseif (($pObj->fe_user->loginSessionStarted || isset($_COOKIE[$this->extKey])) && $pObj->fe_user->lifetime > 0) {
+			// If it is NOT a session-cookie, we need to refresh it.
+			// isRefreshTimeBasedCookie()
+			$this->setCookie(time() + $pObj->fe_user->lifetime);
 		}
 	}
 
@@ -64,7 +72,7 @@ class InitFrontendUser {
 	 */
 	protected function setCookie($lifetime) {
 		$cookieDomain = $this->getCookieDomain();
-		SetCookie($this->extKey, 'fe_typo_user_logged_in', $lifetime, '/', $cookieDomain ? $cookieDomain : NULL);
+		setcookie($this->extKey, 'fe_typo_user_logged_in', $lifetime, '/', $cookieDomain ? $cookieDomain : NULL);
 	}
 
 	/**
