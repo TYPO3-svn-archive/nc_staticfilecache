@@ -29,9 +29,7 @@ class NoIntScripts {
 	 */
 	public function check($frontendController, $uri, $explanation, $skipProcessing) {
 		if ($frontendController->isINTincScript()) {
-
-			$collect = array();
-			foreach ($frontendController->config['INTincScript'] as $value) {
+			foreach ($frontendController->config['INTincScript'] as $key => $value) {
 				$info = array();
 				if (isset($value['type'])) {
 					$info[] = 'type: ' . $value['type'];
@@ -48,10 +46,8 @@ class NoIntScripts {
 				if (isset($value['conf']['pluginName'])) {
 					$info[] = 'pluginName: ' . $value['conf']['pluginName'];
 				}
-
-				$collect[] = implode(', ', $info);
+				$explanation[__CLASS__ . ':' . $key] = 'The page has a INTincScript: ' . implode(', ', $info);
 			}
-			$explanation[__CLASS__] = 'The page has INTincScript: (' . implode(' - ', $collect) . ')';
 		}
 		return array(
 			'frontendController' => $frontendController,
