@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class NoUserOrGroupSet {
+class NoUserOrGroupSet extends AbstractRule {
 
 	/**
 	 * Check if no user or group is set
@@ -27,15 +27,9 @@ class NoUserOrGroupSet {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		if ($frontendController->isUserOrGroupSet()) {
 			$explanation[__CLASS__] = 'User or group are set';
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

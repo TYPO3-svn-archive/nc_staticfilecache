@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class NoNoCache {
+class NoNoCache extends AbstractRule {
 
 	/**
 	 * No no_cache
@@ -27,15 +27,9 @@ class NoNoCache {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		if ($frontendController->no_cache) {
 			$explanation[__CLASS__] = 'config.no_cache is true';
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

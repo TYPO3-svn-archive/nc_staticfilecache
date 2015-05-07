@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class NoIntScripts {
+class NoIntScripts extends AbstractRule {
 
 	/**
 	 * Check if there are no _INT scripts
@@ -27,7 +27,7 @@ class NoIntScripts {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		if ($frontendController->isINTincScript()) {
 			foreach ($frontendController->config['INTincScript'] as $key => $value) {
 				$info = array();
@@ -49,11 +49,5 @@ class NoIntScripts {
 				$explanation[__CLASS__ . ':' . $key] = 'The page has a INTincScript: ' . implode(', ', $info);
 			}
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

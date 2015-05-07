@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class PageCacheable {
+class PageCacheable extends AbstractRule {
 
 	/**
 	 * Check if the current page is static cacheable in Page property context
@@ -27,15 +27,9 @@ class PageCacheable {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		if (!$frontendController->page['tx_ncstaticfilecache_cache']) {
 			$explanation[__CLASS__] = 'static cache disabled on page';
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

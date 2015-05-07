@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class ValidDoktype {
+class ValidDoktype extends AbstractRule {
 
 	/**
 	 * Check if the URI is valid
@@ -27,17 +27,11 @@ class ValidDoktype {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		$ignoreTypes = array(3);
 		if (in_array($frontendController->page['doktype'], $ignoreTypes)) {
 			$explanation[__CLASS__] = 'The Page doktype is one of the following not allowed numbers: ' . implode(', ', $ignoreTypes);
 			$skipProcessing = TRUE;
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

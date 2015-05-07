@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class StaticCacheable {
+class StaticCacheable extends AbstractRule {
 
 	/**
 	 * Check if the page is static cachable
@@ -27,15 +27,9 @@ class StaticCacheable {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		if (!$frontendController->isStaticCacheble()) {
 			$explanation[__CLASS__] = 'The page is not static chachable via TypoScriptFrontend';
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

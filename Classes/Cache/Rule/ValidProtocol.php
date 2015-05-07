@@ -16,7 +16,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class ValidProtocol {
+class ValidProtocol extends AbstractRule {
 
 	/**
 	 * Check if the Protocol is valid
@@ -28,7 +28,7 @@ class ValidProtocol {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		$scheme = strtolower(parse_url($uri, PHP_URL_SCHEME));
 		$configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
 		$allowHttps = $configuration->get('enableHttpsCaching');
@@ -38,12 +38,5 @@ class ValidProtocol {
 			$explanation[__CLASS__] = 'The current protocol is not allowed by configuration: ' . $scheme;
 			$skipProcessing = TRUE;
 		}
-
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

@@ -8,6 +8,7 @@ ChangeLog
 - Add lines of #58315 to the cookie hook, to check if a FE cookie already exists (disabled)
 - Remove the double .htaccess files, because realurl and simulateStaticDocuments use the same structure
 - Add one separate explanation for every single INT script in the page
+- Split up the Slot handling and the rule checking in the rules
 
 2015-05-04 Tim Lochmüller <tim@fruit-lab.de>
 

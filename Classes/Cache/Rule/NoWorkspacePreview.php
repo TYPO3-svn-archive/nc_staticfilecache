@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class NoWorkspacePreview {
+class NoWorkspacePreview extends AbstractRule {
 
 	/**
 	 * Check if it is no workspace preview
@@ -27,15 +27,9 @@ class NoWorkspacePreview {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		if ($frontendController->doWorkspacePreview()) {
 			$explanation[__CLASS__] = 'The page is in workspace preview mode';
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

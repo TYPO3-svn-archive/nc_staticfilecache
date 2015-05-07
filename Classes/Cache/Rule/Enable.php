@@ -17,7 +17,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class Enable {
+class Enable extends AbstractRule {
 
 	/**
 	 * Enable
@@ -29,17 +29,11 @@ class Enable {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		/** @var Configuration $configuration */
 		$configuration = GeneralUtility::makeInstance('SFC\\NcStaticfilecache\\Configuration');
 		if ((boolean)$configuration->get('disableCache') === TRUE) {
 			$explanation[__CLASS__] = 'static cache disabled by TypoScript';
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

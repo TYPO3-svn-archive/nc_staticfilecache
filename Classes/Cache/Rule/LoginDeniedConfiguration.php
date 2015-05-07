@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class LoginDeniedConfiguration {
+class LoginDeniedConfiguration extends AbstractRule {
 
 	/**
 	 * Check LoginDeniedConfiguration
@@ -27,16 +27,10 @@ class LoginDeniedConfiguration {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		$loginDeniedCfg = (!$frontendController->config['config']['sendCacheHeaders_onlyWhenLoginDeniedInBranch'] || !$frontendController->loginAllowedInBranch);
 		if (!$loginDeniedCfg) {
 			$explanation[__CLASS__] = 'LoginDeniedCfg is true';
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }

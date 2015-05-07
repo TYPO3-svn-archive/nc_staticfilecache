@@ -15,7 +15,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  *
  * @author Tim Lochmüller
  */
-class ValidUri {
+class ValidUri extends AbstractRule {
 
 	/**
 	 * Check if the URI is valid
@@ -27,16 +27,10 @@ class ValidUri {
 	 *
 	 * @return array
 	 */
-	public function check($frontendController, $uri, $explanation, $skipProcessing) {
+	public function checkRule($frontendController, $uri, &$explanation, &$skipProcessing) {
 		if (strpos($uri, '?') !== FALSE) {
 			$explanation[__CLASS__] = 'The URI contain a "?" that is not allowed for static file cache';
 			$skipProcessing = TRUE;
 		}
-		return array(
-			'frontendController' => $frontendController,
-			'uri'                => $uri,
-			'explanation'        => $explanation,
-			'skipProcessing'     => $skipProcessing,
-		);
 	}
 }
