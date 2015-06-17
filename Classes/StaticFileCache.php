@@ -113,6 +113,13 @@ class StaticFileCache implements SingletonInterface {
 		$preProcessArguments = $this->signalDispatcher->dispatch(__CLASS__, 'preProcess', $preProcessArguments);
 		$uri = $preProcessArguments['uri'];
 
+		// don't continue if there is already an existing valid cache entry
+		// prevents overriding if a logged in user is checking the page in a second call
+		$previousCacheEntry = $this->cache->get($uri);
+		if (!count($previousCacheEntry['explanation']) && $previousCacheEntry['expires'] >= $GLOBALS['EXEC_TIME']) {
+			return;
+		}
+
 		// cache rules
 		$ruleArguments = array(
 			'frontendController' => $pObj,
