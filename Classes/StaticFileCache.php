@@ -197,7 +197,6 @@ class StaticFileCache implements SingletonInterface {
 		if ($this->configuration->get('recreateURI')) {
 			$uri = $this->recreateURI();
 		}
-		$uri = urldecode($uri);
 		return ($isHttp ? 'http://' : 'https://') . strtolower(GeneralUtility::getIndpEnv('HTTP_HOST')) . $uri;
 	}
 
