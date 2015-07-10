@@ -15,6 +15,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -195,7 +196,7 @@ class StaticFileCache implements SingletonInterface {
 		$isHttp = (strpos(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), 'http://') === 0);
 		$uri = GeneralUtility::getIndpEnv('REQUEST_URI');
 		if ($this->configuration->get('recreateURI')) {
-			$uri = $this->recreateURI();
+			$uri = $this->recreateURI($uri);
 		}
 		return ($isHttp ? 'http://' : 'https://') . strtolower(GeneralUtility::getIndpEnv('HTTP_HOST')) . $uri;
 	}
@@ -207,12 +208,19 @@ class StaticFileCache implements SingletonInterface {
 	 * and static file caching would store the wrong URI that was used in the first request to
 	 * the website (e.g. "TheGoodURI.13.0.html" is as well accepted as "TheFakeURI.13.0.html")
 	 *
+	 * @param string $uri
+	 *
 	 * @return    string        The recreated URI of the current request
 	 */
-	protected function recreateURI() {
+	protected function recreateURI($uri) {
 		$objectManager = new ObjectManager();
 		/** @var UriBuilder $uriBuilder */
 		$uriBuilder = $objectManager->get('TYPO3\\CMS\\Extbase\\Mvc\\Web\\Routing\\UriBuilder');
+		if (ObjectAccess::getProperty($uriBuilder, 'contentObject', TRUE) === NULL) {
+			// there are situations without a valid contentObject in the URI builder
+			// prevent this situation by return the original request URI
+			return $uri;
+		}
 		return $uriBuilder->reset()
 			->setAddQueryString(TRUE)
 			->build();

@@ -8,6 +8,7 @@ ChangeLog
 - Remove the dummy htaccess file and migrate them to the documentation file
 - Add a security rule to prevent direct calls of static cache entries
 - Remove the ValidProtocol Rule
+- Fix https://forge.typo3.org/issues/66842
 
 2015-06-17 Tim Lochmüller <tim@fruit-lab.de>
 
