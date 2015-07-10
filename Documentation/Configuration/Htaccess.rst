@@ -12,26 +12,35 @@ Here is a part of the gzip.realurl version:
 
 .. code-block:: bash
 
-   #------------------------------------------------------------------------------
-   # beginning of static file cache rulesets
+   ### Begin: Static File Cache (preparation) ####
+
+   # Do not allow directl call the cache entries
+   RewriteCond %{REQUEST_URI} ^typo3temp/tx_ncstaticfilecache/.*
+   RewriteRule .* - [F,L]
+
+   # Get scheme/protocol
+   RewriteCond %{SERVER_PORT} ^443$
+   RewriteRule .* - [E=TX_NCSTATICFILECACHE_PROTOCOL:https]
+   RewriteCond %{SERVER_PORT} !^443$
+   RewriteRule .* - [E=TX_NCSTATICFILECACHE_PROTOCOL:http]
 
    # Set gzip extension into an environment variable if the visitors browser can handle gzipped content.
    RewriteCond %{HTTP:Accept-Encoding} gzip [NC]
    RewriteRule .* - [E=TX_NCSTATICFILECACHE_GZIP:.gz]
+   #RewriteRule .* - [E=TX_NCSTATICFILECACHE_GZIP:] # Add this line, to disable the gzip redirect
 
+   # Check if the requested file exists in the cache, otherwise default to index.html that
+   # set in an environment variable that is used later on
+   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}/%{REQUEST_URI} !-f
+   RewriteRule .* - [E=TX_NCSTATICFILECACHE_FILE:/index.html]
 
-   # Don't cache HTTPS traffic. You may choose to comment out this
-   # option if your site runs fully on https. If your site runs mixed, you will
-   # not want https traffic to be cached in the same typo3temp folder where it can
-   # be requested over http.
-   # Enable this if you use a mixed setup.
-   #RewriteCond %{HTTPS} off
+   ### Begin: Static File Cache (main) ####
 
    # We only redirect URI's without query strings
    RewriteCond %{QUERY_STRING} ^$
 
    # It only makes sense to do the other checks if a static file actually exists.
-   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}index.html%{ENV:TX_NCSTATICFILECACHE_GZIP} -f
+   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE}%{ENV:TX_NCSTATICFILECACHE_GZIP} -f
 
    # NO frontend user is logged in. Logged in frontend users may see different
    # information than anonymous users. But the anonymous version is cached. So
@@ -53,18 +62,33 @@ Here is a part of the gzip.realurl version:
    RewriteCond %{HTTP:Cache-Control} !no-cache
 
    # Rewrite the request to the static file.
-   RewriteRule .* typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}/index.html%{ENV:TX_NCSTATICFILECACHE_GZIP} [L]
+   RewriteRule .* typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE}%{ENV:TX_NCSTATICFILECACHE_GZIP} [L]
+
+   ### Begin: Static File Cache (options) ####
 
    # Set proper content type and encoding for gzipped html.
-   <Files *.html.gz>
-   	ForceType text/html
-   	<IfModule mod_headers.c>
-   		Header set Content-Encoding gzip
-   	</IfModule>
-   </Files>
+   <FilesMatch "\.gz">
+      <IfModule mod_headers.c>
+         Header set Content-Encoding gzip
+      </IfModule>
+   </FilesMatch>
 
-   # end of static file cache ruleset
-   #------------------------------------------------------------------------------
+   # if there are same problems with ForceType, please try the AddType alternative
+   # Set proper content type gzipped html
+   <FilesMatch "\.html\.gz">
+      ForceType text/html
+      # AddType "text/html" .gz
+   </FilesMatch>
+   <FilesMatch "\.xml\.gz">
+      ForceType text/xml
+      # AddType "text/xml" .gz
+   </FilesMatch>
+   <FilesMatch "\.rss\.gz">
+      ForceType text/xml
+      # AddType "text/xml" .gz
+   </FilesMatch>
+
+   ### End: Static File Cache ###
 
 
 If you use the oldschool .htaccess rewrite rules that come with the TYPO3 dummy, then the relevant static file cache configuration should be inserted in the .htaccess file just before these lines:
@@ -80,8 +104,8 @@ If the TYPO3 Installation isn´t in your root directory (say your site lives in 
 
 .. code-block:: bash
 
-   RewriteCond %{DOCUMENT_ROOT}/t3site/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI}index.html -f
-   RewriteRule .* t3site/typo3temp/tx_ncstaticfilecache/%{HTTP_HOST}/%{REQUEST_URI} [L]
+   RewriteCond %{DOCUMENT_ROOT}/t3site/typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE} -f
+   RewriteRule .* t3site/typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}/%{REQUEST_URI} [L]
 
 You are of course free to make the rules as complex as you like.
 

@@ -21,6 +21,3 @@ strftime = %d-%m-%y %H:%M
 
 # cat=basic; type=boolean; label=Recreate URI to create cache files: Recreate URI by typoLink to have a valid cached file name.
 recreateURI = 0
-
-# cat=basic; type=boolean; label=Enable HTTPS Caching (Use with care!): If your site runs mixed, you will not want https traffic to be cached in the same typo3temp folder where it can be requested over http. Also check that HTTPS caching is enabled in your .htaccess file.
-enableHttpsCaching = 0
