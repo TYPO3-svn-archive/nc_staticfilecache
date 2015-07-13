@@ -1,7 +1,13 @@
 ChangeLog
 ---------
 
-2015-06-17 Tim Lochmüller <tim@fruit-lab.de>
+
+2015-07-13 Tim Lochmüller <tim@fruit-lab.de>
+
+- Prepare Release 3.4.0
+- Set TYPO3 compatibility to 6.2.x - 7.x.x
+
+2015-07-10 Tim Lochmüller <tim@fruit-lab.de>
 
 - [!!!] Add the scheme/protocol to the Cache path and to the htaccess rules file
 - Migrate teh gzip htaccess and the plain htaccess to one file. If you do not use gzip, you just have to comment out one line
