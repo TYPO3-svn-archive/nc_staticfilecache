@@ -9,7 +9,6 @@
 namespace SFC\NcStaticfilecache\Hook;
 
 use SFC\NcStaticfilecache\StaticFileCache;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -51,7 +50,11 @@ class ClearCachePostProc {
 		}
 
 		// Get Page TSconfig relevant:
-		list($tscPID) = BackendUtility::getTSCpid($table, $uid, '');
+		$tscPID = $this->getPIDByTableAndUid($table, $uid);
+		if (false === is_integer($tscPID)) {
+			return;
+		}
+
 		$tsConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 
 		if (!$tsConfig['clearCache_disable']) {
@@ -117,5 +120,20 @@ class ClearCachePostProc {
 	 */
 	protected function getDatabaseConnection() {
 		return $GLOBALS['TYPO3_DB'];
+	}
+
+	/**
+	 * Returns the pid of a record from $table with $uid
+	 *
+	 * @param string $table Table name
+	 * @param integer $uid Record uid
+	 * @return integer PID value (unless the record did not exist in which case FALSE)
+	 */
+	protected function getPIDByTableAndUid($table, $uid) {
+		$databaseConnection = $this->getDatabaseConnection();
+		$res_tmp = $databaseConnection->exec_SELECTquery('pid', $table, 'uid=' . (int)$uid);
+		if ($row = $databaseConnection->sql_fetch_assoc($res_tmp)) {
+			return $row['pid'];
+		}
 	}
 }
