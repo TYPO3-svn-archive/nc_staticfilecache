@@ -591,9 +591,9 @@ class tx_ncstaticfilecache {
 		$clearedPages = array();
 
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'file, host, pid, (' . $GLOBALS['EXEC_TIME'].' - crdate - cache_timeout) as seconds',
+			'file, host, pid, (' . intval($GLOBALS['EXEC_TIME']).' - crdate - cache_timeout) as seconds',
 			$this->fileTable,
-			'(cache_timeout + crdate) <= '.$GLOBALS['EXEC_TIME'] . ' AND crdate > 0'
+			'(cache_timeout + crdate) <= '.intval($GLOBALS['EXEC_TIME']) . ' AND crdate > 0'
 		);
 
 		if ($rows) {
@@ -1012,7 +1012,7 @@ RewriteRule ^.*$ /index.php
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 			'uid',
 			$this->fileTable,
-			'pid=' . $pObj->page['uid'] .
+			'pid=' . intval($pObj->page['uid']) .
 			' AND host = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($host, $this->fileTable) .
 			' AND file=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($file, $this->fileTable) .
 			' AND additionalhash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($additionalHash, $this->fileTable)
@@ -1040,7 +1040,7 @@ RewriteRule ^.*$ /index.php
 				'cache_timeout' => $timeOutSeconds,
 				'explanation' => $explanation,
 				'file' => $file,
-				'pid' => $pObj->page['uid'],
+				'pid' => intval($pObj->page['uid']),
 				'reg1' => $pObj->page_cache_reg1,
 				'host' => $host,
 				'uri' => $uri,
