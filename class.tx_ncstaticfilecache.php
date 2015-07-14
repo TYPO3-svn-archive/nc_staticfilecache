@@ -93,6 +93,20 @@ class tx_ncstaticfilecache {
 	}
 
 	/**
+	 * Returns the pid of a record from $table with $uid
+	 *
+	 * @param string $table Table name
+	 * @param integer $uid Record uid
+	 * @return integer PID value (unless the record did not exist in which case FALSE)
+	 */
+	private function getPIDByTableAndUid($table, $uid) {
+		$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pid', $table, 'uid=' . (int)$uid);
+		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
+			return $row['pid'];
+		}
+	}
+
+	/**
 	 * Sets the extension configuration (can be modified by admins in extension manager).
 	 *
 	 * @param	array		$configuration: The extension configuration
@@ -203,7 +217,7 @@ class tx_ncstaticfilecache {
 		}
 
 		// Get Page TSconfig relavant:
-		list($tscPID) = BackendUtility::getTSCpid($table, $uid, '');
+		$tscPID = $this->getPIDByTableAndUid($table, $uid);
 		$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 
 		if (!$TSConfig['clearCache_disable']) {
@@ -823,6 +837,8 @@ class tx_ncstaticfilecache {
 				}
 			}
 			return;
+		} elseif ($pid < 0) {
+			$this->debug('Could not delete static cache directory "' . $directory . '", because of pid "'.$pid.'" < 0', LOG_CRIT);
 		}
 
 
