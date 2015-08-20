@@ -57,7 +57,11 @@ class CacheModule extends AbstractFunctionModule {
 		$tree->ext_IconMode = TRUE;
 		$tree->showDefaultTitleAttribute = TRUE;
 		$tree->thisScript = BackendUtility::getModuleUrl(GeneralUtility::_GP('M'));
-		$tree->setTreeName('staticfilecache');
+		if(is_callable(array($tree, 'setTreeName'))) {
+			$tree->setTreeName('staticfilecache');
+		} else {
+			$tree->treeName = 'staticfilecache';
+		}
 
 		// Creating top icon; the current page
 		$tree->getBrowsableTree();
