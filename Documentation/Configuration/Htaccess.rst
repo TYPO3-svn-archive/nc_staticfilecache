@@ -18,6 +18,14 @@ Here is a part of the gzip.realurl version:
    RewriteCond %{REQUEST_URI} ^typo3temp/tx_ncstaticfilecache/.*
    RewriteRule .* - [F,L]
 
+   # Cleanup URI
+   RewriteCond %{REQUEST_URI} ^.*$
+   RewriteRule .* - [E=TX_NCSTATICFILECACHE_URI:/%{REQUEST_URI}]
+   RewriteCond %{REQUEST_URI} ^/.*$
+   RewriteRule .* - [E=TX_NCSTATICFILECACHE_URI:%{REQUEST_URI}]
+   RewriteCond %{REQUEST_URI} ^/?$
+   RewriteRule .* - [E=TX_NCSTATICFILECACHE_URI:/]
+
    # Get scheme/protocol
    RewriteCond %{SERVER_PORT} ^443$
    RewriteRule .* - [E=TX_NCSTATICFILECACHE_PROTOCOL:https]
@@ -31,7 +39,7 @@ Here is a part of the gzip.realurl version:
 
    # Check if the requested file exists in the cache, otherwise default to index.html that
    # set in an environment variable that is used later on
-   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}/%{REQUEST_URI} !-f
+   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}%{ENV:TX_NCSTATICFILECACHE_URI} !-f
    RewriteRule .* - [E=TX_NCSTATICFILECACHE_FILE:/index.html]
 
    ### Begin: Static File Cache (main) ####
@@ -40,7 +48,7 @@ Here is a part of the gzip.realurl version:
    RewriteCond %{QUERY_STRING} ^$
 
    # It only makes sense to do the other checks if a static file actually exists.
-   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE}%{ENV:TX_NCSTATICFILECACHE_GZIP} -f
+   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}%{ENV:TX_NCSTATICFILECACHE_URI}%{ENV:TX_NCSTATICFILECACHE_FILE}%{ENV:TX_NCSTATICFILECACHE_GZIP} -f
 
    # NO frontend user is logged in. Logged in frontend users may see different
    # information than anonymous users. But the anonymous version is cached. So
@@ -62,7 +70,7 @@ Here is a part of the gzip.realurl version:
    RewriteCond %{HTTP:Cache-Control} !no-cache
 
    # Rewrite the request to the static file.
-   RewriteRule .* typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}/%{REQUEST_URI}%{ENV:TX_NCSTATICFILECACHE_FILE}%{ENV:TX_NCSTATICFILECACHE_GZIP} [L]
+   RewriteRule .* typo3temp/tx_ncstaticfilecache/%{ENV:TX_NCSTATICFILECACHE_PROTOCOL}/%{HTTP_HOST}%{ENV:TX_NCSTATICFILECACHE_URI}%{ENV:TX_NCSTATICFILECACHE_FILE}%{ENV:TX_NCSTATICFILECACHE_GZIP} [L]
 
    ### Begin: Static File Cache (options) ####
 
