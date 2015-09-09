@@ -14,7 +14,7 @@ Here is a part of the gzip.realurl version:
 
    ### Begin: Static File Cache (preparation) ####
 
-   # Do not allow directl call the cache entries
+   # Do not allow direct call the cache entries
    RewriteCond %{REQUEST_URI} ^typo3temp/tx_ncstaticfilecache/.*
    RewriteRule .* - [F,L]
 

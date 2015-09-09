@@ -5,6 +5,7 @@ ChangeLog
 
 - Fix the ValidUri Rule. Also check for "index.php" in the URI
 - Introduce REQUEST_URI wrapper in the htaccess file. Fix problem of empty URI #59182
+- Fix typo in the htaccess file
 
 2015-08-20 Tim Lochmüller <tim@fruit-lab.de>
 
