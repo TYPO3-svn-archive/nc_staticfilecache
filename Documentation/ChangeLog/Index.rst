@@ -1,6 +1,10 @@
 ChangeLog
 ---------
 
+2015-09-09 Tim Lochmüller <tim@fruit-lab.de>
+
+- Fix the ValidUri Rule. Also check for "index.php" in the URI
+
 2015-08-20 Tim Lochmüller <tim@fruit-lab.de>
 
 - #68473 Fix compatiblity bug for 7.x
