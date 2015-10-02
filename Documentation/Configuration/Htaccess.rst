@@ -18,10 +18,6 @@ Here is a part of the gzip.realurl version:
    RewriteRule .* - [E=SFC_ROOT:%{DOCUMENT_ROOT}]
    # RewriteRule .* - [E=SFC_ROOT:%{DOCUMENT_ROOT}/t3site] # Example if your installation is installed in a directory
 
-   # Do not allow direct call the cache entries
-   RewriteCond %{REQUEST_URI} ^typo3temp/tx_ncstaticfilecache/.*
-   RewriteRule .* - [F,L]
-
    # Cleanup URI
    RewriteCond %{REQUEST_URI} ^.*$
    RewriteRule .* - [E=SFC_URI:/%{REQUEST_URI}]
@@ -29,6 +25,10 @@ Here is a part of the gzip.realurl version:
    RewriteRule .* - [E=SFC_URI:%{REQUEST_URI}]
    RewriteCond %{REQUEST_URI} ^/?$
    RewriteRule .* - [E=SFC_URI:/]
+
+   # Do not allow direct call the cache entries
+   RewriteCond %{ENV:SFC_URI} ^/typo3temp/tx_ncstaticfilecache/.*
+   RewriteRule .* - [F,L]
 
    # Get scheme/protocol
    RewriteCond %{SERVER_PORT} ^443$
