@@ -14,6 +14,10 @@ Here is a part of the gzip.realurl version:
 
    ### Begin: Static File Cache (preparation) ####
 
+   # Document root configuration
+   RewriteRule .* - [E=SFC_ROOT:%{DOCUMENT_ROOT}]
+   # RewriteRule .* - [E=SFC_ROOT:%{DOCUMENT_ROOT}/t3site] # Example if your installation is installed in a directory
+
    # Do not allow direct call the cache entries
    RewriteCond %{REQUEST_URI} ^typo3temp/tx_ncstaticfilecache/.*
    RewriteRule .* - [F,L]
@@ -39,7 +43,7 @@ Here is a part of the gzip.realurl version:
 
    # Check if the requested file exists in the cache, otherwise default to index.html that
    # set in an environment variable that is used later on
-   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:SFC_PROTOCOL}/%{HTTP_HOST}%{ENV:SFC_URI} !-f
+   RewriteCond %{ENV:SFC_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:SFC_PROTOCOL}/%{HTTP_HOST}%{ENV:SFC_URI} !-f
    RewriteRule .* - [E=SFC_FILE:/index.html]
 
    ### Begin: Static File Cache (main) ####
@@ -48,7 +52,7 @@ Here is a part of the gzip.realurl version:
    RewriteCond %{QUERY_STRING} ^$
 
    # It only makes sense to do the other checks if a static file actually exists.
-   RewriteCond %{DOCUMENT_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:SFC_PROTOCOL}/%{HTTP_HOST}%{ENV:SFC_URI}%{ENV:SFC_FILE}%{ENV:SFC_GZIP} -f
+   RewriteCond %{ENV:SFC_ROOT}/typo3temp/tx_ncstaticfilecache/%{ENV:SFC_PROTOCOL}/%{HTTP_HOST}%{ENV:SFC_URI}%{ENV:SFC_FILE}%{ENV:SFC_GZIP} -f
 
    # NO frontend user is logged in. Logged in frontend users may see different
    # information than anonymous users. But the anonymous version is cached. So
@@ -108,12 +112,11 @@ If you use the oldschool .htaccess rewrite rules that come with the TYPO3 dummy,
    RewriteCond %{REQUEST_FILENAME} !-l
    RewriteRule .* index.php [L]
 
-If the TYPO3 Installation isn´t in your root directory (say your site lives in http://some.domain.com/t3site/), then you have to add the '/t3site' part to the configuration snippet. It must be placed right after %{DOCUMENT_ROOT}. Here are two lines of the ruleset to illustrate:
+If the TYPO3 Installation isn´t in your root directory (say your site lives in http://some.domain.com/t3site/), then you have to add the '/t3site' part to the configuration snippet. It must be placed right after %{DOCUMENT_ROOT}. Here is the line of the ruleset to illustrate:
 
 .. code-block:: bash
 
-   RewriteCond %{DOCUMENT_ROOT}/t3site/typo3temp/tx_ncstaticfilecache/%{ENV:SFC_PROTOCOL}/%{HTTP_HOST}%{ENV:SFC_URI}%{ENV:SFC_FILE} -f
-   RewriteRule .* t3site/typo3temp/tx_ncstaticfilecache/%{ENV:SFC_PROTOCOL}/%{HTTP_HOST}%{ENV:SFC_URI} [L]
+   RewriteRule .* - [E=SFC_ROOT:%{DOCUMENT_ROOT}/t3site]
 
 You are of course free to make the rules as complex as you like.
 
