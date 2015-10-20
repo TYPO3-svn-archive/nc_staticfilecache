@@ -48,7 +48,7 @@
  *
  */
 
-use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Controller\CommandLineController;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -89,20 +89,6 @@ class tx_ncstaticfilecache {
 			$this->setSetup(
 				$GLOBALS['TSFE']->tmpl->setup['tx_ncstaticfilecache.']
 			);
-		}
-	}
-
-	/**
-	 * Returns the pid of a record from $table with $uid
-	 *
-	 * @param string $table Table name
-	 * @param integer $uid Record uid
-	 * @return integer PID value (unless the record did not exist in which case FALSE)
-	 */
-	private function getPIDByTableAndUid($table, $uid) {
-		$res_tmp = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pid', $table, 'uid=' . (int)$uid);
-		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_tmp)) {
-			return $row['pid'];
 		}
 	}
 
@@ -199,15 +185,15 @@ class tx_ncstaticfilecache {
 			return;
 		}
 
+		// Do not do anything when inside a workspace
+		if ($pObj->BE_USER->workspace > 0) {
+			return;
+		}
+
 		if($params['cacheCmd']) {
 			$this->clearStaticFile($params);
 			return;
 		}
-
-        // Do not do anything when inside a workspace
-        if ($pObj->BE_USER->workspace > 0) {
-            return;
-        }
 
 		$uid = intval($params['uid']);
 		$table = strval($params['table']);
@@ -217,7 +203,15 @@ class tx_ncstaticfilecache {
 		}
 
 		// Get Page TSconfig relavant:
-		$tscPID = $this->getPIDByTableAndUid($table, $uid);
+		$tscPID = DataHandler::getPID($table, $uid);
+
+		if (is_numeric($tscPID) && (intval($tscPID)>=0)) {
+			$tscPID = intval($tscPID);
+		} else {
+			$this->debug("getPID() for object '$uid', table '$table' returns 'false' or '-1'" , LOG_CRIT);
+			return;
+		}
+
 		$TSConfig = $pObj->getTCEMAIN_TSconfig($tscPID);
 
 		if (!$TSConfig['clearCache_disable']) {
@@ -316,7 +310,8 @@ class tx_ncstaticfilecache {
 						}
 					}
 
-					$this->debug('clearing all static cache');
+					$debugMessage = empty($directory) ? 'clearing all static cache' : 'clearing static cache for host "'.$directory.'"';
+					$this->debug($debugMessage);
 					$this->deleteStaticCache(0, $directory);
 					break;
 				case 'temp_CACHED':
@@ -817,13 +812,16 @@ class tx_ncstaticfilecache {
 	protected function deleteStaticCache($pid = 0, $directory = '') {
 		$pid = intval($pid);
 
+		if ($pid < 0) {
+			$this->debug('Could not delete static cache directory "' . $directory . '", because of pid "'.$pid.'" < 0', LOG_CRIT);
+			return;
+		}
 
 		if ($pid > 0 && $this->getConfigurationProperty('markDirtyInsteadOfDeletion')) {
 			// Mark specific page as dirty
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery($this->fileTable, 'pid=' . $pid, array('isdirty' => 1));
 			return;
 		}
-
 
 		if ($pid > 0) {
 			// Cache of a single page shall be removed
@@ -837,10 +835,7 @@ class tx_ncstaticfilecache {
 				}
 			}
 			return;
-		} elseif ($pid < 0) {
-			$this->debug('Could not delete static cache directory "' . $directory . '", because of pid "'.$pid.'" < 0', LOG_CRIT);
 		}
-
 
 		// Cache of all pages shall be removed (clearCacheCmd "all" or "pages")
 		try {
