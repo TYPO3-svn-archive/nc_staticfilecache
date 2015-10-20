@@ -32,13 +32,13 @@ class ClearCachePostProc {
 	public function clear(array &$params, DataHandler &$pObj) {
 		$staticFileCache = StaticFileCache::getInstance();
 
-		if ($params['cacheCmd']) {
-			$staticFileCache->clearStaticFile($params);
+		if ($pObj->BE_USER->workspace > 0) {
+			// Do nothing when editor is inside a workspace
 			return;
 		}
 
-		// Do not do anything when inside a workspace
-		if ($pObj->BE_USER->workspace > 0) {
+		if ($params['cacheCmd']) {
+			$staticFileCache->clearStaticFile($params);
 			return;
 		}
 
@@ -50,8 +50,12 @@ class ClearCachePostProc {
 		}
 
 		// Get Page TSconfig relevant:
-		$tscPID = $this->getPIDByTableAndUid($table, $uid);
-		if (false === is_integer($tscPID)) {
+		$tscPID = DataHandler::getPID($table, $uid);
+
+		if (is_numeric($tscPID) && (intval($tscPID)>=0)) {
+			$tscPID = intval($tscPID);
+		} else {
+			// pid has no valid value: value is no integer or value is a negative integer (-1)
 			return;
 		}
 
@@ -120,20 +124,5 @@ class ClearCachePostProc {
 	 */
 	protected function getDatabaseConnection() {
 		return $GLOBALS['TYPO3_DB'];
-	}
-
-	/**
-	 * Returns the pid of a record from $table with $uid
-	 *
-	 * @param string $table Table name
-	 * @param integer $uid Record uid
-	 * @return integer PID value (unless the record did not exist in which case FALSE)
-	 */
-	protected function getPIDByTableAndUid($table, $uid) {
-		$databaseConnection = $this->getDatabaseConnection();
-		$res_tmp = $databaseConnection->exec_SELECTquery('pid', $table, 'uid=' . (int)$uid);
-		if ($row = $databaseConnection->sql_fetch_assoc($res_tmp)) {
-			return $row['pid'];
-		}
 	}
 }
